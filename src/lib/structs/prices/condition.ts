@@ -1,4 +1,5 @@
 import type Decimal from "decimal.js";
+import type { ShoppingCart } from "../till/shopping-cart";
 
 export interface Condition {
     /**
@@ -31,13 +32,11 @@ export class MaxVolumeCondition implements Condition {
      * @returns True if the condition is met, false otherwise
      */
     public isMet(itemId: number, cart: ShoppingCart): boolean {
-        // TODO
-        // Implement the logic to check whether the maximum volume condition is met
-        // This will depend on the specific implementation of the ShoppingCart class
+        return cart.getQuantity(itemId).lt(this.maxVolume);  
     }
-  }
+}
   
-  class MinVolumeCondition implements Condition {
+export class MinVolumeCondition implements Condition {
     /**
      * The minimum volume required to meet the condition
      */
@@ -45,6 +44,7 @@ export class MaxVolumeCondition implements Condition {
   
     /**
      * Constructs a new MinVolumeCondition instance with the given minimum volume
+     * Condition is met if cart contains more or equal than minVolume of item
      * @param minVolume The minimum volume required to meet the condition
      */
     public constructor(minVolume: Decimal) {
@@ -53,13 +53,11 @@ export class MaxVolumeCondition implements Condition {
   
     /**
      * Checks whether the condition is met for the given item ID and shopping cart
-     * @param itemId The ID of the item to check
+     * @param fullItemId The ID of the item to check
      * @param cart The shopping cart to check
      * @returns True if the condition is met, false otherwise
      */
-    public isMet(itemId: number, cart: ShoppingCart): boolean {
-        // TODO
-        // Implement the logic to check whether the minimum volume condition is met
-        // This will depend on the specific implementation of the ShoppingCart class
+    public isMet(fullItemId: number, cart: ShoppingCart): boolean {
+        return cart.getQuantity(fullItemId).gte(this.minVolume); 
     }
-  }
+}

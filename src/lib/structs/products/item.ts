@@ -3,7 +3,10 @@ import type { Product } from "./product";
 import { NotEnoughStockError } from "$lib/errors/not-enough-stock-error";
 import type { Price } from "../prices/price";
 import type { Discount } from "../prices/discount";
-import { ensureArray } from "$lib/utils";
+import { createFullItemId, ensureArray } from "$lib/utils";
+import type { ShoppingCart } from "../till/shopping-cart";
+import { CashRegisterError } from "$lib/errors/cash-register-error";
+import type { ItemDiscount } from "../prices/item-discount";
 
 /**
  * An `Item` represents a single variant of a product. It holds information specific to this variant, such as stock, price, and EAN code.
@@ -11,7 +14,7 @@ import { ensureArray } from "$lib/utils";
  * @author: Radek Sverak
  * @version: 1.0
  */
-export abstract class Item {
+export class Item {
     /**
      * The product this item belongs to.
      */
@@ -64,20 +67,19 @@ export abstract class Item {
      * @return {number} The final price of the item.
      * @throws {Error} If no applicable price is found.
      */
-    public getFinalPrice(cart: ShoppingCart, discounts?: Discount | Array<Discount>): number {
-        let finalPrice = this.getApplicablePrice()
-        const allDiscounts = this.getApplicableDiscounts();
-        allDiscounts.push(ensureArray(discounts, true));
-        for (const discount of allDiscounts) {
-            if (discount.areConditionsMet(this.itemId, cart)) {
-                // Apply the discount to the final price
-                finalPrice = discount.apply(finalPrice);
-            }
+    public getPriceValue(cart: ShoppingCart, discounts?: Discount | Array<Discount>): Decimal {
+        if (cart.hasItem(this.itemId)) {
+            throw new CashRegisterError("Trying to get value of item that is not in shopping cart");
         }
-    
-        // throw appropriate error
-
-        throw new Error("Price Not found error.");
+        
+        const priceObj: Price | null = this.getApplicablePrice(cart);
+        if (!priceObj) {
+            throw new Error("No price applicable");
+        }
+        
+        const allDiscounts = this.getApplicableDiscounts(cart, ensureArray(discounts));
+        // TODO missing VAT
+        return priceObj.getValue(allDiscounts);
     }
 
     /**
@@ -87,35 +89,41 @@ export abstract class Item {
      * @return {Price | null} The applicable price or null if no price is found.
      */
     public getApplicablePrice(cart: ShoppingCart): Price | null {
+        // TODO CHECK FOR MULTIPLE APPLICABLE PRICE OBJECTS
+        
         for (const idx of this.priceIndexes) {
             const price = this.product.getPrice(idx);
 
-            if (price && price.areConditionsMet(this.itemId, cart)) {
+            if (price && price.areConditionsMet(this.getFullId(), cart)) {
                 return price;
             }
         }
 
-        return null;
+        throw new CashRegisterError("No price applicable");
     }
 
     /**
      * Retrieves the applicable discounts from the provided array based on the conditions.
      *
-     * @param {Array<Discount>} discounts - Array of Discount objects to check for applicability.
+     * @param {Discount[]} discounts - Array of Discount objects to check for applicability.
      * @param {ShoppingCart} cart - The shopping cart containing the item.
-     * @return {Array<Discount>} The applicable discounts.
+     * @return {Discount[]} The applicable discounts.
      */
-    public getApplicableDiscounts(discounts: Array<Discount>, cart: ShoppingCart): Array<Discount> {
-        return discounts.filter(discount => discount.areConditionsMet(this.itemId, cart));
+    public getApplicableDiscounts(cart: ShoppingCart, discounts?: Discount[]): Discount[] {
+        const allDiscounts: Discount[] = this.getItemDiscounts().filter(discount => discount.areConditionsMet(this.itemId, cart));
+        if (discounts) {
+            allDiscounts.push(...discounts);
+        }
+        return allDiscounts;
     }
 
     /**
      * Retrieves the item discounts from the product based on the discounts indexes.
      *
-     * @return {Array<ItemDiscount>} The item discounts.
+     * @return {ItemDiscount[]} The item discounts.
      */
-    public getItemDiscounts(): Array<ItemDiscount> {
-        const itemDiscounts: Array<ItemDiscount> = [];
+    public getItemDiscounts(): ItemDiscount[] {
+        const itemDiscounts: ItemDiscount[] = [];
 
         for (const idx of this.discountIndexes) {
             const itemDiscount = this.product.getDiscount(idx);
@@ -133,8 +141,12 @@ export abstract class Item {
      * 
      * @returns {number} The parent item id.
      */
-    private getProductId(): number {
+    public getProductId(): number {
         return this.product.getProductId();
+    }
+
+    public getItemId(): number {
+        return this.itemId;
     }
 
     /**
@@ -152,10 +164,7 @@ export abstract class Item {
      * @returns {number} full item id in format '{productId}{itemId:3}'
      */
     public getFullId(): number {
-        let productId = this.getProductId();
-        let itemId = this.itemId;
-        let fullId = parseInt(productId.toString() + itemId.toString().padStart(3, '0'));
-        return fullId;
+        return createFullItemId(this.getProductId(), this.itemId);
     }
 
     /**
@@ -192,6 +201,10 @@ export abstract class Item {
      * @returns {Decimal} The new stock.
      */
     public addStock(amount: Decimal): Decimal {
+        if (amount.lt(0)) {
+            throw new CashRegisterError("Invalid stock amount");
+        }
+
         this.stock = this.stock.add(amount);
         return this.stock;
     }
@@ -201,7 +214,7 @@ export abstract class Item {
      * 
      * @param {Decimal} newStock The new stock.
      */
-    public updateStock(newStock: Decimal): void {
+    public setStock(newStock: Decimal): void {
         this.stock = newStock;
     }
 
@@ -212,6 +225,10 @@ export abstract class Item {
      * @returns {Decimal} The new stock.
      */
     public removeStock(amount: Decimal): Decimal {
+        if (amount.lt(0)) {
+            throw new CashRegisterError("Invalid stock amount");
+        }
+        
         let newStock: Decimal = this.stock.sub(amount);
         if (!this.hasStock(amount)) {
             throw new NotEnoughStockError(this.getFullId(), amount, this.stock);

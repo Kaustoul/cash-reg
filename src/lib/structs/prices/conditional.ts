@@ -1,3 +1,6 @@
+import { ErrCode } from "$lib/errors/cash-register-error";
+import { NotFoundError } from "$lib/errors/not-found-error";
+import type { ShoppingCart } from "../till/shopping-cart";
 import type { Condition } from "./condition";
 
 export class ConditionalMixin {
@@ -31,5 +34,13 @@ export class ConditionalMixin {
     */
     public addCondition(condition: Condition) {
         this.conditions.push(condition);
+    }
+
+    public removeCondition(condition: Condition) {
+        const idx = this.conditions.indexOf(condition);
+        if (idx == -1) {
+            throw new NotFoundError(ErrCode.CONDITION_NOT_IN_CONDITIONAL);
+        }
+        this.conditions.splice(idx, 1);
     }
 }

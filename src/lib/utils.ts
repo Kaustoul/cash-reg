@@ -1,9 +1,6 @@
-export function ensureArray<T>(value: Array<T> | T | undefined, emptyOnUndefined: boolean = false): Array<T> | undefined {
+export function ensureArray<T>(value: Array<T> | T | undefined): Array<T>{
     if (value === undefined) {
-        if (emptyOnUndefined)
-            return []
-        else
-            return undefined;
+        return []
     }
 
     if (Array.isArray(value)) {
@@ -11,6 +8,14 @@ export function ensureArray<T>(value: Array<T> | T | undefined, emptyOnUndefined
     }
 
     return [value];
+}
+
+export function ensureArrayOrUndefined<T>(value: Array<T> | T | undefined): Array<T> | undefined {
+    if (value === undefined) {
+        return undefined;
+    }
+
+    return ensureArray(value);
 }
 
 export function createFullItemId(productId: number, itemId: number): number {

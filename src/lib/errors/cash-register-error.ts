@@ -4,6 +4,10 @@ export enum ErrCode {
     ITEM_NOT_IN_PRODUCT = 51,
     DISCOUNT_NOT_ON_PRODUCT = 52,
     CONDITION_NOT_IN_CONDITIONAL = 60,
+
+    DUPLICATE_ITEM_ID = 61,
+
+
     INTERNAL = 99,
 }
 

@@ -23,9 +23,9 @@ export class Currency {
      * @param roundTo The number of decimal places to round to
      */
     public constructor(code: string, vat: Decimal, roundTo: Decimal = new Decimal(0.01)) {
-      this.code = code;
-      this.vat = vat;
-      this.roundTo = roundTo;
+        this.code = code;
+        this.vat = vat;
+        this.roundTo = roundTo;
     }
   
     /**
@@ -33,7 +33,7 @@ export class Currency {
      * @returns The VAT rate for this currency
      */
     public getVat(): Decimal {
-      return this.vat;
+        return this.vat;
     }
   
     /**
@@ -42,6 +42,10 @@ export class Currency {
      * @returns The amount with the VAT rate applied
      */
     public applyVat(amount: Decimal): Decimal {
-      return amount.mul(this.vat);
+        return amount.mul(this.vat);
+    }
+
+    public getCode(): string {
+        return this.code;
     }
 }

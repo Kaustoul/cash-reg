@@ -5,6 +5,7 @@ import { ensureArray } from "$lib/utils";
 import { FlatDiscount } from "./flat-discount";
 import { PercentDiscount } from "./percent-discount";
 import type { Discount } from "./discount";
+import { CurrencyManager } from "../currency-manager";
 
 export class MoneySum {
     /**
@@ -28,7 +29,7 @@ export class MoneySum {
      * @param value The value of the money sum
      * @param withVat Whether the money sum includes VAT
      */
-    public constructor(currency: Currency, value: Decimal, withVat: boolean) {
+    public constructor(value: Decimal, currency: Currency = CurrencyManager.getDefaultCurrency(), withVat: boolean = false) {
         this.currency = currency;
         this.value = value;
         this.withVat = withVat;
@@ -46,18 +47,12 @@ export class MoneySum {
         }
         
         let result = this.value;
-        // discounts = discounts.sort((a, b) => {
-        //     if (a instanceof FlatDiscount) {
-        //         return -1;
-        //     }
-        //     if (a instanceof PercentDiscount) {
-        //         return -1;
-        //     }
-        //     return 0;
-        // });
+
         for (const discount of discounts) {
-            if (result.lte(0))
+            if (result.lte(0)) {
                 return new Decimal(0);
+            }
+            
             result = result.sub(discount.getDiscountAmount(this.value));
         }
     
@@ -70,5 +65,16 @@ export class MoneySum {
      */
     public isWithVat(): boolean {
         return this.withVat;
+    }
+
+    public toJSON() {
+        return {
+            currency: this.currency.getCode(),
+            value: this.value,
+        }
+    }
+
+    public static ZERO(currency: Currency = CurrencyManager.getDefaultCurrency()): MoneySum {
+        return new MoneySum(new Decimal(0), currency);
     }
 }

@@ -26,11 +26,11 @@ export class Item {
      */
     private readonly itemId: number;
     private subname: string;
-    private stock: Decimal;
+    private stock: Decimal | null;
     /**
      * European Article Number (EAN) of this item.
      */
-    private ean?: string;
+    private ean?: string | null;
     private priceIndexes: Array<number>;
     private discountIndexes: Array<number>;
   
@@ -38,16 +38,22 @@ export class Item {
      * Constructs a new `Item` object with the given properties.
      * 
      * @param {Product} product - The product this item belongs to.
-     * @param {number} itemId - The unique identifier for the product's variant.
+     * @param {number | undefined} itemId - The unique identifier for the product's variant.
      * @param {string} subname - The subname of this item.
      * @param {Array<number>} priceIdxs - The indexes of Price objects stored in the product active for this Item.
      * @param {Array<number>} discountIdxs - The indexes of ItemDiscount objects stored in the product active for this Item.
      * @param {string | undefined} eanCode - The European Article Number (EAN) of this item.
      * @param {Decimal} stock - The stock of this item.
      */
-    public constructor(product: Product, itemId: number, subname: string, stock: Decimal, priceIdxs: Array<number>, discountIdxs?: Array<number>, eanCode?: string) {
+    public constructor(product: Product, itemId: number | undefined, subname: string, stock: Decimal | null, priceIdxs: Array<number>, discountIdxs?: Array<number>, eanCode?: string | null) {
         this.product = product;
-        this.itemId = itemId;
+        
+        if (itemId === undefined) {
+            this.itemId = ++this.product.lastItemId
+        } else {
+            this.itemId = itemId;
+        }
+
         this.subname = subname;
         this.stock = stock;
         this.priceIndexes = priceIdxs;
@@ -190,7 +196,7 @@ export class Item {
      * 
      * @returns {Decimal} The stock.
      */
-    public getStock(): Decimal {
+    public getStock(): Decimal | null {
         return this.stock;
     }
 
@@ -203,6 +209,11 @@ export class Item {
     public addStock(amount: Decimal): Decimal {
         if (amount.lt(0)) {
             throw new CashRegisterError("Invalid stock amount");
+        }
+
+        if (this.stock === null) {
+            this.stock = amount;
+            return this.stock;
         }
 
         this.stock = this.stock.add(amount);
@@ -224,9 +235,13 @@ export class Item {
      * @param {Decimal} amount The amount of stock to remove.
      * @returns {Decimal} The new stock.
      */
-    public removeStock(amount: Decimal): Decimal {
+    public removeStock(amount: Decimal): Decimal | null {
         if (amount.lt(0)) {
             throw new CashRegisterError("Invalid stock amount");
+        }
+
+        if (this.stock === null) {
+            return null;
         }
         
         let newStock: Decimal = this.stock.sub(amount);
@@ -245,6 +260,6 @@ export class Item {
      * @returns {boolean} True if the item has stock, false otherwise.
      */
     public hasStock(amount: Decimal = new Decimal(1)): boolean {
-        return this.stock.gte(amount)
+        return this.stock === null || this.stock.gte(amount)
     }
 }

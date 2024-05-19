@@ -3,11 +3,7 @@ import { test, expect } from 'vitest';
 import { createFullItemId, ensureArray, itemIdFromFullId, productIdFromFullId } from '$lib/utils';
 
 test('ensureArray should return an empty array if value is undefined', () => {
-    expect(ensureArray(undefined, true)).toStrictEqual([]);
-});
-
-test('ensureArray should return an empty array if value is undefined', () => {
-    expect(ensureArray(undefined)).toBe(undefined);
+    expect(ensureArray(undefined)).toStrictEqual([]);
 });
 
 test('ensureArray should return an array from any value', () => {

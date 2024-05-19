@@ -9,6 +9,8 @@ export interface Condition {
      * @returns True if the condition is met, false otherwise
      */
     isMet(itemId: number, cart: ShoppingCart): boolean;
+
+    toJSON(): {conditionType: string, value: string};
 }
   
 export class MaxVolumeCondition implements Condition {
@@ -33,6 +35,13 @@ export class MaxVolumeCondition implements Condition {
      */
     public isMet(itemId: number, cart: ShoppingCart): boolean {
         return cart.getQuantity(itemId).lt(this.maxVolume);  
+    }
+
+    public toJSON() {
+        return {
+            conditionType: 'MaxVolume',
+            value: this.maxVolume.toString(),
+        };
     }
 }
   
@@ -59,5 +68,13 @@ export class MinVolumeCondition implements Condition {
      */
     public isMet(fullItemId: number, cart: ShoppingCart): boolean {
         return cart.getQuantity(fullItemId).gte(this.minVolume); 
+    }
+
+    
+    public toJSON() {
+        return {
+            conditionType: 'MinVolume',
+            value: this.minVolume.toString(),
+        };
     }
 }

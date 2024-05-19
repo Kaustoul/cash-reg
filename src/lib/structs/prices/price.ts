@@ -4,6 +4,7 @@ import type { Currency } from "./currency";
 import type { ShoppingCart } from "../till/shopping-cart";
 import { ConditionalMixin } from "./conditional";
 import type { Condition } from "./condition";
+import { CurrencyManager } from "../currency-manager";
 
 export class Price extends MoneySum {
     /**
@@ -17,8 +18,8 @@ export class Price extends MoneySum {
      * @param priceType The type of price (e.g. net or gross)
      * @param value The value of the price
      */
-    public constructor(currency: Currency, value: Decimal, withVat: boolean = false, conditions: Condition[] = []) {
-        super(currency, value, withVat);
+    public constructor(value: Decimal, currency: Currency = CurrencyManager.getDefaultCurrency(), withVat: boolean = false, conditions: Condition[] = []) {
+        super(value, currency, withVat);
         this.conditional = new ConditionalMixin(conditions);
     }
   
@@ -28,5 +29,12 @@ export class Price extends MoneySum {
 
     public addCondition(condition: Condition): void {
         this.conditional.addCondition(condition);
+    }
+
+    public toJSON() {
+        return {
+            ...super.toJSON(),
+            conditions: this.conditional.toJSON(),  
+        };
     }
 }

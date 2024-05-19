@@ -7,6 +7,7 @@ import Decimal from 'decimal.js';
 import { test, expect } from 'vitest';
 import { testProduct, testProductConditionalPrices, testProductDiscounts, testProductMultiplePrices } from './product.test';
 import { testCart, testCartWithItem } from './shopping-cart.test';
+import { Price } from '$lib/structs/prices/price';
 
 export function testItem(product: Product = testProduct(), stock: Decimal = new Decimal(10)): Item {
     const item = new Item(product, 1, 'Subname', stock, [0]);
@@ -39,11 +40,14 @@ export function testItemConditionalPrices(stock: Decimal = new Decimal(10)): Ite
 
 test('Item is correctly constructed and should return all correct initialized values', () => {
     const item = testItem();
+    const cart = testCartWithItem(new Decimal(1), item);
 
     expect(item.getProductId()).toBe(11);
     expect(item.getItemId()).toBe(1);
     expect(item.getFullId()).toBe(11001);
-    expect(item.getPriceValue(testCart()).eq(new Decimal(100))).toBe(true);
+    const res = item.getPriceValue(cart);
+
+    expect(res.toString()).toBe("100");
     expect(item.getFullName()).toBe("TestProduct1 - Subname");
     expect(item.getStock().eq(new Decimal(10))).toBe(true);
 });

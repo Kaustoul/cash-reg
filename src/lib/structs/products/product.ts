@@ -7,6 +7,7 @@
  */
 
 import { ErrCode } from "$lib/errors/cash-register-error";
+import { DuplicateError } from "$lib/errors/duplicate-error";
 import { NotFoundError } from "$lib/errors/not-found-error";
 import { createFullItemId } from "$lib/utils";
 import type { ItemDiscount } from "../prices/item-discount";
@@ -30,7 +31,7 @@ export class Product {
     /**
      * Name of the product
      */
-    private name: string;
+    private name: string | null;
   
     /**
      * Mapping of item IDs to their corresponding Item objects
@@ -62,9 +63,9 @@ export class Product {
      */
     public constructor(
         productid: number,
-        name: string,
+        name: string | null,
         units: Unit,
-        prices: Price | Array<Price>
+        prices: Price | Array<Price>,
     ) {
         this.productId = productid;
         this.name = name;
@@ -84,7 +85,7 @@ export class Product {
      * 
      * @returns The name of the product.
      */
-    public getName(): string {
+    public getName(): string | null {
         return this.name;
     }
 
@@ -210,6 +211,11 @@ export class Product {
     }
 
     public addItem(item: Item): void {
+        if (this.items.has(item.getItemId())) throw new DuplicateError(ErrCode.DUPLICATE_ITEM_ID, item.getItemId())
+
+        if (item.getItemId() > this.lastItemId) {
+            this.lastItemId = item.getItemId();
+        }
         this.items.set(item.getItemId(), item);
     }
 
@@ -228,5 +234,9 @@ export class Product {
         }
         
         return this.items.delete(itemId);
+    }
+
+    public getItems(): Map<number, Item> {
+        return this.items;
     }
 }

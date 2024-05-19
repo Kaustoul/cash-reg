@@ -43,4 +43,8 @@ export class ConditionalMixin {
         }
         this.conditions.splice(idx, 1);
     }
+
+    public toJSON() {
+        return this.conditions.map(c => c.toJSON());
+    }
 }

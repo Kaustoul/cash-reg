@@ -1,0 +1,12 @@
+[
+    [null, null, null, "Papírky RAW", "50", "120", null, null],
+    [null, null, null, "Sklo", "5", "50", null, null],
+    [null, "Kratom", "1", "Bílý", "9.5", "1000.10", "G", null],
+    [null, null, "2", "Červený", null, "1000", null, null],
+    [null, null, "3", "Žlutý", null, "1500.05", null, null],
+    [null, null, "4", "Zelený", null, "500", null, null],
+    ["1", null, null, "Bongo", "500", "2", null, null],
+    [null, "Cartridge", "1", "CBD", "400", "10", null, null],
+    [null, null, "2", "CBG", "400", "10", null, null],
+    ["2", null, null, "Bongo2", "1000", "1", null, "1234"]
+]

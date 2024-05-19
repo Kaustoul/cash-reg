@@ -15,7 +15,7 @@ export function testCZKcurrency(): Currency {
  * @returns 
  */
 export function testMoneySum(value: Decimal = new Decimal(100)): MoneySum {
-    return new MoneySum(testCZKcurrency(), value, true);
+    return new MoneySum(value, testCZKcurrency(), true);
 }
 
 test('MoneySum getValue returns correct value', () => {

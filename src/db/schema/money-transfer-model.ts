@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text, foreignKey, primaryKey } from "drizzle-orm/sqlite-core";
-import { MoneySum } from "../../src/lib/structs/prices/money-sum";
+import { MoneySum } from "../../lib/structs/prices/money-sum";
 import { tills } from "./till-model";
 
 export const moneyTransfers = sqliteTable('money_transfers', {

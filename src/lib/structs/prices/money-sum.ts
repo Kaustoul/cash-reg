@@ -67,10 +67,14 @@ export class MoneySum {
         return this.withVat;
     }
 
+    public getCurrency(): Currency {
+        return this.currency;
+    }
+
     public toJSON() {
         return {
             currency: this.currency.getCode(),
-            value: this.value,
+            value: this.value.toString(),
         }
     }
 

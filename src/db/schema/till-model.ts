@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text, uniqueIndex,  } from "drizzle-orm/sqlite-core";
-import type { Price } from "../../src/lib/structs/prices/price";
-import type { MoneySum } from "../../src/lib/structs/prices/money-sum";
+import type { Price } from "../../lib/structs/prices/price";
+import type { MoneySum } from "../../lib/structs/prices/money-sum";
 
 
 export const tills = sqliteTable('tills', {

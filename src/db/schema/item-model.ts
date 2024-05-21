@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { integer, primaryKey, sqliteTable, text,  } from "drizzle-orm/sqlite-core";
-import { db } from "../../src/db";
+import { db } from "../../db";
 import Decimal from "decimal.js";
 import { productsTable } from "./product-model";
 
@@ -43,7 +43,7 @@ export const itemsTable = sqliteTable('items', {
     modifiedAt: integer('modifiedAt', { mode: 'timestamp' })
         .notNull()
         .default(sql`(unixepoch())`)
-        .$onUpdate(() => sql`(unixepoch())`)
+        // .$onUpdate(() => sql`(unixepoch())`)
     ,
 }, (table) => {
     return {

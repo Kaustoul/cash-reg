@@ -1,0 +1,117 @@
+$content-bg-color: #1b1b1b;
+$bg-color: #0E0E0E;
+
+$primary-color: #353535;
+$accent-color: #46A049;
+$second-accent-color: #37503C;
+$highlight-color: #505050;
+
+$green: #00FF1A;
+$red: #DB3A3A;
+$yellow: #FCD13A;
+
+$text-color: #FFFFFF;
+$text2-color: #868686;
+
+$btn-center-spacing: 0.1rem;
+
+$small-radius: 12px;
+$medium-radius: 17px;
+$large-radius: 30px;
+$full-radius: 100%;
+
+
+// Robot font
+@font-face {
+    font-family: 'Roboto';
+    src: url('/fonts/Roboto/Roboto-Regular.ttf') format('truetype');
+}
+  
+@font-face {
+    font-family: 'Roboto Mono';
+    src: url('/fonts/RobotoMono/RobotoMono-Regular.ttf') format('truetype');
+}
+
+body {
+    margin: 0;
+
+    font-family: 'Roboto', sans-serif;
+    color: $text-color;
+
+    background-color: $bg-color;
+}
+
+.mono-font {
+    font-family: 'Roboto Mono', monospace;
+}
+
+.btn {
+    $btn-height: 2.5rem;
+    $btn-color: $primary-color;
+
+    height: $btn-height;
+    padding-bottom: .5rem;
+    padding-top: .5rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    gap: 0.5rem;
+    
+    cursor: pointer;
+    border-radius: $small-radius;
+    background-color: $btn-color;
+    font-size: larger;
+    border-radius: $small-radius;   
+    border: none;  
+    color: $text-color;   
+    
+    &:hover {
+        background-color: lighten($color: $btn-color, $amount: 10%);
+    }
+    
+    span {
+        align-self: baseline;
+        line-height: $btn-height + $btn-center-spacing;
+    }
+
+    &.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+}
+
+.btn-primary {
+    @extend .btn;
+    
+    background-color: $accent-color;
+    &:hover {
+        background-color: lighten($color: $accent-color, $amount: 10%);
+    }
+}
+
+.list-btn {
+    @extend .btn;
+    $btn-color: $bg-color;
+    
+    justify-content: left;
+    padding-left: .7rem;
+    margin-bottom: .1rem;
+    gap: 1rem;
+    text-align: left;
+    background-color: $btn-color;
+
+    &:hover {
+        background-color: lighten($color: $btn-color, $amount: 10%);
+    }
+
+    &.selected {
+        background-color: lighten($btn-color, 10%);
+
+        &:hover {
+            background-color: lighten($color: $btn-color, $amount: 15%);
+        }
+    }
+}
+

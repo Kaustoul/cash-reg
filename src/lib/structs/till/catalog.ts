@@ -1,14 +1,16 @@
-import type Decimal from "decimal.js";
+import Decimal from "decimal.js";
 import { Item } from "../products/item";
 import { Product, type Unit } from "../products/product";
 import { NotFoundError } from "$lib/errors/not-found-error";
 import { CashRegisterError, ErrCode } from "$lib/errors/cash-register-error";
 import { createFullItemId, ensureArray, productIdFromFullId } from "$lib/utils";
-import type { Price } from "../prices/price";
-import { productsTable } from "../../../../db/schema/product-model";
-import { itemsTable } from "../../../../db/schema/item-model";
+import { Price } from "../prices/price";
+import { productsTable } from "../../../db/schema/product-model";
+import { itemsTable } from "../../../db/schema/item-model";
 import { eq, sql } from "drizzle-orm";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
+import { db } from "../../../db";
+import { CurrencyManager } from "../currency-manager";
 
 /**
  * Represents a catalog of products.
@@ -23,6 +25,7 @@ export class Catalog {
      * A map of products in the catalog, where the key is the product ID and the value is the product object.
      */
     private products: Map<number, Product>;
+    private productsFetched: boolean = false;
 
     /**
      * A list of categories in the catalog.
@@ -34,7 +37,15 @@ export class Catalog {
      */
     private constructor() {
         this.products = new Map<number, Product>();
-        // this.categories = [];
+    }
+
+    public static async fetchAll(database: BetterSQLite3Database = db) {
+        if (Catalog.getInstance().productsFetched) {
+            return
+        }   
+
+        Catalog.getInstance().products = await this.fetchAllProductsAndItems(database);
+        Catalog.getInstance().productsFetched = true;
     }
 
     public static async insertNewProduct(database: any, name: string | null, prices: Price | Price[], unit: Unit, productId?: number) : Promise<number> {
@@ -106,12 +117,11 @@ export class Catalog {
         return res[0]['newId'];
     }
 
-    public static async fetchAllProductsAndItems(database: BetterSQLite3Database): Promise<Map<number, Product>> {
+    public static async fetchAllProductsAndItems(database: BetterSQLite3Database = db): Promise<Map<number, Product>> {
         const products = await Catalog.fetchAllProducts(database);
         for (const product of products.values()) {
             await Catalog.fetchAllItems(database, product);
         }
-
         return products;
     }
 
@@ -160,8 +170,12 @@ export class Catalog {
      * @param productId The ID of the product to get.
      * @returns The product with the specified product ID, or undefined if the product does not exist.
      */
-    public static getProduct(productId: number): Product | undefined {
-        return Catalog.getInstance().products.get(productId);
+    public static getProduct(productId: number): Product {
+        const product = Catalog.getInstance().products.get(productId);
+        if (!product) {
+            throw new CashRegisterError("Product with ID " + productId + " does not exist in the catalog.");
+        }
+        return product;
     }
 
     public static getItemById(fullItemId: number) {
@@ -235,5 +249,9 @@ export class Catalog {
 
     public static containsItem(productId: number, itemId: number): boolean {
         return Catalog.getProduct(productId)?.getItems().has(itemId) ?? false;
+    }
+
+    public static getProducts(): Product[] {
+        return Array.from(Catalog.getInstance().products.values());
     }
 }

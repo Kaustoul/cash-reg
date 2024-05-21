@@ -577,6 +577,13 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@palsch/svelte-sortablejs@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@palsch/svelte-sortablejs/-/svelte-sortablejs-1.2.1.tgz#c37027dde965b3159579cc7b5321558fb900586a"
+  integrity sha512-HEjnIU4IFAVfsUXXo4ltjirUdNwugM0GQjbJ/fI1Dmr4nBiISZacTPGyZQi1k6NATkNlB85f0FDBfPpZuHd2fA==
+  dependencies:
+    sortablejs "^1.10.2"
+
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
@@ -3694,6 +3701,11 @@ sorcery@^0.11.0:
     buffer-crc32 "^0.2.5"
     minimist "^1.2.0"
     sander "^0.5.0"
+
+sortablejs@^1.10.2:
+  version "1.15.2"
+  resolved "https://registry.yarnpkg.com/sortablejs/-/sortablejs-1.15.2.tgz#4e9f7bda4718bd1838add9f1866ec77169149809"
+  integrity sha512-FJF5jgdfvoKn1MAKSdGs33bIqLi3LmsgVTliuX6iITj834F+JRQZN90Z93yql8h0K2t0RwDPBmxwlbZfDcxNZA==
 
 "source-map-js@>=0.6.2 <2.0.0", source-map-js@^1.0.1, source-map-js@^1.2.0:
   version "1.2.0"

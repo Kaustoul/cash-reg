@@ -1,5 +1,7 @@
-import type Decimal from "decimal.js";
+import Decimal from "decimal.js";
 import type { ShoppingCart } from "../till/shopping-cart";
+import { CashRegisterError } from "$lib/errors/cash-register-error";
+import type { Unit } from "../products/product";
 
 export interface Condition {
     /**
@@ -10,7 +12,9 @@ export interface Condition {
      */
     isMet(itemId: number, cart: ShoppingCart): boolean;
 
-    toJSON(): {conditionType: string, value: string};
+    toJSON(): {condition: string, value: string};
+
+    toString(units: Unit, placeholder?: string): string;
 }
   
 export class MaxVolumeCondition implements Condition {
@@ -39,10 +43,15 @@ export class MaxVolumeCondition implements Condition {
 
     public toJSON() {
         return {
-            conditionType: 'MaxVolume',
+            condition: 'MaxVolume',
             value: this.maxVolume.toString(),
         };
     }
+
+    public toString(units: Unit, placeholder?: string): string {
+        return (placeholder !== undefined ? `${placeholder} ` : '') + `< ${this.maxVolume} ${units}`;
+    }
+
 }
   
 export class MinVolumeCondition implements Condition {
@@ -70,11 +79,34 @@ export class MinVolumeCondition implements Condition {
         return cart.getQuantity(fullItemId).gte(this.minVolume); 
     }
 
-    
     public toJSON() {
         return {
-            conditionType: 'MinVolume',
+            condition: 'MinVolume',
             value: this.minVolume.toString(),
         };
     }
+
+    public toString(units: Unit, placeholder?: string): string {
+        console.log(this)
+        return `${this.minVolume} ${units} ≤` + (placeholder !== undefined ? ` ${placeholder}` : '');
+    }
 }
+
+export class ConditionFactory {
+    public static fromJSON(json: ConditionModel): Condition {
+        const value = new Decimal(json.value);
+        switch (json.condition) {
+            case 'MaxVolume':
+                return new MaxVolumeCondition(value);
+            case 'MinVolume':
+                return new MinVolumeCondition(value);
+            default:
+                throw new CashRegisterError(`Unknown condition type: ${json.condition}`);
+        }
+    }
+}
+
+export type ConditionModel = {
+    condition: string,
+    value: string
+};

@@ -5,8 +5,6 @@ import { Price } from "./structs/prices/price";
 import { Unit } from "./structs/products/product";
 import { Catalog } from "./structs/till/catalog";
 import { db } from "../db";
-import { itemsTable } from "../../db/schema/item-model";
-import { productsTable } from "../../db/schema/product-model";
 
 export async function importItemsAndProductsFromCSV(filePath: string, database: any = db): Promise<void> {
     const csvData = readCSV(filePath);
@@ -81,7 +79,7 @@ export async function importItemsAndProductsFromCSV(filePath: string, database: 
         
 
         // Stock
-        const stockStr = line[4];
+        const stockStr = line[5];
         if (stockStr === null) {
             stock = undefined;
         } else {
@@ -93,12 +91,11 @@ export async function importItemsAndProductsFromCSV(filePath: string, database: 
         }
         
         // Units
-        let unitStr = line[5];
+        let unitStr = line[6];
         unit = unitStr !== null ? Unit[unitStr.toUpperCase() as keyof typeof Unit] : Unit.UNIT;
         
-        
         // Ean
-        ean = line[6];
+        ean = line[7];
 
         if (itemId === undefined || itemId === 1) {
             currentProductId = await Catalog.insertNewProduct(database, name, price, unit, productId);

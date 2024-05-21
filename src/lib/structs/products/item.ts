@@ -262,4 +262,20 @@ export class Item {
     public hasStock(amount: Decimal = new Decimal(1)): boolean {
         return this.stock === null || this.stock.gte(amount)
     }
+
+    public getEAN(): string | null {
+        return this.ean || null;
+    }
+    
+    public toJSON() {
+        return {
+            id: this.itemId,
+            fullId: this.getFullId(),
+            subname: this.subname,
+            stock: this.stock?.toString(),
+            ean: this.ean,
+            priceIndexes: this.priceIndexes,
+            discountIndexes: this.discountIndexes,
+        };
+    }
 }

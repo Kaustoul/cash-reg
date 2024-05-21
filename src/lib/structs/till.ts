@@ -1,5 +1,3 @@
-import Decimal from "decimal.js";
-import { CurrencyManager } from "./currency-manager";
 import { MoneySum } from "./prices/money-sum";
 import { ensureArray } from "$lib/utils";
 

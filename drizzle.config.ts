@@ -2,13 +2,16 @@ import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
     schema: [
-        './db/schema/product-model.ts',
-        './db/schema/item-model.ts',
-        './db/schema/till-model.ts',
-        './db/schema/*.ts',
+        './src/db/schema/product-model.ts',
+        './src/db/schema/item-model.ts',
+        './src/db/schema/till-model.ts',
+        './src/db/schema/*.ts',
     ],
-    out: './db/migrations',
+    out: './src/db/migrations',
     dialect: 'sqlite',
     verbose: true,
     strict: true,
+    dbCredentials: {
+        url: '',
+    },
 });

@@ -10,9 +10,13 @@ import { ErrCode } from "$lib/errors/cash-register-error";
 import { DuplicateError } from "$lib/errors/duplicate-error";
 import { NotFoundError } from "$lib/errors/not-found-error";
 import { createFullItemId } from "$lib/utils";
+import { eq } from "drizzle-orm";
+import { productsTable } from "../../../db/schema/product-model";
+import type { Condition } from "../prices/condition";
 import type { ItemDiscount } from "../prices/item-discount";
 import type { Price } from "../prices/price";
 import type { Item } from "./item";
+import { db } from "../../../db";
 
 export enum Unit {
     UNIT = 'ks',
@@ -47,12 +51,12 @@ export class Product {
     /**
      * Mapping of prices to Item ids
      */
-    private prices: Array<Price>;
+    private prices: Price[];
 
     /**
      * Mapping of discounts to Item ids
      */
-    private itemDiscounts: Array<ItemDiscount>;
+    private itemDiscounts: ItemDiscount[];
     
     /**
      * Constructs a new Product instance with the given product ID, name, units, items, and prices
@@ -65,7 +69,7 @@ export class Product {
         productid: number,
         name: string | null,
         units: Unit,
-        prices: Price | Array<Price>,
+        prices: Price | Price[],
     ) {
         this.productId = productid;
         this.name = name;
@@ -75,7 +79,7 @@ export class Product {
         if (!Array.isArray(prices)) {
             prices = [prices];
         } 
-          
+
         this.prices = prices;
         this.itemDiscounts = [];
     }
@@ -189,6 +193,29 @@ export class Product {
         this.prices.splice(idx, 1);
     }
 
+    public async updatePrices() {
+        await db
+            .update(productsTable)
+            .set({
+                prices: this.prices
+            })
+            .where(eq(productsTable.productId, this.productId))
+            .execute()
+        ;
+    }
+
+    public async addPriceCondition(priceIdx: number, condition: Condition): Promise<void> {
+        this.getPrice(priceIdx).addCondition(condition);
+
+        await this.updatePrices();
+    }
+
+    public async removeAllPriceConditions(priceIdx: number): Promise<void> {
+        this.getPrice(priceIdx).eraseConditions();
+
+        await this.updatePrices();
+    }
+
     public getPrice(idx: number): Price {
         if (idx >= this.prices.length)  {
             throw new Error("Price index out of bounds");
@@ -238,5 +265,44 @@ export class Product {
 
     public getItems(): Map<number, Item> {
         return this.items;
+    }
+
+    public isSingleVariant(): boolean {
+        return this.items.size === 1;
+    }
+
+    public getDisplayInfo(): { displayId: string, displayName: string }{
+        let name: string;
+        let id: string;
+        if (this.isSingleVariant()) {
+            const item = this.items.values().next().value;
+            name = item.getSubname();
+            id = item.getFullId();
+        } else {
+            name = this.name ?? "";
+
+            const itemIds = [];
+            for (const item of this.items.values()) {
+                itemIds.push(item.getItemId());
+            }
+
+            id = this.productId.toString() + Math.min(...itemIds).toString().padStart(3, '0') + " - " + Math.max(...itemIds).toString().padStart(3, '0');
+        }
+
+        return {
+            displayId: id,
+            displayName: name,
+        }
+    }
+
+    public toJSON() {
+        return {
+            productId: this.productId,
+            name: this.name,
+            items: Array.from(this.items.values()).map(item => item.toJSON()),
+            prices: this.prices.map(price => price.toJSON()),
+            itemDiscounts: this.itemDiscounts,
+            units: this.units
+        }
     }
 }

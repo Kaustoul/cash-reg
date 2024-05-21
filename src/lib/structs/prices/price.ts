@@ -1,10 +1,14 @@
-import type Decimal from "decimal.js";
+import Decimal from "decimal.js";
 import { MoneySum } from "./money-sum";
 import type { Currency } from "./currency";
 import type { ShoppingCart } from "../till/shopping-cart";
-import { ConditionalMixin } from "./conditional";
+import { ConditionalMixin, type ConditionalModel } from "./conditional";
 import type { Condition } from "./condition";
 import { CurrencyManager } from "../currency-manager";
+import { db } from "../../../db";
+import { productsTable } from "../../../db/schema/product-model";
+import { eq } from "drizzle-orm";
+import type { Unit } from "../products/product";
 
 export class Price extends MoneySum {
     /**
@@ -31,10 +35,34 @@ export class Price extends MoneySum {
         this.conditional.addCondition(condition);
     }
 
+    public static fromJSON(json: PriceModel): Price {
+        return new Price(
+            new Decimal(json.value),
+            CurrencyManager.getCurrency(json.currency),
+            false,
+            ConditionalMixin.fromJSON(json.conditions),
+        );
+    }
+    
     public toJSON() {
         return {
             ...super.toJSON(),
             conditions: this.conditional.toJSON(),  
         };
     }
+
+    public conditionalToString(units: Unit): string {
+        return this.conditional.toString(units);
+    }
+
+    public eraseConditions() {
+        this.conditional.eraseConditions();
+    }
 }
+
+export type PriceModel = {
+    currency: string,
+    value: string,
+    conditions: ConditionalModel,
+};
+

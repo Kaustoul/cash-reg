@@ -38,6 +38,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@palsch/svelte-sortablejs": "^1.2.1",
 		"better-sqlite3": "^10.0.0",
 		"decimal.js": "^10.4.3",
 		"drizzle-orm": "^0.30.10",

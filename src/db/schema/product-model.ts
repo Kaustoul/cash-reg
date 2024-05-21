@@ -1,7 +1,8 @@
 import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text, uniqueIndex,  } from "drizzle-orm/sqlite-core";
-import type { Price } from "../../src/lib/structs/prices/price";
-import { Unit } from "../../src/lib/structs/products/product";
+import type { Price, PriceModel } from "../../lib/structs/prices/price";
+import { Unit } from "../../lib/structs/products/product";
+import { priceListModel } from "./price-model";
 
 export const productsTable = sqliteTable('products', {
     productId: integer('productid', { mode: 'number' })
@@ -12,9 +13,8 @@ export const productsTable = sqliteTable('products', {
     name: text('name', { length: 256 })
     ,
 
-    prices: text('prices', {mode: 'json'})
+    prices: priceListModel('prices')
         .notNull()
-        .$type<Price[]>()
     ,
 
     units: text('units')
@@ -30,7 +30,7 @@ export const productsTable = sqliteTable('products', {
     modifiedAt: integer('createdAt', { mode: 'timestamp' })
         .notNull()
         .default(sql`(unixepoch())`)
-        .$onUpdate(() => sql`(unixepoch())`)
+        // .$onUpdate(() => sql`(unixepoch())`)
     ,
     
 });

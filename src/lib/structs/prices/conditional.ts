@@ -1,7 +1,8 @@
 import { ErrCode } from "$lib/errors/cash-register-error";
 import { NotFoundError } from "$lib/errors/not-found-error";
+import type { Unit } from "../products/product";
 import type { ShoppingCart } from "../till/shopping-cart";
-import type { Condition } from "./condition";
+import { ConditionFactory, MaxVolumeCondition, MinVolumeCondition, type Condition, type ConditionModel } from "./condition";
 
 export class ConditionalMixin {
     /**
@@ -44,7 +45,46 @@ export class ConditionalMixin {
         this.conditions.splice(idx, 1);
     }
 
+    public eraseConditions() {
+        this.conditions = [];
+    }
+
+    public static fromJSON(json: ConditionalModel): Condition[] {
+        const res = [];
+        for (const condition of json) {
+            const conditionObj = ConditionFactory.fromJSON(condition);
+
+            res.push(conditionObj);
+        }
+        
+        return res;
+    }
+
     public toJSON() {
         return this.conditions.map(c => c.toJSON());
     }
+
+    public toString(units: Unit): string {
+        switch (this.conditions.length) {
+            case 0:
+                return "";
+
+            case 1:
+                return this.conditions[0].toString(units, "množství");
+
+            case 2:
+                if (this.conditions[0] instanceof MinVolumeCondition && this.conditions[1] instanceof MaxVolumeCondition) {
+                    return `${this.conditions[0].toString(units, "množství")} ${this.conditions[1].toString(units)}`;
+                } else if (this.conditions[0] instanceof MaxVolumeCondition && this.conditions[1] instanceof MinVolumeCondition) {
+                    return `${this.conditions[1].toString(units, "množství")} ${this.conditions[0].toString(units)}`;
+                }
+
+            // if case 2 doesnt return fall through to default
+            default:
+                return this.conditions.map(c => c.toString(units, "množství")).join(" ");
+            
+        }
+    }
 }
+
+export type ConditionalModel = ConditionModel[];

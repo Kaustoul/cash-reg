@@ -6,7 +6,7 @@
 
 <script lang="ts">
     import MultiSelector from './MultiSelector.svelte';
-    import { ensureArray } from '$lib/utils';
+    import { ensureArray } from '$lib/shared/utils';
 
     export let data: DataRow[];
     export let schema: {

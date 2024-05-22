@@ -1,8 +1,8 @@
-import { importItemsAndProductsFromCSV } from '$lib/item-importer.js';
-import { CurrencyManager } from '$lib/structs/currency-manager.js';
-import type { Price } from '$lib/structs/prices/price.js';
-import { Unit } from '$lib/structs/products/product.js';
-import { Catalog } from '$lib/structs/till/catalog.js';
+import { importItemsAndProductsFromCSV } from '$lib/server/data-handlers/item-importer.js';
+import { CurrencyManager } from '$lib/server/prices/currency-manager.js';
+import type { Price } from '$lib/server/prices/price';
+import { Unit } from '$lib/server/products/product';
+import { Catalog } from '$lib/server/till/catalog';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params }) {

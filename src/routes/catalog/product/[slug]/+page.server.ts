@@ -1,9 +1,7 @@
-import { importItemsAndProductsFromCSV } from '$lib/item-importer.js';
-import { CurrencyManager } from '$lib/structs/currency-manager.js';
-import { ConditionFactory, MaxVolumeCondition, MinVolumeCondition } from '$lib/structs/prices/condition.js';
-import type { Price } from '$lib/structs/prices/price.js';
-import { Unit } from '$lib/structs/products/product.js';
-import { Catalog } from '$lib/structs/till/catalog.js';
+import { MaxVolumeCondition, MinVolumeCondition } from '$lib/server/prices/condition.js';
+import type { Price } from '$lib/server/prices/price.js';
+import { Unit } from '$lib/server/products/product.js';
+import { Catalog } from '$lib/server/till/catalog.js';
 import Decimal from 'decimal.js';
 
 /** @type {import('./$types').PageServerLoad} */

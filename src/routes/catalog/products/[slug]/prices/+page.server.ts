@@ -1,37 +1,8 @@
-import { MaxVolumeCondition, MinVolumeCondition } from '$lib/server/prices/condition.js';
-import type { Price } from '$lib/server/prices/price.js';
-import { Unit } from '$lib/server/products/product.js';
-import { Catalog } from '$lib/server/till/catalog.js';
-import Decimal from 'decimal.js';
+import { MaxVolumeCondition, MinVolumeCondition } from "$lib/server/prices/condition";
+import { Catalog } from "$lib/server/till/catalog";
+import type { Actions } from "@sveltejs/kit";
+import Decimal from "decimal.js";
 
-/** @type {import('./$types').PageServerLoad} */
-export async function load({ params }) {
-    const product = Catalog.getProduct(Number(params.slug));
-    const json = product.toJSON();
-    for (let i = 0; i < json.prices.length; i++) {
-        const price = json.prices[i];
-        json.prices[i] = {
-            // @ts-ignore
-            id: i,
-            ...price,
-        }
-
-        if (price.conditions.length > 0) {
-            json.prices[i] = {
-                ...price,
-                // @ts-ignore
-                conditionStr: product.getPrice(i).conditionalToString(product.getUnits()),
-            }
-        }
-    }
-
-    return {
-        ...product.getDisplayInfo(),
-        ...json
-    };
-}
-
-/** @type {import('./$types').Actions} */
 export const actions = {
     newCondition: async (event) => {
         const data = await event.request.formData();
@@ -82,4 +53,4 @@ export const actions = {
         return {success: true};
     }
 
-};
+} satisfies Actions;

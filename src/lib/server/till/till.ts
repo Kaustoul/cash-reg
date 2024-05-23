@@ -1,4 +1,4 @@
-import { MoneySum } from "./prices/money-sum";
+import { MoneySum } from "$lib/server/prices/money-sum";
 import { ensureArray } from "$lib/shared/utils";
 
 class Till {

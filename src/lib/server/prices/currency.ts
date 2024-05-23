@@ -15,6 +15,8 @@ export class Currency {
      * The number of decimal places to round to
      */
     private readonly roundTo: Decimal;
+
+    private readonly symbol: string
   
     /**
      * Constructs a new Currency instance with the given currency code, VAT rate, and number of decimal places to round to
@@ -22,8 +24,9 @@ export class Currency {
      * @param vat The VAT rate for this currency
      * @param roundTo The number of decimal places to round to
      */
-    public constructor(code: string, vat: Decimal, roundTo: Decimal = new Decimal(0.01)) {
+    public constructor(code: string, symbol: string, vat: Decimal, roundTo: Decimal = new Decimal(0.01)) {
         this.code = code;
+        this.symbol = symbol;
         this.vat = vat;
         this.roundTo = roundTo;
     }
@@ -47,5 +50,9 @@ export class Currency {
 
     public getCode(): string {
         return this.code;
+    }
+
+    public getSymbol(): string {
+        return this.symbol;
     }
 }

@@ -1,11 +1,35 @@
 <script lang="ts">
     import '../styles.scss';
+    import { getContext } from 'svelte';
     import Sidebar from "$lib/Sidebar.svelte";
 
-    let selectedIdx: number;
+    import CatalogIcon from 'svelte-material-icons/BookOpenVariant.svelte';
+    import DashboardIcon from 'svelte-material-icons/Finance.svelte';
+    import CustomersIcon from 'svelte-material-icons/AccountGroup.svelte';
+    import MoneyIcon from 'svelte-material-icons/CashMultiple.svelte';
 
-    $: {
-        const routes = ['/', '/catalog', '/cashier', '/customers'];
+    let viewTitle: string = "";
+    
+    const tabs = {
+        "Přehled": {
+            icon: DashboardIcon,
+            url: "/dashboard",
+            disabled: true,
+        },
+        "Katalog": {
+            icon: CatalogIcon,
+            url: "/catalog"
+        },
+        "Pokladny": {
+            icon: MoneyIcon,
+            url: "/tills",
+            // disabled: true,
+        },
+        "Zákazníci": {
+            icon: CustomersIcon,
+            url: "/customers",
+            disabled: true,
+        }
     }
 </script>
 
@@ -13,7 +37,7 @@
     <header>
         <img src="/logo.svg" alt="Logo" style="filter: invert(100%)" height="75"/>
     </header>
-    <Sidebar />
+    <Sidebar {tabs}/>
     <main>
         <slot></slot>
     </main>
@@ -37,17 +61,8 @@
         justify-content: space-between;
     }
 
-    .sidebar {
-        padding: 20px;
-    }
-
     main {
         background-color: $content-bg-color;
         padding: 2.5rem;
-    }
-
-    .viewName {
-        font-size: 5.5rem;
-        margin-bottom: 2rem;
     }
 </style>

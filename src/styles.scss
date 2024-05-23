@@ -12,6 +12,7 @@ $yellow: #FCD13A;
 
 $text-color: #FFFFFF;
 $text2-color: #868686;
+$text-disabled-color: #707070;
 
 $btn-center-spacing: 0.1rem;
 
@@ -91,6 +92,15 @@ body {
     }
 }
 
+.btn-red {
+    @extend .btn;
+    
+    background-color: $red;
+    &:hover {
+        background-color: lighten($color: $accent-color, $amount: 10%);
+    }
+}
+
 .list-btn {
     @extend .btn;
     $btn-color: $bg-color;
@@ -115,3 +125,18 @@ body {
     }
 }
 
+.disabled {
+    color: $text-disabled-color;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.viewTitle {
+    font-size: 5.5rem;
+    margin-bottom: 2rem;
+}
+
+.viewSubtitle {
+    font-size: 2.5rem;
+    color: $text2-color;
+}

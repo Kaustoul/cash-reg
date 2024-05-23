@@ -253,6 +253,10 @@ export class Item {
         return this.stock;
     }
 
+    public getPriceIdxs(): number[] {
+        return this.priceIndexes;
+    }
+
     /**
      * Checks if this item has stock.
      * 

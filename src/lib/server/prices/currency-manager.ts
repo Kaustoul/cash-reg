@@ -9,9 +9,9 @@ export class CurrencyManager {
     private currencies: Map<string, Currency> = new Map();
 
     private constructor() {
-        this.currencies.set("CZK", new Currency("CZK", new Decimal(1)));
-        this.currencies.set("EUR", new Currency("EUR", new Decimal(0.01)));
-        this.currencies.set("USD", new Currency("USD", new Decimal(0.01)));
+        this.currencies.set("CZK", new Currency("CZK", "Kč", new Decimal(1)));
+        this.currencies.set("EUR", new Currency("EUR", "€", new Decimal(0.01)));
+        this.currencies.set("USD", new Currency("USD", "$", new Decimal(0.01)));
     }
 
     public static getInstance(): CurrencyManager {

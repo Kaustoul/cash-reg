@@ -1,15 +1,9 @@
 <script context="module" lang="ts">
-    export type DataRow = {
+    export type DataRows = {
         [key: string]: any;
-    };
-</script>
+    }[];
 
-<script lang="ts">
-    import MultiSelector from './MultiSelector.svelte';
-    import { ensureArray } from '$lib/shared/utils';
-
-    export let data: DataRow[];
-    export let schema: {
+    export type Schema = {
         fieldName: string,
         type: "string" | "number" | "unsortable" | "selector",
         columnHeader: string
@@ -18,10 +12,20 @@
         }
 
     }[];
+</script>
+
+<script lang="ts">
+    import MultiSelector from './MultiSelector.svelte';
+    import { ensureArray } from '$lib/shared/utils';
+
+    export let data: DataRows;
+    export let schema: Schema;
     export let clickableRows: boolean = false;
     export let onRowClick: (productId: number) => void = () => {};
     export let idFieldName: string = "id";
+
     let selectedProducts: (string | number)[] = [];
+
     function toggleProductSelection(id: string | number) {
         const productIndex = selectedProducts.indexOf(id);
         if (productIndex < 0) {
@@ -31,6 +35,7 @@
         }
 
     }
+    
     function isSelected(id: string | number) {
         return selectedProducts.includes(id);
     }
@@ -62,8 +67,10 @@
                                 items={ensureArray(row[column.fieldName])} 
                                 maxItems={column.props ? column.props.maxSelectorItems : undefined}
                                 onAddPressed={column.props ? column.props.selectorOnAdd : () => {}}
-                                formAction={column.props ? column.props.formAction: undefined}
-                                props={{id: Number(row[idFieldName])}}
+                                deleteEndpoint={column.props ? column.props.deleteEndpoint: undefined}
+                                props={{
+                                    id: column.props ? column.props.selectorIdField : Number(row[idFieldName])
+                                }}
                             />
                         {:else}
                             <span>{row[column.fieldName]}</span>

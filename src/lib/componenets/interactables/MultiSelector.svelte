@@ -8,18 +8,18 @@
     export let onItemDeleted: (item: string, props: { [key: string]: any}) => void = () => {};
     export let maxItems: number | undefined = undefined;
     export let props: { [key: string]: any } = {};
-    export let formAction: string | undefined = undefined;
+    export let deleteEndpoint: string | undefined = undefined;
 
-    async function deleteItem(value: string) {
-        console.log(formAction)
+    async function deleteItem(value: string, idx: number) {
         onItemDeleted(value, props);
         
-        if (formAction) {
+        if (deleteEndpoint) {
             const formData = new FormData();
             formData.append('item', value);
             formData.append('id', props.id);
+            formData.append('idx', idx.toString());
 
-            await fetch(formAction, {
+            await fetch(deleteEndpoint, {
                 method: 'POST',
                 body: formData
             });
@@ -31,13 +31,13 @@
 
 
 <div class="container">
-    {#each items as item}
+    {#each items as item, idx}
         <div class="item">
             <span>
                 {item}
             </span>
-            <form use:enhance method="POST" action={formAction !== undefined ? formAction : ''}>
-                <button class="btn" on:click={() => deleteItem(item)}><DeleteIcon size={"2rem"}/></button>
+            <form use:enhance method="POST" action={deleteEndpoint !== undefined ? deleteEndpoint : ''}>
+                <button class="btn" on:click={() => deleteItem(item, idx)}><DeleteIcon size={"2rem"}/></button>
             </form>
         </div>
     {/each}
@@ -52,12 +52,13 @@
         display: flex;
         align-items: center;
         flex-wrap: wrap;
+        gap: .5rem;
     }
 
     .container > div {
         flex: 0 0 auto;
         padding: 0.3rem;
-        padding: .5rem .3rem;        
+        // padding: .5rem;        
 
         border-radius: $large-radius;
     }
@@ -65,7 +66,6 @@
     .btn {
         aspect-ratio: 1;
         border-radius: $large-radius;
-        padding: 0.3rem;
     }
 
     .item {

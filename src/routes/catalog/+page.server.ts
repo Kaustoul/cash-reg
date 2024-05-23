@@ -3,9 +3,9 @@ import { CurrencyManager } from '$lib/server/prices/currency-manager.js';
 import type { Price } from '$lib/server/prices/price';
 import { Unit } from '$lib/server/products/product';
 import { Catalog } from '$lib/server/till/catalog';
+import type { PageServerLoad } from './$types';
 
-/** @type {import('./$types').PageServerLoad} */
-export async function load({ params }) {
+export const load: PageServerLoad = async () => {
     // await importItemsAndProductsFromCSV("src/lib/test/data/items.csv");
     await Catalog.fetchAll();
     const res = []

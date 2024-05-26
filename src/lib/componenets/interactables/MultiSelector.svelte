@@ -37,17 +37,29 @@
                 {item}
             </span>
             <form use:enhance method="POST" action={deleteEndpoint !== undefined ? deleteEndpoint : ''}>
-                <button class="btn" on:click={() => deleteItem(item, idx)}><DeleteIcon size={"2rem"}/></button>
+                <button type="button"
+                    class="btn"
+                    on:click={() => deleteItem(item, idx)}
+                >
+                    <DeleteIcon size={"2rem"}/>
+                </button>
             </form>
         </div>
     {/each}
     {#if maxItems === undefined || items.length < maxItems}
-        <div class="btn" on:click={() => onAddPressed(props)}><PlusIcon size={"2rem"}/></div>
+        <button type="button"
+            class="btn plus"
+            on:click={() => onAddPressed(props)}
+        >
+            <PlusIcon size={"2rem"}/>
+        </button>
     {/if}
 </div>
 
 <style lang="scss">
-    @import '../../../styles.scss';
+    @use '$lib/styles/vars' as vars;
+    @use '$lib/styles/buttons' as buttons;
+
     .container {
         display: flex;
         align-items: center;
@@ -60,17 +72,25 @@
         padding: 0.3rem;
         // padding: .5rem;        
 
-        border-radius: $large-radius;
+        border-radius: vars.$large-radius;
     }
 
     .btn {
+        @include buttons.btn($btn-height: auto);
+        width: auto;
+        flex-grow: 0;
         aspect-ratio: 1;
-        border-radius: $large-radius;
+        border-radius: vars.$large-radius;
+    
+        &.plus {
+            padding: 0.5rem;
+        }
+
     }
 
     .item {
-        background-color: $primary-color;
-        color: $text-color;
+        background-color: vars.$primary-color;
+        color: vars.$text-color;
         display: flex;
         align-items: center;
         justify-content: start;

@@ -35,59 +35,20 @@
     idFieldName="productId"
     onRowClick={(productId) => goto(`/catalog/products/${productId}`)}
     showSearchBar={true}
+    buttons={{
+        "Přidat": {
+            action: () => {},
+            icon: "plus",
+            color: "green"
+        },
+        "Smazat": {
+            action: () => {},
+            icon: "delete",
+            color: "red"
+        },
+    }}
 />
 
 
-<style lang="scss">
-    @import '../../styles.scss';
-
-    .action-bar {
-        display: flex; 
-        justify-content: space-between;
-
-        gap: .7rem;
-        width: 100%;
-        margin-bottom: 1rem;
-    }
-
-    $search-bar-height: 3.5rem;
-    .search-bar {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: $medium-radius;
-        width: 75%;
-        height: $search-bar-height;
-        background-color: $primary-color;
-        padding-left: 1rem;
-
-    }
-
-    input[type="search"] {
-        padding: 0.5rem;
-        width: 100%;
-        background-color: $primary-color;
-        border: none;
-        margin-right: .5rem;
-        color: $text-color;
-        font-size: larger;
-    }
-
-    input[type="search"]:focus {
-        border: none;
-        outline: none;
-    }
-
-    .btn {
-        height: auto;
-        width: 10rem;
-    }
-
-    .green {
-        background-color: $accent-color;
-    }
-
-    .red {
-        background-color: $red;
-    }
-</style>
+<!-- <style lang="scss">
+</style> -->

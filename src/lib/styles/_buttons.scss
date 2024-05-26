@@ -1,0 +1,69 @@
+@use 'vars';
+@mixin disabled($text-color: vars.$text-disabled-color) {
+    color: $text-color;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+@mixin btn($btn-color: vars.$primary-color, $btn-height: auto) {
+    $text-color: vars.$text-color;
+
+    height: $btn-height;
+    padding-bottom: .5rem;
+    padding-top: .5rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+    gap: 0.5rem;
+    
+    cursor: pointer;
+    border-radius: vars.$small-radius;
+    background-color: $btn-color;
+    font-size: larger;
+    border-radius: vars.$small-radius;   
+    border: none;  
+    color: $text-color;   
+    
+    &:hover {
+        background-color: lighten($color: $btn-color, $amount: 10%);
+    }
+    
+    span {
+        align-self: baseline;
+        line-height: $btn-height + vars.$btn-center-spacing;
+    }
+
+    &.disabled {
+        @include disabled($text-color: lighten($color: $text-color, $amount: 10%));
+    }
+}
+
+@mixin list-btn($btn-color: vars.$bg-color, $btn-height: auto) {
+    @include btn($btn-color: $btn-color, $btn-height: $btn-height);
+   
+    justify-content: left;
+    padding-left: .7rem;
+    margin-bottom: .1rem;
+    gap: 1rem;
+    text-align: left;
+
+    &.selected {
+        background-color: lighten($btn-color, 10%);
+
+        &:hover {
+            background-color: lighten($color: $btn-color, $amount: 15%);
+        }
+    }
+}
+
+@mixin div-btn($btn-color: transparent) {
+    border: none;
+    color: vars.$text-color;
+    background-color: $btn-color;
+
+    &.disabled {
+        @include disabled(vars.$text-disabled-color);
+    }
+}

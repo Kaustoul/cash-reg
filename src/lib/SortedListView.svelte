@@ -12,6 +12,13 @@
     export let onRowClick: (productId: number) => void = () => {};
     export let idFieldName: string = "id";
     export let showSearchBar: boolean = false;
+    export let buttons: { [key: string]: { 
+        icon: "plus" | "delete" | "import",
+        color: "red" | "blue" | "green" | "yellow" | "accent",
+        action: () => void 
+    }} = {};
+    
+    let selected: (string | number)[];
     let search = '';
     
     function handleFocus(event: any) {
@@ -26,22 +33,31 @@
             <input bind:value={search} on:focus={handleFocus} type="search" placeholder="Search..." />
         </div>
     {/if}
-    <div class="btn red disabled">
-        <DeleteIcon size="1.7rem" />
-        Smazat
-    </div>
-    <div class="btn green disabled">
-        <PlusIcon size="2.2rem" />
-        Nový
-    </div>
+    {#each Object.entries(buttons) as [key, value]}
+        <button type="button"
+            class={`btn btn-${value.color}`}
+            on:click={() => value.action()}
+        >
+            {#if value.icon === "plus"}
+                <PlusIcon size="1.7rem" />
+            {:else if value.icon === "delete"}
+                <DeleteIcon size="1.7rem" />
+            {:else if value.icon === "import"}
+                
+            {/if}
+            {key}
+        </button>
+    {/each}
 </div>
-<SortedList {data} {schema} {clickableRows} {onRowClick} {idFieldName}/>
+<SortedList {data} {schema} {clickableRows} {onRowClick} {idFieldName} bind:selected={selected}/>
 
 <style lang="scss">
-    @import '../styles.scss';
+    @use '$lib/styles/vars' as vars;
+    @use '$lib/styles/buttons' as buttons;
+
     .action-bar {
         display: flex; 
-        justify-content: space-between;
+        justify-content: end;
 
         gap: .7rem;
         width: 100%;
@@ -53,10 +69,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: $medium-radius;
-        width: 75%;
+        border-radius: vars.$medium-radius;
         height: $search-bar-height;
-        background-color: $primary-color;
+        flex-grow: 1;
+        background-color: vars.$primary-color;
         padding-left: 1rem;
 
     }
@@ -64,10 +80,10 @@
     input[type="search"] {
         padding: 0.5rem;
         width: 100%;
-        background-color: $primary-color;
+        background-color: vars.$primary-color;
         border: none;
         margin-right: .5rem;
-        color: $text-color;
+        color: vars.$text-color;
         font-size: larger;
     }
 
@@ -75,17 +91,30 @@
         border: none;
         outline: none;
     }
+    
+    .btn {
+        max-width: 10rem;
+    }
 
-    // .btn {
-    //     height: auto;
-    //     width: 10rem;
-    // }
+    .btn-green {
+        @include buttons.btn($btn-color: vars.$green, $btn-height: $search-bar-height);
+    }
 
-    // .green {
-    //     background-color: $accent-color;
-    // }
+    .btn-accent {
+        @include buttons.btn($btn-color: vars.$accent-color, $btn-height: $search-bar-height);    
+    }
 
-    // .red {
-    //     background-color: $red;
-    // }
+    .btn-red {
+        @include buttons.btn($btn-color: vars.$red, $btn-height: $search-bar-height);
+    }
+
+    .btn-yellow {
+        @include buttons.btn($btn-color: vars.$yellow, $btn-height: $search-bar-height);
+    }
+
+    .btn-blue {
+        @include buttons.btn($btn-color: vars.$blue, $btn-height: $search-bar-height);
+    }
+
+    
 </style>

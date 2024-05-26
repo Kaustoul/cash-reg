@@ -51,7 +51,8 @@
 </Modal>
 
 <style lang="scss">
-    @import '../../../styles.scss';
+    @use '$lib/styles/vars' as vars;
+
     .inputs {
         display: flex;
         align-items: center;
@@ -62,17 +63,17 @@
 
     .inputs-header{
         font-size: xx-large;
-        color: $text-color;
+        color: vars.$text-color;
         margin-bottom: 1.5rem;
         text-decoration: underline;
     }
 
     .input-field {
         padding: 0.5rem;
-        background-color: $primary-color;
+        background-color: vars.$primary-color;
         border: none;
         margin-right: .5rem;
-        color: $text-color;
+        color: vars.$text-color;
         font-size: x-large;
         width: 5rem;
         
@@ -90,7 +91,7 @@
 
     .text-between {
         margin: 0.5rem;
-        color: $text-color;
+        color: vars.$text-color;
         font-size: larger;
     }
 

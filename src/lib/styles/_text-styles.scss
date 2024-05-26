@@ -1,0 +1,15 @@
+@use 'vars';
+
+@mixin view-title {
+    color: vars.$text-color;
+    font-size: 5.5rem;
+}
+
+@mixin view-subtitle {
+    font-size: 2.5rem;
+    color: vars.$text2-color;
+}
+
+@mixin mono-font {
+    font-family: 'Roboto Mono', monospace;
+}

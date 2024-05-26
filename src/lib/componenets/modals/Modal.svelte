@@ -15,9 +15,9 @@
     on:click|stopPropagation
 >
 <div class="contianer">
-    <div class="close" on:click={() => dialog.close()}>
+    <button class="close" on:click={() => dialog.close()}>
         <CloseIcon size={"3rem"} />  
-    </div>
+    </button>
     <div class="head">
 
         <div class="title">
@@ -33,11 +33,12 @@
 </dialog>
 
 <style lang="scss">
-    @import '../../../styles.scss';
+    @use '$lib/styles/vars' as vars;
+
     dialog {
-        background-color: $content-bg-color;
+        background-color: vars.$content-bg-color;
         border: none;
-        border-radius: $large-radius;
+        border-radius: vars.$large-radius;
 	}
 
 	dialog::backdrop {
@@ -45,7 +46,7 @@
 	}
 
 	dialog {
-        color: $text-color;
+        color: vars.$text-color;
         padding: 1.5rem 2rem 2rem 2rem;
 
         div: {
@@ -77,10 +78,10 @@
         top: 1rem;
         right: 1rem;
         cursor: pointer;
-        color: $primary-color;
+        color: vars.$primary-color;
 
         &:hover {
-            color: $red;
+            color: vars.$red;
         }
     }
 
@@ -118,6 +119,6 @@
 
     hr {
         border: none;
-        border-bottom: 2px solid $accent-color;
+        border-bottom: 2px solid vars.$accent-color;
     }
 </style>

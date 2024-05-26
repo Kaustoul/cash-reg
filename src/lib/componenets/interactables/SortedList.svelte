@@ -23,21 +23,20 @@
     export let clickableRows: boolean = false;
     export let onRowClick: (productId: number) => void = () => {};
     export let idFieldName: string = "id";
-
-    let selectedProducts: (string | number)[] = [];
+    export let selected: (string | number)[] = [];
 
     function toggleProductSelection(id: string | number) {
-        const productIndex = selectedProducts.indexOf(id);
+        const productIndex = selected.indexOf(id);
         if (productIndex < 0) {
-            selectedProducts.push(id);
+            selected.push(id);
         } else {
-            selectedProducts.splice(productIndex, 1);
+            selected.splice(productIndex, 1);
         }
 
     }
     
     function isSelected(id: string | number) {
-        return selectedProducts.includes(id);
+        return selected.includes(id);
     }
 </script>
 
@@ -84,17 +83,18 @@
 
 <style lang="scss">
     @use 'sass:math';
-    @import '../../../styles.scss';
+    @use '$lib/styles/vars' as vars;
+    @use '$lib/styles/buttons' as buttons;
 
     table {
         width: 100%;
 
         border-collapse: collapse;
-        color: $text-color;
+        color: vars.$text-color;
         font-family: 'Roboto', sans-serif;
 
-        border: 1px solid $second-accent-color;
-        border-radius: $large-radius;
+        border: 1px solid vars.$second-accent-color;
+        border-radius: vars.$large-radius;
     }
 
     th, td {
@@ -119,8 +119,8 @@
         width: $size;
 
         margin: 0;
-        border-radius: $full-radius;
-        border: 2px solid $text-color;
+        border-radius: vars.$full-radius;
+        border: 2px solid vars.$text-color;
 
         &:checked::before {
             content: '';
@@ -130,22 +130,22 @@
             width: $size - $spacing;
             height: $size - $spacing;
 
-            border-radius: $full-radius;
-            background: $accent-color;
+            border-radius: vars.$full-radius;
+            background: vars.$accent-color;
         }
     }
 
     th {
-        background-color: $accent-color;
-        color: $text-color;
+        background-color: vars.$accent-color;
+        color: vars.$text-color;
     }
 
     tr:nth-child(even) {
-        background-color: $bg-color;
+        background-color: vars.$bg-color;
     }
 
     .clickable:hover {
-        background-color: $highlight-color;
+        background-color: vars.$highlight-color;
         cursor: pointer;
     }
 

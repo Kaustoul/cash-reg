@@ -30,4 +30,16 @@
             props: {maxSelectorItems: 1, selectorOnAdd: openModal, deleteEndpoint: "?/deleteAllPriceConditions"}},
         {fieldName: "currency", type: "string", columnHeader: "Měna" },
     ]}
+    buttons={{
+        "Přidat": {
+            action: () => {},
+            icon: "plus",
+            color: "green"
+        },
+        "Smazat": {
+            action: () => {},
+            icon: "delete",
+            color: "red"
+        },
+    }}
 />

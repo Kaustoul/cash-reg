@@ -32,38 +32,39 @@
 
 <div class="tab-selector">
     {#each Object.keys(tabs) as tab}
-        <div 
+        <button type="button" 
             class="{selectedTab === tab ? 'selected ' : ''}{tabs[tab].disabled ? 'disabled ' : ''} tab" 
             on:click={() => redirectToTab(tab)}
         >
             {tab}
-        </div>
+        </button>
     {/each}
 </div>
 
 <style lang="scss">
-    @import '../styles.scss';
-
+    @use '$lib/styles/vars' as vars;
+    @use '$lib/styles/buttons' as buttons;
+ 
     .tab-selector {
         display: flex;
         justify-content: flex-start;
         margin: 1rem 0;
         gap: 1rem;
-        border-bottom: 1px solid $primary-color;
+        border-bottom: 1px solid vars.$primary-color;
     }
 
     .tab {
+        @include buttons.div-btn();
         padding: .5rem 1rem;
         cursor: pointer;
         transition: background-color .2s;
         font-size: x-large;
         width: 10%;
         text-align: center;
-    }
-
-    .tab.selected {
-        color: $accent-color;
-        border-bottom: 3px solid $accent-color;
-
+    
+        &.selected {
+            color: vars.$accent-color;
+            border-bottom: 3px solid vars.$accent-color;
+        }
     }
 </style>

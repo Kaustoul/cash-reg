@@ -8,12 +8,21 @@
     export let onClick: () => void;
 </script>
 
-<div class="list-btn {selected ? 'selected' : ''} {disabled ? 'disabled' : ''}"
-    on:click={onClick}>
+<button type="button" 
+    class="list-btn {selected ? 'selected' : ''} {disabled ? 'disabled' : ''}"
+    on:click={onClick}
+>
     <svelte:component this={icon} size="1.5rem"/>
     <span>{text}</span>
-</div>
+</button>
 
 <style lang="scss">
-    @import '../styles.scss';
+    @use '$lib/styles/buttons' as buttons;
+  
+    .list-btn {
+        @include buttons.list-btn($btn-height: 2.5rem);
+        width: 100%;
+        height: auto;
+        font-size: larger;
+    }
 </style>

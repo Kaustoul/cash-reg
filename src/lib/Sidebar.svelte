@@ -36,10 +36,13 @@
 </script>
 
 <nav>
-    <div class="primary-btn" on:click={() => console.log("Cash")}>
+    <button type="button"
+        class="primary-btn"
+        on:click={() => console.log("Cash")}
+    >
         <CashRegisterIcon size="1.7rem"/>
         <span><b>Do pokladny</b></span>
-    </div>
+    </button>
 
     {#each Object.entries(tabs) as [tab, obj]}
         <SidebarButton 
@@ -53,7 +56,8 @@
 </nav>
 
 <style lang="scss">
-    @import '../styles.scss';
+    @use '$lib/styles/vars' as vars;
+    @use '$lib/styles/buttons' as buttons;
 
     nav {
         height: 100vh;
@@ -61,22 +65,11 @@
     }
 
     .primary-btn {
-        @extend .btn;
-        $btn-height: 3.5rem;
-        $btn-color: $accent-color;
-
-        height: $btn-height;
+        @include buttons.btn($btn-color: vars.$accent-color, $btn-height: 3.5rem);
+        width: 100%;
+        height: auto;
         margin-bottom: 2rem;
-        background-color: $btn-color;
         font-size: x-large;
-
-        &:hover {
-            background-color: lighten($color: $btn-color, $amount: 10);
-        }
-
-        span {
-            line-height: $btn-height + $btn-center-spacing;
-        }
-    }
+   }
 
 </style>

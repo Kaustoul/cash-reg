@@ -44,7 +44,7 @@
 </div>
 
 <style lang="scss">
-    @import '../styles.scss';
+    @use '$lib/styles/vars' as vars;
 
     .grid-container {
         display: grid;
@@ -62,7 +62,7 @@
     }
 
     main {
-        background-color: $content-bg-color;
+        background-color: vars.$content-bg-color;
         padding: 2.5rem;
     }
 </style>

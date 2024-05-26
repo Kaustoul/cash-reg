@@ -26,6 +26,17 @@
         {fieldName: "priceStrs", type: "selector", columnHeader: "Ceny",
             props: {selectorOnAdd: addPriceToItem, deleteEndpoint: undefined}},
         {fieldName: "stock", type: "unsortable", columnHeader: "Naskladněno" },
-  ]}
-
+    ]}
+    buttons={{
+        "Přidat": {
+            action: () => {},
+            icon: "plus",
+            color: "green"
+        },
+        "Smazat": {
+            action: () => {},
+            icon: "delete",
+            color: "red"
+        },
+    }}
 />

@@ -1,24 +1,43 @@
 <script lang="ts">
-    import { replaceState } from '$app/navigation';
     import NewConditionModal from '$lib/componenets/modals/NewConditionModal.svelte';
     import SortedListView from "$lib/SortedListView.svelte";
+    import NewPriceModal from '$lib/componenets/modals/PriceModal.svelte';
     import type { PageData } from '../$types.js';
+    import { invalidateAll } from '$app/navigation';
     
     export let data: PageData;
-    export let form: FormData;
-    let showModal = false;
-
-    let currentPriceIdx = -1;
-    function openModal(props: { [key: string]: any }) {
-        showModal = true;
-        currentPriceIdx = props.id;
+    let showModal = {
+        "newcondition": false,
+        "newprice": false,
+    };
+    function openModal(key: "newcondition" | "newprice") {
+        showModal[key] = true;
     }
-    console.log(data.prices)
+
+    async function removePrices(selected: (string | number)[]) {
+        selected = selected as number[];
+
+		const data = new FormData();
+        data.set("idxs", selected.join(","));
+
+		const response = await fetch("?/deletePrice", {
+			method: 'POST',
+			body: data,
+		});
+
+        invalidateAll();
+    }
+
 </script>
 
 
 <NewConditionModal
-    bind:showModal
+    bind:showModal={showModal["newcondition"]}
+    units={data.units}
+/>
+
+<NewPriceModal
+    bind:showModal={showModal["newprice"]}
     units={data.units}
 />
 
@@ -27,19 +46,16 @@
     schema={[
         {fieldName: "value", type: "string", columnHeader: "Cena" },
         {fieldName: "conditionStr", type: "selector", columnHeader: "Podmínky",
-            props: {maxSelectorItems: 1, selectorOnAdd: openModal, deleteEndpoint: "?/deleteAllPriceConditions"}},
-        {fieldName: "currency", type: "string", columnHeader: "Měna" },
+            props: {maxSelectorItems: 1, selectorOnAdd: () => openModal("newcondition"), deleteEndpoint: "?/deleteAllPriceConditions"}},
+{fieldName: "currency", type: "string", columnHeader: "Měna" },
     ]}
     buttons={{
         "Přidat": {
-            action: () => {},
+            action: () => openModal("newprice"),
             icon: "plus",
             color: "green"
         },
-        "Smazat": {
-            action: () => {},
-            icon: "delete",
-            color: "red"
-        },
     }}
+    removeButton={true}
+    onRemovePressed={removePrices}
 />

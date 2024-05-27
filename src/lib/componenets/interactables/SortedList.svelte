@@ -26,13 +26,18 @@
     export let selected: (string | number)[] = [];
 
     function toggleProductSelection(id: string | number) {
+        const newSelected = [...selected];
+        if (id === undefined) id = 0;
         const productIndex = selected.indexOf(id);
         if (productIndex < 0) {
-            selected.push(id);
+            newSelected.push(id);
         } else {
-            selected.splice(productIndex, 1);
+            newSelected.splice(productIndex, 1);
         }
-
+        
+        // We have to reasign the value so that svelte knows to rerender
+        selected = newSelected;
+        
     }
     
     function isSelected(id: string | number) {

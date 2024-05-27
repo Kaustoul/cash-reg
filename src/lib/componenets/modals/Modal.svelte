@@ -34,6 +34,7 @@
 
 <style lang="scss">
     @use '$lib/styles/vars' as vars;
+    @use '$lib/styles/buttons' as buttons;
 
     dialog {
         background-color: vars.$content-bg-color;
@@ -74,6 +75,7 @@
     }
 
     .close {
+        @include buttons.div-btn;
         position: absolute;
         top: 1rem;
         right: 1rem;

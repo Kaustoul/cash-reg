@@ -12,7 +12,7 @@
 
     async function deleteItem(value: string, idx: number) {
         onItemDeleted(value, props);
-        
+        console.log(deleteEndpoint);
         if (deleteEndpoint) {
             const formData = new FormData();
             formData.append('item', value);

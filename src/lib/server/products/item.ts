@@ -7,6 +7,9 @@ import { createFullItemId, ensureArray } from "$lib/shared/utils";
 import type { ShoppingCart } from "../till/shopping-cart";
 import { CashRegisterError } from "$lib/server/errors/cash-register-error";
 import type { ItemDiscount } from "../prices/item-discount";
+import { db } from "../db/db";
+import { itemsTable } from "../db/schema/item-model";
+import { and, eq } from "drizzle-orm";
 
 /**
  * An `Item` represents a single variant of a product. It holds information specific to this variant, such as stock, price, and EAN code.
@@ -42,7 +45,7 @@ export class Item {
      * @param {string} subname - The subname of this item.
      * @param {Array<number>} priceIdxs - The indexes of Price objects stored in the product active for this Item.
      * @param {Array<number>} discountIdxs - The indexes of ItemDiscount objects stored in the product active for this Item.
-     * @param {string | undefined} eanCode - The European Article Number (EAN) of this item.
+     * @param {string | undefined} eanCode - The European Article Number (EAN) of this item.https://docs.google.com/document/d/1d6JVGhoQkMPqrCuaJ_5JMseDDW5CSMuw9B6_qd2he4k/edit?usp=sharing
      * @param {Decimal} stock - The stock of this item.
      */
     public constructor(product: Product, itemId: number | undefined, subname: string, stock: Decimal | null, priceIdxs: Array<number>, discountIdxs?: Array<number>, eanCode?: string | null) {
@@ -253,8 +256,30 @@ export class Item {
         return this.stock;
     }
 
+    public async addPriceIdx(idx: number): Promise<void> {
+        this.priceIndexes.push(idx);
+        
+        await this.updatePriceIdxs();
+    }
+
+    public async updatePriceIdxs(): Promise<void> {
+        await db
+            .update(itemsTable)
+            .set({ priceIdxs: this.priceIndexes})
+            .where(and(eq(itemsTable.productId, this.getProductId()), 
+                       eq(itemsTable.itemId, this.itemId)))
+            .execute()
+
+    }
+
     public getPriceIdxs(): number[] {
         return this.priceIndexes;
+    }
+
+    public async removePriceIdx(idx: number): Promise<void> {
+        this.priceIndexes = this.priceIndexes.filter(i => i !== idx);
+
+        await this.updatePriceIdxs();
     }
 
     /**

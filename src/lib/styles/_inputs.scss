@@ -1,0 +1,56 @@
+@use 'vars' as vars;
+
+@mixin number{
+  padding: 0.5rem 1rem 0.5rem 1rem;
+  background-color: vars.$primary-color;
+  border: none;
+  margin-right: .5rem;
+  color: vars.$text-color;
+  font-size: x-large;
+  font-family: 'Roboto Mono', monospace;
+  border-radius: vars.$large-radius;
+
+  &:focus {
+    border: none;
+    outline: none;
+  }
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+@mixin checkbox{
+      appearance: none;
+      -webkit-appearance: none;
+      width: 4rem;
+      height: 2rem;
+      background-color: vars.$primary-color;
+      border-radius: vars.$large-radius;
+      position: relative;
+      outline: none;
+      cursor: pointer;
+      transition: background-color 0.4s;
+
+    &::before {
+      content: "";
+      position: absolute;
+      width: 1.6rem;
+      height: 1.6rem;
+      top: 3px;
+      left: 3px;
+      background-color: lighten($color: vars.$primary-color, $amount: 10%);
+      border-radius: vars.$full-radius;
+      transition: transform 0.4s, background-color 0.4s;
+    }
+
+    &:checked {
+      background-color: vars.$accent-color;
+    }
+
+    &:checked::before {
+      transform: translateX(2rem);
+      background-color: vars.$second-accent-color;
+    }}

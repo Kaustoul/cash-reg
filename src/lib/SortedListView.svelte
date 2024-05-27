@@ -12,15 +12,17 @@
     export let onRowClick: (productId: number) => void = () => {};
     export let idFieldName: string = "id";
     export let showSearchBar: boolean = false;
+    export let removeButton: boolean = false;
+    export let onRemovePressed: (selectedIds: (string | number)[]) => void = () => {};
     export let buttons: { [key: string]: { 
         icon: "plus" | "delete" | "import",
         color: "red" | "blue" | "green" | "yellow" | "accent",
         action: () => void 
     }} = {};
     
-    let selected: (string | number)[];
+    let selected: (string | number)[] = [];
     let search = '';
-    
+
     function handleFocus(event: any) {
         event.target.select();
     }
@@ -33,6 +35,19 @@
             <input bind:value={search} on:focus={handleFocus} type="search" placeholder="Search..." />
         </div>
     {/if}
+    {#if removeButton}
+        <button type="button"
+            class={`btn btn-red ${selected.length == 0 ? 'disabled' : ''}`}
+            on:click={() => {
+                onRemovePressed(selected);
+                selected = [];
+            }}
+        >
+            <DeleteIcon size="2rem" />
+            Smazat 
+        </button>
+    {/if}
+
     {#each Object.entries(buttons) as [key, value]}
         <button type="button"
             class={`btn btn-${value.color}`}
@@ -49,7 +64,7 @@
         </button>
     {/each}
 </div>
-<SortedList {data} {schema} {clickableRows} {onRowClick} {idFieldName} bind:selected={selected}/>
+<SortedList {data} {schema} {clickableRows} {onRowClick} {idFieldName} bind:selected/>
 
 <style lang="scss">
     @use '$lib/styles/vars' as vars;

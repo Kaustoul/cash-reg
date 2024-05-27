@@ -180,17 +180,33 @@ export class Product {
         this.itemDiscounts = this.itemDiscounts.filter(itemDiscount => itemDiscount!== discount);
     }
 
-    public addPrice(price: Price): void {
-        this.prices.push(price);
+    public async addPrice(price: Price, applyToItems: boolean = false): Promise<void> {
+        const idx = this.prices.push(price) - 1;
+
+        // Update the database
+        await this.updatePrices();
+
+        if (applyToItems) {
+            for (const item of this.items.values()) {
+                console.log(idx)
+                await item.addPriceIdx(idx);
+            }
+        }
     }
 
     // Remove a price from the prices array by index
-    public removePrice(idx: number): void {
+    public async removePrice(idx: number): Promise<void> {
         if (idx < 0 || idx >= this.prices.length) {
             throw new Error("Price index out of bounds");
         }
 
         this.prices.splice(idx, 1);
+
+        for (const item of this.items.values()) {
+            await item.removePriceIdx(idx);
+        }
+
+        await this.updatePrices();
     }
 
     public async updatePrices() {

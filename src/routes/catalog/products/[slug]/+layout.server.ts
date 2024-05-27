@@ -5,6 +5,7 @@ export const load: LayoutServerLoad = async ({ url, params }) => {
     const product = Catalog.getProduct(Number(params.slug));
     const json = product.toJSON();
     for (let i = 0; i < json.prices.length; i++) {
+        console.log(i)
         const price = json.prices[i];
         json.prices[i] = {
             // @ts-ignore

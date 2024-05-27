@@ -65,4 +65,6 @@
         background-color: vars.$content-bg-color;
         padding: 2.5rem;
     }
+
+
 </style>

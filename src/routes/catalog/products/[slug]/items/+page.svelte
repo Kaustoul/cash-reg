@@ -16,6 +16,10 @@
     function addPriceToItem(id: number) {
         
     }
+
+    function removeItems(selected: (string | number)[]) {
+        console.log(selected);
+    }
 </script>
 
 <SortedListView
@@ -33,10 +37,7 @@
             icon: "plus",
             color: "green"
         },
-        "Smazat": {
-            action: () => {},
-            icon: "delete",
-            color: "red"
-        },
     }}
+    removeButton={true}
+    onRemovePressed={removeItems}
 />

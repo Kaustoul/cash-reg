@@ -1,28 +1,29 @@
 import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text, foreignKey, primaryKey } from "drizzle-orm/sqlite-core";
-import { MoneySum } from "../../prices/money-sum";
-import { tills } from "./till-model";
+import { tillsTable } from "./till-model";
+import type { IMoneySum } from "$lib/shared/interfaces/till";
 
-export const moneyTransfers = sqliteTable('money_transfers', {
-    transferId: integer('transferId')
+export const transactionsTable = sqliteTable('money_transfers', {
+    transactionId: integer('transferId')
         .notNull()
         .default(sql`(newid())`)
     ,
     
     tillId: integer('tillId')
         .notNull()
-        .references(() => tills.id, { onDelete: 'no action' })
+        .references(() => tillsTable.id, { onDelete: 'no action' })
     ,
 
-    moneySums: text('moneySums', { mode: 'json' })
+    amounts: text('moneySums', { mode: 'json' })
         .notNull()
-        .$type<[MoneySum]>()
-    ,
-
-    transactionId: integer('transactionId')
+        .$type<IMoneySum[]>()
     ,
 
     cashierId: integer('cashierId')
+    ,
+    
+    reason: text('reason', { length: 32 })
+        .notNull()
     ,
 
     note: text('note', { length: 256 })

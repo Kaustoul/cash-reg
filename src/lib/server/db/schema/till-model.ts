@@ -1,17 +1,18 @@
 import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text, } from "drizzle-orm/sqlite-core";
 import type { MoneySum } from "$lib/shared/prices/money-sum";
+import type { IMoneySum } from "$lib/shared/interfaces/till";
 
 
-export const tills = sqliteTable('tills', {
+export const tillsTable = sqliteTable('tills', {
     id: integer('tillId', { mode: 'number' })
         .notNull()
         .primaryKey({ autoIncrement: true })
     ,
 
-    prices: text('balance', {mode: 'json'})
+    balance: text('balance', {mode: 'json'})
         .notNull()
-        .$type<[MoneySum]>()
+        .$type<IMoneySum[]>()
     ,
     
     note: text('note', { length: 256 })

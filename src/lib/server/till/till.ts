@@ -1,7 +1,7 @@
-import { MoneySum } from "$lib/server/prices/money-sum";
+import { MoneySum } from "$lib/shared/prices/money-sum";
 import { ensureArray } from "$lib/shared/utils";
 
-class Till {
+export class Till {
     private open: boolean;
     private balance: MoneySum[];
     // private cashier: Employee;

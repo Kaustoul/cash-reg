@@ -2,12 +2,12 @@ import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
     schema: [
-        './src/db/schema/product-model.ts',
-        './src/db/schema/item-model.ts',
-        './src/db/schema/till-model.ts',
-        './src/db/schema/*.ts',
+        './src/lib/server/db/schema/product-model.ts',
+        './src/lib/server/db/schema/item-model.ts',
+        './src/lib/server/db/schema/till-model.ts',
+        './src/lib/server/db/schema/*.ts',
     ],
-    out: './src/db/migrations',
+    out: './src/lib/server/db/migrations',
     dialect: 'sqlite',
     verbose: true,
     strict: true,

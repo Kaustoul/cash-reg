@@ -1,16 +1,27 @@
-import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
-import Database from 'better-sqlite3';
-import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
-import path from 'path';
+import { type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
+import { type RunResult } from 'better-sqlite3';
+import type { SQLiteTransaction } from 'drizzle-orm/sqlite-core';
+import type { ExtractTablesWithRelations } from 'drizzle-orm';
+import type { TillsDataHandler } from './tills-data-handler';
+import { SQLiteDB } from './SQLite/sqlite-db';
 
-export function defaultSchema(db: BetterSQLite3Database) {
-    migrate(db, { migrationsFolder: path.join('src', 'lib', 'server', 'db', 'migrations')});
+export type SQLiteTx = SQLiteTransaction<
+    "sync",
+    RunResult, 
+    Record<string, never>, 
+    ExtractTablesWithRelations<Record<string, never>>
+>
+
+export type Transactions = SQLiteTx; 
+export type Databases = BetterSQLite3Database;
+
+export interface DB {
+    db: Databases;
+    tills: TillsDataHandler;
+
+    defaultSchema(): void;
 }
 
-const sqlite = new Database('.db');
-const db = drizzle(sqlite);
-defaultSchema(db);
-// if (!db._.schema) {
-// }
+export const database = new SQLiteDB('.db');
+export const db = database.db;
 
-export { db };

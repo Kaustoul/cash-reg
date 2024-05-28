@@ -20,7 +20,7 @@
         action: () => void 
     }} = {};
     
-    let selected: (string | number)[] = [];
+    export let selected: (string | number)[] = [];
     let search = '';
 
     function handleFocus(event: any) {

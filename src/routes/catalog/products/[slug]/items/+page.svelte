@@ -1,16 +1,35 @@
 <script lang="ts">
     import type { PageData } from '../$types';
     import SortedListView from '$lib/SortedListView.svelte';
+    import { Price } from '$lib/shared/prices/price';
 
     export let data: PageData;
+    const prices = [];
+    for (const priceData of data.prices) {
+        const price = Price.fromJSON(priceData);
+        prices.push(price);
+    }
+
+    const parsedData = {...data, prices: prices};
     
-    const listData = data.items.map((item) => {
-        return {
-            ...item,
-            priceStrs: data.itemPriceStrs[item.id]
+    const listData: {[key: string]: any}[] = [];
+    for (const item of parsedData.items) {
+        const priceStrs = [];
+        for (const priceIdx of item.priceIndexes) {
+            const price = parsedData.prices[priceIdx];
+            priceStrs.push(price.toString());
         }
-    });
+
+        listData.push({
+            fullId: item.fullId,
+            subname: item.subname,
+            priceStrs: priceStrs,
+            stock: item.stock,
+        });
+    }
+
     console.log(data);
+    console.log(parsedData);
     console.log(listData);
 
     function addPriceToItem(id: number) {

@@ -1,6 +1,6 @@
 import { importItemsAndProductsFromCSV } from '$lib/server/data-handlers/item-importer.js';
-import { CurrencyManager } from '$lib/server/prices/currency-manager.js';
-import type { Price } from '$lib/server/prices/price';
+import { CurrencyManager } from '$lib/shared/prices/currency-manager.js';
+import type { Price } from '$lib/shared/prices/price';
 import { Unit } from '$lib/server/products/product';
 import { Catalog } from '$lib/server/till/catalog';
 import type { PageServerLoad } from './$types';
@@ -12,14 +12,13 @@ export const load: PageServerLoad = async () => {
     for (const product of Catalog.getProducts()) {
         const unit = product.getUnits();
         let prices = parsePriceStr(product.getPrices());
-        let id, name, stock;
         if (unit !== Unit.UNIT) {
             prices = prices + " / " + unit
         }
 
         const info = product.getDisplayInfo();
-        id = info.displayId;
-        name = info.displayName;
+        const id = info.displayId;
+        const name = info.displayName;
 
         res.push({
             productId: product.getProductId(),

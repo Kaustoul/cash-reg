@@ -6,7 +6,7 @@ import Database from "better-sqlite3";
 import path from 'path'
 import fs from 'fs';
 import { drizzle } from "drizzle-orm/better-sqlite3";
-import { CashRegisterError } from "$lib/server/errors/cash-register-error";
+import { CashRegisterError } from "$lib/shared/errors/cash-register-error";
 import { defaultSchema } from "../db/db";
 
 export function testSQLiteDb(filename: string = 'test.db', keepfile: boolean = false) {

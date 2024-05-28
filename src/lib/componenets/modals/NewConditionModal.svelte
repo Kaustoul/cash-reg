@@ -5,6 +5,16 @@
 
     export let showModal: boolean = false;
     export let units: string;
+
+    let min = '';
+    let max = '';
+
+    $: {
+        if (showModal) {
+            min = '';
+            max = '';
+        }
+    }
 </script>
 <Modal bind:showModal>
     <div slot="header">
@@ -16,7 +26,7 @@
                 Množstevní podmínka
             </span>
         </div>
-        <ConditionInput units={units}/>
+        <ConditionInput units={units} bind:min bind:max/>
         <div class="footer">
             <button class="btn" on:click={() => showModal = false}>
                 Přidat

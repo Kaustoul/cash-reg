@@ -1,5 +1,7 @@
 <script lang="ts"> 
     export let units: string;
+    export let min = '';
+    export let max = '';
 </script>
 
 <div class="inputs">
@@ -11,6 +13,7 @@
             min="0" 
             step="1" 
             placeholder="Min"
+            bind:value={min}
         />
         <span>{units}</span>
     </div>
@@ -25,6 +28,7 @@
             min="0" 
             step="1" 
             placeholder="Max"
+            bind:value={max}
         />
         {units}
     </div>

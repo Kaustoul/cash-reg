@@ -1,8 +1,8 @@
 import Decimal from "decimal.js";
 import { readCSV } from "./csv-reader";
-import { Price } from "../prices/price";
+import { Price } from "$lib/shared/prices/price";
 import { Unit } from "../products/product";
-import { CashRegisterError } from "../errors/cash-register-error";
+import { CashRegisterError } from "$lib/shared/errors/cash-register-error";
 import { Catalog } from "../till/catalog";
 import { db } from "../db/db";
 

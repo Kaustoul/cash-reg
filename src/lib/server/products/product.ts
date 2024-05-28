@@ -6,15 +6,15 @@
  * @version: 1.0
  */
 
-import { ErrCode } from "$lib/server/errors/cash-register-error";
-import { DuplicateError } from "$lib/server/errors/duplicate-error";
-import { NotFoundError } from "$lib/server/errors/not-found-error";
+import { ErrCode } from "$lib/shared/errors/cash-register-error";
+import { DuplicateError } from "$lib/shared/errors/duplicate-error";
+import { NotFoundError } from "$lib/shared/errors/not-found-error";
 import { createFullItemId } from "$lib/shared/utils";
 import { eq } from "drizzle-orm";
 import { productsTable } from "../db/schema/product-model";
-import type { Condition } from "../prices/condition";
-import type { ItemDiscount } from "../prices/item-discount";
-import type { Price } from "../prices/price";
+import type { Condition } from "$lib/shared/prices/condition";
+import type { ItemDiscount } from "$lib/shared/prices/item-discount";
+import type { Price } from "$lib/shared/prices/price";
 import type { Item } from "./item";
 import { db } from "../db/db";
 

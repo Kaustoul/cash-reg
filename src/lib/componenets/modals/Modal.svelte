@@ -1,21 +1,38 @@
 <script lang="ts">
+    import { pushState } from '$app/navigation';
     import CloseIcon from 'svelte-material-icons/Close.svelte';
 	export let showModal: boolean;
-	let dialog: any;
+    export let onDialogClosed: () => void = () => {};
+    export let form: any | undefined = undefined;
+    let dialog: any;
 
-    $: if (dialog && !showModal) dialog.close();
-	$: if (dialog && showModal) dialog.showModal();
+    function closeModal() {
+        onDialogClosed();
+        showModal = false;
+    }
+
+    $: {
+        if (dialog && !showModal) {
+            dialog.close();
+        }
+    }
+
+	$: { 
+        if (dialog && showModal) {
+            dialog.showModal();
+        }
+    }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
 <dialog
 	bind:this={dialog}
-	on:close={() => (showModal = false)}
-	on:click|self={() => dialog.close()}
+	on:close={closeModal}
+	on:click|self={closeModal}
     on:click|stopPropagation
 >
 <div class="contianer">
-    <button class="close" on:click={() => dialog.close()}>
+    <button class="close" on:click={closeModal}>
         <CloseIcon size={"3rem"} />  
     </button>
     <div class="head">

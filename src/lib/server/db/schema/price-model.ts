@@ -1,5 +1,5 @@
-import { CashRegisterError } from "$lib/server/errors/cash-register-error";
-import { Price, type PriceModel } from "$lib/server/prices/price";
+import { CashRegisterError } from "$lib/shared/errors/cash-register-error";
+import { Price, type PriceModel } from "$lib/shared/prices/price";
 import { customType } from "drizzle-orm/sqlite-core";
 
 export const priceListModel = customType<

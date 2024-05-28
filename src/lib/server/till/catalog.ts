@@ -1,10 +1,10 @@
 import Decimal from "decimal.js";
 import { Item } from "../products/item";
 import { Product, type Unit } from "../products/product";
-import { NotFoundError } from "$lib/server/errors/not-found-error";
-import { CashRegisterError, ErrCode } from "$lib/server/errors/cash-register-error";
+import { NotFoundError } from "$lib/shared/errors/not-found-error";
+import { CashRegisterError, ErrCode } from "$lib/shared/errors/cash-register-error";
 import { createFullItemId, ensureArray, productIdFromFullId } from "$lib/shared/utils";
-import { Price } from "../prices/price";
+import { Price } from "$lib/shared/prices/price";
 import { productsTable } from "../db/schema/product-model";
 import { itemsTable } from "../db/schema/item-model";
 import { eq, sql } from "drizzle-orm";

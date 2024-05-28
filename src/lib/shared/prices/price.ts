@@ -1,13 +1,10 @@
 import Decimal from "decimal.js";
 import { MoneySum } from "./money-sum";
 import type { Currency } from "./currency";
-import type { ShoppingCart } from "../till/shopping-cart";
+import type { ShoppingCart } from "$lib/shared/till/shopping-cart";
 import { ConditionalMixin, type ConditionalModel } from "./conditional";
 import type { Condition } from "./condition";
-import { db } from "../db/db";
-import { productsTable } from "../db/schema/product-model";
-import { eq } from "drizzle-orm";
-import type { Unit } from "../products/product";
+import type { Unit } from "$lib/server/products/product";
 import { CurrencyManager } from "./currency-manager";
 
 export class Price extends MoneySum {
@@ -44,6 +41,10 @@ export class Price extends MoneySum {
         );
     }
     
+    public toString(units?: Unit): string {
+        return `${super.toString()}` + (units !== undefined ? ` / ${units}` : '');
+    }
+
     public toJSON() {
         return {
             ...super.toJSON(),

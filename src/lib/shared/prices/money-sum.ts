@@ -1,9 +1,5 @@
 import Decimal from "decimal.js";
 import type { Currency } from "./currency";
-import type { ShoppingCart } from "../till/shopping-cart";
-import { ensureArray } from "$lib/shared/utils";
-import { FlatDiscount } from "./flat-discount";
-import { PercentDiscount } from "./percent-discount";
 import type { Discount } from "./discount";
 import { CurrencyManager } from "./currency-manager";
 
@@ -69,6 +65,10 @@ export class MoneySum {
 
     public getCurrency(): Currency {
         return this.currency;
+    }
+
+    public toString(): string {
+        return `${this.value} ${this.currency.getSymbol()}`;
     }
 
     public toJSON() {

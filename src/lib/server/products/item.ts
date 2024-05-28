@@ -1,12 +1,12 @@
 import Decimal from "decimal.js";
 import type { Product } from "./product";
-import { NotEnoughStockError } from "$lib/server/errors/not-enough-stock-error";
-import type { Price } from "../prices/price";
-import type { Discount } from "../prices/discount";
+import { NotEnoughStockError } from "$lib/shared/errors/not-enough-stock-error";
+import type { Price } from "$lib/shared/prices/price";
+import type { Discount } from "$lib/shared/prices/discount";
 import { createFullItemId, ensureArray } from "$lib/shared/utils";
-import type { ShoppingCart } from "../till/shopping-cart";
-import { CashRegisterError } from "$lib/server/errors/cash-register-error";
-import type { ItemDiscount } from "../prices/item-discount";
+import type { ShoppingCart } from "$lib/shared/till/shopping-cart";
+import { CashRegisterError } from "$lib/shared/errors/cash-register-error";
+import type { ItemDiscount } from "$lib/shared/prices/item-discount";
 import { db } from "../db/db";
 import { itemsTable } from "../db/schema/item-model";
 import { and, eq } from "drizzle-orm";

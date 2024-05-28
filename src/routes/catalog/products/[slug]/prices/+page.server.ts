@@ -1,6 +1,6 @@
-import { MaxVolumeCondition, MinVolumeCondition } from "$lib/server/prices/condition";
-import { CurrencyManager } from "$lib/server/prices/currency-manager";
-import { Price } from "$lib/server/prices/price";
+import { MaxVolumeCondition, MinVolumeCondition } from "$lib/shared/prices/condition";
+import { CurrencyManager } from "$lib/shared/prices/currency-manager";
+import { Price } from "$lib/shared/prices/price";
 import { Catalog } from "$lib/server/till/catalog";
 import type { Actions } from "@sveltejs/kit";
 import Decimal from "decimal.js";

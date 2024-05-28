@@ -14,6 +14,7 @@
         showModal[key] = true;
     }
 
+    let selected: [] = [];
     async function removePrices(selected: (string | number)[]) {
         selected = selected as number[];
 
@@ -27,6 +28,8 @@
 
         invalidateAll();
     }
+
+    console.log(data);
 
 </script>
 
@@ -42,7 +45,8 @@
 />
 
 <SortedListView
-    data={data.prices} 
+    data={data.prices}
+    bind:selected
     schema={[
         {fieldName: "value", type: "string", columnHeader: "Cena" },
         {fieldName: "conditionStr", type: "selector", columnHeader: "Podmínky",

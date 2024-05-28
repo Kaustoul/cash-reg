@@ -1,7 +1,6 @@
 import { sql } from "drizzle-orm";
-import { integer, sqliteTable, text, uniqueIndex,  } from "drizzle-orm/sqlite-core";
-import type { Price, PriceModel } from "../../prices/price";
-import { Unit } from "../../products/product";
+import { integer, sqliteTable, text, } from "drizzle-orm/sqlite-core";
+import { Unit } from "$lib/server/products/product";
 import { priceListModel } from "./price-model";
 
 export const productsTable = sqliteTable('products', {

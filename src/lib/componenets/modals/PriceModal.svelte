@@ -5,16 +5,31 @@
 
     export let showModal: boolean = false;
     export let units: string;
-
+    
+    let form: any;
     let showConditionsInputs = false;
     let applyToAll = true;
+    let priceValue = '';
+    let min = '';
+    let max = '';
+
+    $: {
+        if (showModal) {
+            applyToAll = true;
+            showConditionsInputs = false;
+            priceValue = '';
+            min = '';
+            max = '';
+        }
+    }
+
 </script>
 
-<Modal bind:showModal>
+<Modal bind:showModal >
     <div slot="header">
         Přidat novou cenu
     </div>
-    <form method='POST' use:enhance action="?/newPrice">
+    <form bind:this={form} method='POST' use:enhance action="?/newPrice">
         <label>
             Cena
             <div>
@@ -24,6 +39,7 @@
                     min="0"
                     step="0.01"
                     placeholder="420.69"
+                    bind:value={priceValue}
                 />
                 Kč
             </div>
@@ -34,8 +50,7 @@
                 type="checkbox"
                 name="applyAll"
                 class="checkbox"
-                checked={applyToAll}
-                on:change={() => applyToAll = !applyToAll}
+                bind:checked={applyToAll}
             />
         </label>
         <label>
@@ -43,15 +58,14 @@
             <input 
                 type="checkbox"
                 class="checkbox"
-                checked={showConditionsInputs}
-                on:change={() => showConditionsInputs = !showConditionsInputs}
+                bind:checked={showConditionsInputs}
             />
         </label>
         <div class="cond-inputs {showConditionsInputs ? '' : 'hidden'}">
-            <ConditionInput units={units}/>
+            <ConditionInput units={units} bind:min bind:max/>
         </div>
         <div class="footer">
-            <button class="btn" on:click={() => showModal = false}>
+            <button class="btn" type="submit" on:click={() => showModal = false}>
                 Přidat
             </button>
         </div>

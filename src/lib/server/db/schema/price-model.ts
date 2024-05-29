@@ -1,5 +1,4 @@
-import { CashRegisterError } from "$lib/shared/errors/cash-register-error";
-import { Price, type PriceModel } from "$lib/shared/prices/price";
+import { Price, type PriceModel } from "../../../shared/prices/price";
 import { customType } from "drizzle-orm/sqlite-core";
 
 export const priceListModel = customType<
@@ -24,7 +23,7 @@ export const priceListModel = customType<
     fromDriver(value: PriceModel[] | string): Price[] {
         // getting rid of TS errors :]
         if (typeof value !== "string") {
-            throw new CashRegisterError("Invalid price list data type");
+            return []; 
         }
 
         const json = JSON.parse(value);

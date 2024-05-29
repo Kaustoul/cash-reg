@@ -1,6 +1,6 @@
-import { ErrCode } from "$lib/shared/errors/cash-register-error";
-import { NotFoundError } from "$lib/shared/errors/not-found-error";
-import type { Unit } from "$lib/server/products/product";
+import { ErrCode } from "../errors/cash-register-error";
+import { NotFoundError } from "../errors/not-found-error";
+import type { Unit } from "../../server/products/product";
 import type { ShoppingCart } from "../till/shopping-cart";
 import { ConditionFactory, MaxVolumeCondition, MinVolumeCondition, type Condition, type ConditionModel } from "./condition";
 

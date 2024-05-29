@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
 import type { ShoppingCart } from "../till/shopping-cart";
-import { CashRegisterError } from "$lib/shared/errors/cash-register-error";
+import { CashRegisterError } from "../errors/cash-register-error";
 import type { Unit } from "$lib/server/products/product";
 
 export interface Condition {

@@ -1,10 +1,10 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
-    
-    import SortedListView from "$lib/SortedListView.svelte";
+    import { enhance } from '$app/forms';
     import TabSelector from '$lib/TabSelector.svelte';
     import ViewTitle from '$lib/ViewTitle.svelte';
+    import TillCard from '$lib/componenets/TillCard.svelte';
     import type { PageData } from './$types';
+
 
 	export let data: PageData;
 
@@ -12,7 +12,7 @@
         "Pokladny": {
             url: "/tills"
         }, 
-        "Kategorie": {
+        "Měny": {
             url: "/tills/currencies",
             disabled: true
         }
@@ -22,16 +22,20 @@
 
 <ViewTitle title="Katalog"/>
 <TabSelector {tabs}/>
-<SortedListView 
-    data={data.tills} 
-    schema={[
-        {fieldName: "id", type: "number", columnHeader: "ID" },
-        {fieldName: "balance", type: "number", columnHeader: "Zůstatek" },
-    ]}
-    clickableRows={true}
-    idFieldName="productId"
-    onRowClick={(productId) => goto(`/catalog/products/${productId}`)}
-    showSearchBar={true}
-/>
 
 
+{#each data.tills as till}
+    <TillCard {till} />
+{/each}
+
+
+{#if data.tills.length === 0}
+    <form method="POST" use:enhance action="?/newTill">
+    <button type="submit" class="btn" >Přidat pokladnu</button>
+    </form>
+{/if}
+
+<style lang="scss">
+    @use "$lib/styles/vars" as vars;
+    @use "$lib/styles/buttons" as buttons;
+</style>

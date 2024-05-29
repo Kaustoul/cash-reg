@@ -16,8 +16,8 @@ export type Transactions = SQLiteTx;
 export type Databases = BetterSQLite3Database;
 
 export interface DB {
-    db: Databases;
-    tills: TillsDataHandler;
+    readonly db: Databases;
+    readonly _tills: TillsDataHandler;
 
     defaultSchema(): void;
 }

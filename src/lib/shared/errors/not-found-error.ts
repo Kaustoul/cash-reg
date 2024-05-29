@@ -1,4 +1,4 @@
-import { CashRegisterError, ErrCode } from "$lib/shared/errors/cash-register-error";
+import { CashRegisterError, ErrCode } from "./cash-register-error";
 
 // Code 50-60
 export class NotFoundError extends CashRegisterError {

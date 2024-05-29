@@ -5,19 +5,23 @@ import Database from 'better-sqlite3';
 import { sqliteTills } from './sqlite-tills-data-handler';
 import path from 'path';
 import type { TillsDataHandler, TransactionReason, TransactionResult } from '../tills-data-handler';
-import type { IMoneySum, ITill } from '$lib/shared/interfaces/till';
+import type { IMoneySum, ITill, TillStatus } from '$lib/shared/interfaces/till';
+import { sql } from 'drizzle-orm';
 
 export class SQLiteDB implements DB {
-    db: BetterSQLite3Database;
-    tills: TillsDataHandler = sqliteTills;
+    readonly db: BetterSQLite3Database;
+    readonly _tills: TillsDataHandler;
 
     constructor(dbFilePath: string) {
         const sqlite = new Database(dbFilePath);
         this.db = drizzle(sqlite);
         this.defaultSchema();
+
+        this._tills = sqliteTills;
     }
 
     defaultSchema(): void {
+        console.log('Creating default schema');
         migrate(this.db, { migrationsFolder: path.join('src', 'lib', 'server', 'db', 'migrations')});
     }
 
@@ -26,15 +30,19 @@ export class SQLiteDB implements DB {
     //---------------\\
     
     async fetchTill(id: number) {
-        return this.tills.fetchTill(this.db, id);
+        return await this._tills.fetchTill(this.db, id);
     }
 
     async fetchTills() {
-        return this.tills.fetchTills(this.db);
+        return await this._tills.fetchTills(this.db);
     }
 
-    async newTill(till: ITill) {
-        return this.tills.newTill(this.db, till);
+    async newTill() {
+        return await this._tills.newTill(this.db);
+    }
+
+    async changeStatus(tillId: number, status: TillStatus) {
+        return await this._tills.changeStatus(this.db, tillId, status);
     }
 
     // async saveTill(till) {
@@ -46,7 +54,7 @@ export class SQLiteDB implements DB {
         reason: TransactionReason,
         note?: string)
     : Promise<TransactionResult>{
-        return this.tills.changeBalanceTransaction(
+        return this._tills.changeBalanceTransaction(
             this.db,
             tillId,
             cashierId,

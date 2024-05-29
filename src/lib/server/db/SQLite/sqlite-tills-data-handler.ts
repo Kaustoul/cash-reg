@@ -7,7 +7,7 @@ import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { transactionsTable } from '../schema/money-transfer-model';
 import { ensureArray } from '$lib/shared/utils';
 
-export const SQLiteTills = {
+export const sqliteTills = {
     async fetchTill(db: BetterSQLite3Database | SQLiteTx, id: number): Promise<ITill> {
         const res = await (db)
             .select()
@@ -21,13 +21,7 @@ export const SQLiteTills = {
             throw new Error(`Till with id ${id} not found`);
         }
 
-        return {
-            id: res[0].id,
-            balance: res[0].balance,
-            note: res[0].note,
-            createdAt: res[0].createdAt,
-            modifiedAt: res[0].modifiedAt,
-        } satisfies ITill;
+        return res[0];
     },
 
     async fetchTills(db: BetterSQLite3Database | SQLiteTx): Promise<ITill[]> {
@@ -39,10 +33,12 @@ export const SQLiteTills = {
         return res;
     },
 
-    async newTill(db: BetterSQLite3Database | SQLiteTx, till: ITill): Promise<number> {
+    async newTill(db: BetterSQLite3Database | SQLiteTx): Promise<number> {
         const res = await db
             .insert(tillsTable)
-            .values(till)
+            .values({
+                balance: [],
+            })
             .returning({ newId: tillsTable.id })
 
         if (res.length <= 0) {
@@ -50,6 +46,15 @@ export const SQLiteTills = {
         }
 
         return res[0].newId;
+    },
+
+    async changeStatus(db: BetterSQLite3Database | SQLiteTx, tillId: number, status: TillStatus): Promise<void> {
+        await db
+            .update(tillsTable)
+            .set({ status: status })
+            .where(eq(tillsTable.id, tillId))
+            .execute()
+        ;  
     },
     
     async changeBalanceTransaction(

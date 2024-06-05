@@ -19,8 +19,38 @@
             <div class="card-title">
                 <span class="title">Pokladna {till.id}</span>
             </div>
+            <div class="card-suntitle">
+                <span class="title">{till.status !== 'closed' ? "Přihlášen:": ''}</span>
+            </div>
 
-            <div class="card-lower-actions">
+        </div>
+            {#if true}
+                <button type="button"
+                class="btn-red "
+                on:click={() => {}}
+                >
+                    <CloseIcon size="2.5rem" />
+                    Zavřít pokladnu
+                </button>
+            {/if}
+
+        <div class="card-transactions">
+                <button type="button"
+                    class="btn-green"
+                    on:click={() => {}}
+                >
+                    <PlusIcon size="2.5rem" />
+                    Vklad
+                </button>
+                <button type="button"
+                    class="btn-red"
+                    on:click={() => {}}
+                >
+                    <MinusIcon size="2.5rem" />
+                    Výběr
+                </button>           
+        </div>
+            <div class="card-actions">
 
                 <button type="button"
                     class="btn"
@@ -44,32 +74,6 @@
                     Kontrola    
                 </button>
             </div>
-        </div>
-        <div class="card-buttons">
-            {#if true}
-                <button type="button"
-                class="btn-red "
-                on:click={() => {}}
-                >
-                    <CloseIcon size="2.5rem" />
-                    Zavřít pokladnu
-                </button>
-            {/if}
-                <button type="button"
-                    class="btn-green"
-                    on:click={() => {}}
-                >
-                    <PlusIcon size="2.5rem" />
-                    Vklad
-                </button>
-                <button type="button"
-                    class="btn-red"
-                    on:click={() => {}}
-                >
-                    <MinusIcon size="2.5rem" />
-                    Výběr
-                </button>           
-        </div>
     </div>
 </div>
 
@@ -116,7 +120,7 @@
         justify-content: left;
         align-items: center;
         flex: 1 1 50%;
-        height: 100%;
+        padding-top: 2rem;
 
     }
 
@@ -140,13 +144,11 @@
 
     .btn-red {
         @include buttons.btn($btn-color: vars.$red);
-        height: 100%;
         font-size: x-large;
     }
 
     .btn-green {
         @include buttons.btn($btn-color: vars.$green);
-        height: 100%;
         font-size: x-large;
     }
 

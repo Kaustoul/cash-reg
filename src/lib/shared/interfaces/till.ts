@@ -1,9 +1,4 @@
-export type DecimalStr = string;
-
-export interface IMoneySum {
-    value: DecimalStr;
-    currency: string;
-}
+import { type IMoneySum } from './money-sum';
 
 export type TillStatus = 'open' | 'closed' | 'paused' | 'active';
 export interface ITill {

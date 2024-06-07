@@ -3,6 +3,7 @@
     import PlusIcon from 'svelte-material-icons/Plus.svelte';
     import DeleteIcon from 'svelte-material-icons/Delete.svelte';
     import MagnifyIcon from 'svelte-material-icons/Magnify.svelte';
+    import ImportIcon from 'svelte-material-icons/Import.svelte';
 
     import type { DataRows, Schema } from '$lib/componenets/interactables/SortedList.svelte';
 
@@ -26,6 +27,10 @@
     function handleFocus(event: any) {
         event.target.select();
     }
+
+
+
+    const BTN_SIZE = "1.7rem"
 </script>
 
 <div class="action-bar">
@@ -54,11 +59,11 @@
             on:click={() => value.action()}
         >
             {#if value.icon === "plus"}
-                <PlusIcon size="1.7rem" />
+                <PlusIcon size={BTN_SIZE} />
             {:else if value.icon === "delete"}
-                <DeleteIcon size="1.7rem" />
+                <DeleteIcon size={BTN_SIZE} />
             {:else if value.icon === "import"}
-                
+                <ImportIcon size={BTN_SIZE} />  
             {/if}
             {key}
         </button>

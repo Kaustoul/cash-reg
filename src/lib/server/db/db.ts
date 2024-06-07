@@ -18,10 +18,11 @@ export type Databases = BetterSQLite3Database;
 export interface DB {
     readonly db: Databases;
     readonly _tills: TillsDataHandler;
+    readonly _products: ProductsDataHandler;
+    readonly _items: ItemsDataHandler;
 
     defaultSchema(): void;
 }
 
 export const database = new SQLiteDB('.db');
 export const db = database.db;
-

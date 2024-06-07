@@ -2,10 +2,12 @@ import { sql } from "drizzle-orm";
 import { integer, primaryKey, sqliteTable, text,  } from "drizzle-orm/sqlite-core";
 import Decimal from "decimal.js";
 import { productsTable } from "./product-model";
+import type { DecimalStr } from "$lib/shared/interfaces/money-sum";
 
 export const itemsTable = sqliteTable('items', {
     itemId: integer('itemid', { mode: 'number' })
         .notNull()
+        .default(sql`(0)`)
     ,
 
     productId: integer('productid')
@@ -28,7 +30,7 @@ export const itemsTable = sqliteTable('items', {
     ,
 
     stock: text('stock')
-        .$type<Decimal>()
+        .$type<DecimalStr>()
     ,
 
     ean: text('ean', { length: 128 })

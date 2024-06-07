@@ -4,10 +4,12 @@ import type { Price } from '$lib/shared/prices/price';
 import { Unit } from '$lib/server/products/product';
 import { Catalog } from '$lib/server/till/catalog';
 import type { PageServerLoad } from './$types';
+import type { Actions } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async () => {
     // await importItemsAndProductsFromCSV("src/lib/test/data/items.csv");
     await Catalog.fetchAll();
+    console.log(Catalog.getProducts());
     const res = []
     for (const product of Catalog.getProducts()) {
         const unit = product.getUnits();
@@ -61,3 +63,37 @@ function parsePriceStr(prices: Price[]): string {
 
     return priceStr;
 }
+
+export const actions = {
+    importCSV: async (event) => {
+        const data = await event.request.formData();
+        const file = data.get('csv') as File;
+
+        if (!file) {
+            return {
+                success: false,
+                status: 400,
+                error: "No file uploaded"
+            };
+        }
+
+        let count;
+        try {
+            count = await importItemsAndProductsFromCSV(await file.text());
+        } catch (e: any) {
+            return {
+                success: false,
+                status: 400,
+                error: e.message,
+            };
+        }
+        
+        return {
+            success: true,   
+            message: "Imported items and products from CSV file",
+            count: count
+        };
+    },
+} satisfies Actions;
+
+

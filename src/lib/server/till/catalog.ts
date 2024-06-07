@@ -51,7 +51,7 @@ export class Catalog {
         // if (productId === undefined) {
         //     productId = await Catalog.fetchNextProductId(database);
         // }
-        
+        console.log(unit) 
         const res = await database.insert(productsTable)
             .values({
                 // productId: productId,

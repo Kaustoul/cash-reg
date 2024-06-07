@@ -1,7 +1,13 @@
 import { eq } from 'drizzle-orm';
-import { TransactionReason, TransactionResult, type SQLiteTx, type TillsDataHandler } from '../tills-data-handler';
+import { 
+    TransactionReason,
+    TransactionResult,
+    type TillsDataHandler 
+} from '../tills-data-handler';
+import type { SQLiteTx } from '../db';
 import { tillsTable } from '$lib/server/db/schema/till-model'
-import { type IMoneySum, type ITill } from '$lib/shared/interfaces/till';
+import type { ITill, TillStatus } from '$lib/shared/interfaces/till';
+import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
 import Decimal from 'decimal.js';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { transactionsTable } from '../schema/money-transfer-model';
@@ -9,7 +15,7 @@ import { ensureArray } from '$lib/shared/utils';
 
 export const sqliteTills = {
     async fetchTill(db: BetterSQLite3Database | SQLiteTx, id: number): Promise<ITill> {
-        const res = await (db)
+        const res = await db
             .select()
             .from(tillsTable)
             .where(eq(tillsTable.id, id))

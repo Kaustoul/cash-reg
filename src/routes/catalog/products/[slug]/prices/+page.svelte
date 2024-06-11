@@ -4,8 +4,26 @@
     import NewPriceModal from '$lib/componenets/modals/PriceModal.svelte';
     import type { PageData } from '../$types.js';
     import { invalidateAll } from '$app/navigation';
+    import { formatConditionStrs } from '$lib/shared/utils/condition-utils.js';
     
     export let data: PageData;
+    const pricesData: {
+        value: string,
+        conditionStrs: string[],
+        currency: string,
+        idx: number
+    }[] = []
+
+    for (let i = 0; i < data.product.prices.length; i++) {
+        const price = data.product.prices[i];
+        pricesData.push({
+            value: price.value.value,
+            conditionStrs: formatConditionStrs(price.conditions, data.product.units),
+            idx: i,
+            currency: price.value.currency
+        });
+    }
+
     let showModal = {
         "newcondition": false,
         "newprice": false,
@@ -15,13 +33,12 @@
     }
 
     let selected: [] = [];
+
     async function removePrices(selected: (string | number)[]) {
         selected = selected as number[];
-
 		const data = new FormData();
         data.set("idxs", selected.join(","));
-
-		const response = await fetch("?/deletePrice", {
+		const response = await fetch("?/removePrice", {
 			method: 'POST',
 			body: data,
 		});
@@ -29,29 +46,30 @@
         invalidateAll();
     }
 
-    console.log(data);
-
 </script>
 
 
 <NewConditionModal
     bind:showModal={showModal["newcondition"]}
-    units={data.units}
+    units={data.product.units}
 />
 
 <NewPriceModal
     bind:showModal={showModal["newprice"]}
-    units={data.units}
+    units={data.product.units}
 />
 
 <SortedListView
-    data={data.prices}
+    data={pricesData}
     bind:selected
     schema={[
+        {fieldName: "currency", type: "string", columnHeader: "Měna" },
         {fieldName: "value", type: "string", columnHeader: "Cena" },
-        {fieldName: "conditionStr", type: "selector", columnHeader: "Podmínky",
-            props: {maxSelectorItems: 1, selectorOnAdd: () => openModal("newcondition"), deleteEndpoint: "?/deleteAllPriceConditions"}},
-{fieldName: "currency", type: "string", columnHeader: "Měna" },
+        {fieldName: "conditionStrs", type: "selector", columnHeader: "Podmínky",
+            props: {maxSelectorItems: 1, selectorOnAdd: () => openModal("newcondition"),
+                deleteEndpoint: "?/removePriceCondition"
+            }
+        },
     ]}
     buttons={{
         "Přidat": {

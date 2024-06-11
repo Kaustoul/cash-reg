@@ -1,13 +1,14 @@
 CREATE TABLE `products` (
 	`productid` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text(256),
-	`prices` TEXT NOT NULL,
+	`prices` text NOT NULL,
 	`units` text NOT NULL,
-	`createdAt` integer DEFAULT (unixepoch()) NOT NULL
+	`createdAt` integer DEFAULT (unixepoch()) NOT NULL,
+	`modifiedAt` integer DEFAULT (unixepoch()) NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `items` (
-	`itemid` integer NOT NULL,
+	`itemid` integer DEFAULT (0) NOT NULL,
 	`productid` integer NOT NULL,
 	`name` text(256) NOT NULL,
 	`priceIdxs` text NOT NULL,

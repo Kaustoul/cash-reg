@@ -1,67 +1,26 @@
-import { importItemsAndProductsFromCSV } from '$lib/server/data-handlers/item-importer.js';
-import { CurrencyManager } from '$lib/shared/prices/currency-manager.js';
-import type { Price } from '$lib/shared/prices/price';
-import { Unit } from '$lib/server/products/product';
-import { Catalog } from '$lib/server/till/catalog';
+import { csvImporter } from '$lib/server/data-handlers/item-importer.js';
 import type { PageServerLoad } from './$types';
 import type { Actions } from '@sveltejs/kit';
+import { database } from '$lib/server/db/db';
+import { formatSumsArray } from '$lib/shared/utils/money-sum-utils';
+import { formatProductName, formatFullId } from '$lib/shared/utils/product-utils';
 
 export const load: PageServerLoad = async () => {
-    // await importItemsAndProductsFromCSV("src/lib/test/data/items.csv");
-    await Catalog.fetchAll();
-    console.log(Catalog.getProducts());
-    const res = []
-    for (const product of Catalog.getProducts()) {
-        const unit = product.getUnits();
-        let prices = parsePriceStr(product.getPrices());
-        if (unit !== Unit.UNIT) {
-            prices = prices + " / " + unit
-        }
-
-        const info = product.getDisplayInfo();
-        const id = info.displayId;
-        const name = info.displayName;
-
-        res.push({
-            productId: product.getProductId(),
-            id: id,
-            name: name,
-            status: "STATUS",
-            prices: prices,
-            stock: 'N/A',
-            itemCnt: product.getItems().size,
+    const products = await database.fetchProducts(true);
+    const productsDisplayList = [];
+    for (const product of products) {
+        productsDisplayList.push({
+            fullId: formatFullId(product),
+            productId: product.productId,
+            prices: formatSumsArray(product.prices.map(p => p.value)),
+            name: formatProductName(product),
+            stock: "N/A"
         });
     }
-
     return {
-        products: res
-    };
-}
-
-function parsePriceStr(prices: Price[]): string {
-    let maxPrice = prices[0];
-    let minPrice = prices[0];
-    for (const price of prices) {
-        if (price.getCurrency() !== CurrencyManager.getDefaultCurrency()) {
-            continue;
-        }
-
-        if (price.getValue().gt(maxPrice.getValue())) {
-            maxPrice = price;
-        }
-
-        if (price.getValue().lt(minPrice.getValue())) {
-            minPrice = price;
-        }
+        products: products,
+        displayInfo: productsDisplayList,
     }
-    let priceStr;
-    if (maxPrice.getValue().eq(minPrice.getValue())) {
-        priceStr = maxPrice.getValue().toString() + " " + maxPrice.getCurrency().getCode();
-    } else {
-        priceStr = minPrice.getValue().toString() + " - " + maxPrice.getValue().toString() + " " + maxPrice.getCurrency().getCode();
-    }
-
-    return priceStr;
 }
 
 export const actions = {
@@ -79,7 +38,7 @@ export const actions = {
 
         let count;
         try {
-            count = await importItemsAndProductsFromCSV(await file.text());
+            count = await csvImporter(await file.text());
         } catch (e: any) {
             return {
                 success: false,

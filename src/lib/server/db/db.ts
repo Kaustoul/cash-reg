@@ -4,6 +4,8 @@ import type { SQLiteTransaction } from 'drizzle-orm/sqlite-core';
 import type { ExtractTablesWithRelations } from 'drizzle-orm';
 import type { TillsDataHandler } from './tills-data-handler';
 import { SQLiteDB } from './SQLite/sqlite-db';
+import type { ItemsDataHandler } from './items-data-handler';
+import type { ProductsDataHandler } from './products-data-handler';
 
 export type SQLiteTx = SQLiteTransaction<
     "sync",

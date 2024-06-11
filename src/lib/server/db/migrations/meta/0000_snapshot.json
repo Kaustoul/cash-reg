@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "3beca195-efd7-483b-b963-2e80243bf935",
+  "id": "26fb27d0-363d-4512-abd3-874aedeb2f80",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "products": {
@@ -23,7 +23,7 @@
         },
         "prices": {
           "name": "prices",
-          "type": "TEXT",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -37,6 +37,14 @@
         },
         "createdAt": {
           "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        },
+        "modifiedAt": {
+          "name": "modifiedAt",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -57,7 +65,8 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "(0)"
         },
         "productid": {
           "name": "productid",

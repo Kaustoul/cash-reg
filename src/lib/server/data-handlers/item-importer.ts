@@ -5,6 +5,8 @@ import { Unit } from "../products/product";
 import { CashRegisterError } from "$lib/shared/errors/cash-register-error";
 import { Catalog } from "../till/catalog";
 import { database, db, type Databases } from "../db/db";
+import { CurrencyManager } from "$lib/shared/prices/currency-manager";
+import type { IPrice } from "$lib/shared/interfaces/price";
 
 export async function importItemsAndProductsFromCSV(
     rawCSV: string,
@@ -24,7 +26,7 @@ export async function importItemsAndProductsFromCSV(
     let itemId: number | undefined;
     let name: string | null;
     let subname: string;
-    let price: Price;
+    let price: Price | undefined;
     let stock: Decimal | undefined;
     let unit: Unit;
     let ean: string | null;
@@ -156,7 +158,7 @@ export async function importItemsAndProductsFromCSV(
 
 export async function csvImporter(
     rawCSV: string,
-    db: Database = database;
+    db = database
 ): Promise<number> {
     const csvData = parseCSV(rawCSV);
     console.log(csvData);
@@ -168,18 +170,15 @@ export async function csvImporter(
     
     const lines = csvData;
 
-    let productId: number | undefined;
     let itemId: number | undefined;
     let name: string | null;
     let subname: string;
-    let price: Price;
-    let stock: Decimal | undefined;
+    let price: IPrice | undefined;
+    let stock: string | null;
     let unit: Unit;
     let ean: string | null;
 
     let currentProductId: number | undefined;
-    let currentPrice: Price
-    let lastItemId: number | undefined;
 
     let count = 0;
 
@@ -187,19 +186,13 @@ export async function csvImporter(
         console.log("Reading line: " + line.join(", "));
         // productId
         const productIdStr = line[0];
-        if (productIdStr !== null) {   
-            productId = Number.parseInt(productIdStr.trim());
-            if (Number.isNaN(productId)) {
-                throw new CashRegisterError("Invalid product ID: " + productIdStr);
-            }
-            
-            if (Catalog.containsProduct(productId)) {
-                throw new CashRegisterError("Product with ID " + productId + " already exists in the catalog.");
-            }
-        }
+        // we do not do nothing with it for now
 
         // name
         name = line[1]
+        if (name !== null) {
+            name = name.trim();
+        }
 
         // itemId
         const itemIdStr = line[2];
@@ -208,15 +201,10 @@ export async function csvImporter(
             if (Number.isNaN(itemId)) {
                 throw new CashRegisterError("Invalid item ID: " + productIdStr);
             }
-            
-            if (productId !== undefined && Catalog.containsItem(productId, itemId)) {
-                throw new CashRegisterError("Item with ID " + productId + " already exists in the catalog.");
-            }
         } else {
-            itemId = undefined;
+            // if no itemId is set that means we are creating a new single item product
+            itemId = 1;
         }
-
-        console.log("itemId: ", itemId);
 
         // Subname
         if (line[3] == null) {
@@ -225,37 +213,46 @@ export async function csvImporter(
         subname = line[3].trim();
 
         // Price
-        const priceStr = line[4];
+        let priceStr = line[4];
         if (priceStr === null) {
-            if (itemId === undefined || itemId === 1) {
+            if (itemId === 1) {
                 throw new CashRegisterError("Missing Price value for item : '" + subname +"'.");
             }
-
-            price = currentPrice!;
+            
+            price = undefined;
         } else {
-            let priceVal = new Decimal(priceStr.trim());
+            priceStr = priceStr.trim();
+            const priceVal = new Decimal(priceStr.trim());
    
             if (Decimal.isDecimal(priceVal) === false) {
                 throw new CashRegisterError("Invalid Price value for item : '" + subname +"'.");
             }
             
-            price = new Price(priceVal);
+            price = {
+                value: {
+                    value: priceStr,
+                    currency: CurrencyManager.getDefaultCurrency().getCode(),
+                },
+                conditions: [],
+            }
+
+            console.log(price);
         }
         
 
         // Stock
-        const stockStr = line[5];
-        if (stockStr === null) {
-            stock = undefined;
-        } else {
-            stock = new Decimal(stockStr.trim());
+        stock = line[5];
+        if (stock !== null) {
+            stock = stock.trim();    
+            const stockVal = new Decimal(stock);
 
-            if (!Decimal.isDecimal(stock)) {
+            if (!Decimal.isDecimal(stockVal)) {
                 throw new CashRegisterError("Invalid Stock value for item : '" + subname +"'.");
             }
         }
+
         // Units
-        let unitStr = line[6];
+        const unitStr = line[6];
         unit = unitStr !== null ? Unit[unitStr.trim().toUpperCase() as keyof typeof Unit] : Unit.UNIT;
         // Ean
         ean = line[7];
@@ -263,38 +260,33 @@ export async function csvImporter(
         if (ean !== null && ean !== undefined)
             ean = ean.trim();
 
-        if (itemId === undefined || itemId === 1) {
-            console.log("Inserting product: " + name + " with ID: " + productId + ".")
-            currentProductId = await Catalog.insertNewProduct(db, name, price, unit, productId);
-        }
-
-        if (itemId === 1) {
-            currentPrice = price;
+        if (itemId === 1 && price !== undefined) {
+            console.log("Inserting product: " + name);
+            currentProductId = await db.newProduct({
+                name: name,
+                prices: [price],
+                units: unit,
+                itemDiscounts: [],
+            }) 
         }
 
         if (currentProductId === undefined) {
-            if (productId !== undefined) {    
-                currentProductId = productId;
-            } else {
-                throw new CashRegisterError("Missing product ID for item : '" + subname +"'.");
-            }
+            throw new CashRegisterError("Missing product ID for item : '" + subname +"'.");
         }
         
         console.log("Inserting item: " + subname + " with ID: " + itemId + " and product ID: " + currentProductId + ".")
 
-        await Catalog.insertNewItem(
-            db,
-            currentProductId,
-            subname,
-            [0],
-            stock,
-            ean === null ? undefined : ean,
-            itemId === undefined ? 1 : itemId
-        );
-        
+        await db.newItem({
+            productId: currentProductId,
+            subname: subname,
+            stock: stock,
+            ean: ean,
+            itemId: itemId,
+            priceIdxs: [0],
+            itemDiscountIdxs: [],
+        });
         console.log("Inserted item: " + subname + " with ID: " + itemId + " and product ID: " + currentProductId + ".")
 
-        lastItemId = itemId;
         count++;
     }
 

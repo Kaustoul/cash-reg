@@ -3,6 +3,7 @@
     import { enhance } from "$app/forms";
     import ConditionInput from './ConditionInput.svelte';
 
+
     export let showModal: boolean = false;
     export let units: string;
 
@@ -15,12 +16,16 @@
             max = '';
         }
     }
+
+    function onSubmit() {
+        showModal = false;
+    }
 </script>
 <Modal bind:showModal>
     <div slot="header">
         Přidat podmínku
     </div>
-    <form method='POST' use:enhance action="?/newCondition">
+    <form method='POST' action="?/newCondition" >
         <div class="inputs-header">
             <span>
                 Množstevní podmínka
@@ -28,7 +33,7 @@
         </div>
         <ConditionInput units={units} bind:min bind:max/>
         <div class="footer">
-            <button class="btn" on:click={() => showModal = false}>
+            <button class="btn" on:click={onSubmit}>
                 Přidat
             </button>
         </div>

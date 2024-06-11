@@ -13,7 +13,16 @@ export interface IProduct {
     }
     prices: IPrice[];
     itemDiscounts: IItemDiscount[];
-    units: Unit;
-    createdAt: Date;
-    modifiedAt: Date;
+    units: IUnit;
+    createdAt?: Date;
+    modifiedAt?: Date;
 }
+
+export interface INewProduct {
+    name: string | null;
+    prices: IPrice[];
+    itemDiscounts: IItemDiscount[];
+    units: Unit;
+}
+
+export type IUnit = "ks" | "Kg" | "g"; 

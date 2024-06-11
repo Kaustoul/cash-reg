@@ -27,6 +27,7 @@
 
         items = items.filter(item => item !== value);
     }
+
 </script>
 
 

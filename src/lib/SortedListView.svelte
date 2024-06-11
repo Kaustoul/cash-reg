@@ -11,7 +11,7 @@
     export let schema: Schema;
     export let clickableRows: boolean = false;
     export let onRowClick: (productId: number) => void = () => {};
-    export let idFieldName: string = "id";
+    export let idFieldName: string = "idx";
     export let showSearchBar: boolean = false;
     export let removeButton: boolean = false;
     export let onRemovePressed: (selectedIds: (string | number)[]) => void = () => {};

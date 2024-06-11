@@ -32,8 +32,7 @@ export const sqliteItems = {
             .where(eq(itemsTable.productId, productId))
             .execute()
         ;
-        console.log(res)
-
+        
         return res;
     },
 
@@ -57,5 +56,61 @@ export const sqliteItems = {
             .values(item)
             .execute()
         ;
+    },
+
+    async newItemPriceIdxs(
+        db: BetterSQLite3Database | SQLiteTx,
+        productId: number,
+        itemId:number,
+        priceIdxs: number[]
+    ): Promise<void> {
+        const res = await db
+            .select({priceIdxs: itemsTable.priceIdxs})
+            .from(itemsTable)
+            .where(and(
+                eq(itemsTable.productId, productId), eq(itemsTable.itemId, itemId)
+            ))
+        ;
+        if (res.length > 0 && res[0].priceIdxs) {
+            priceIdxs.push(...res[0].priceIdxs);
+        }
+
+        await db
+            .update(itemsTable)
+            .set({ priceIdxs: priceIdxs })
+            .where(and(
+                eq(itemsTable.productId, productId), eq(itemsTable.itemId, itemId)
+            ))
+            .execute()
+        ;
+    },
+
+    async removeItemPriceIdxs(
+        db: BetterSQLite3Database | SQLiteTx,
+        productId: number,
+        itemId:number,
+        priceIdxs: number[]
+    ): Promise<void> {
+        const res = await db
+            .select({priceIdxs: itemsTable.priceIdxs})
+            .from(itemsTable)
+            .where(and(
+                eq(itemsTable.productId, productId), eq(itemsTable.itemId, itemId)
+            ))
+        ;
+        if (res.length === 0 || !res[0].priceIdxs) {
+            return;
+        }
+
+        const newPriceIdxs = res[0].priceIdxs.filter((idx) => !priceIdxs.includes(idx));
+
+        await db
+            .update(itemsTable)
+            .set({ priceIdxs: newPriceIdxs })
+            .where(and(
+                eq(itemsTable.productId, productId), eq(itemsTable.itemId, itemId)
+            ))
+            .execute()
+        ;   
     },
 } satisfies ItemsDataHandler;

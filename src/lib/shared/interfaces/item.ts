@@ -7,6 +7,7 @@ export interface IItem {
     stock: DecimalStr | null;
     priceIdxs: number[];
     itemDiscountIdxs: number[];
-    createdAt: Date;
-    modifiedAt: Date;
+    ean: string | null;
+    createdAt?: Date;
+    modifiedAt?: Date;
 }

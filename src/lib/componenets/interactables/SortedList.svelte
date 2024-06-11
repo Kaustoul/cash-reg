@@ -21,27 +21,28 @@
     export let data: DataRows;
     export let schema: Schema;
     export let clickableRows: boolean = false;
-    export let onRowClick: (productId: number) => void = () => {};
-    export let idFieldName: string = "id";
+    export let onRowClick: (id: number) => void = () => {};
+    export let idFieldName: string = "idx";
     export let selected: (string | number)[] = [];
 
-    function toggleProductSelection(id: string | number) {
-        const newSelected = [...selected];
-        if (id === undefined) id = 0;
-        const productIndex = selected.indexOf(id);
-        if (productIndex < 0) {
-            newSelected.push(id);
+    function toggleProductSelection(idx: number, id?: string | number) {
+        const selection = idFieldName === "idx" ? idx : id!;
+        const selectedIdx = selected.indexOf(selection);
+        if (selectedIdx < 0) {
+            selected.push(selection);
         } else {
-            newSelected.splice(productIndex, 1);
+            selected.splice(selectedIdx, 1);
         }
-        
         // We have to reasign the value so that svelte knows to rerender
-        selected = newSelected;
-        
+       selected = selected; 
     }
     
-    function isSelected(id: string | number) {
-        return selected.includes(id);
+    function isSelected(idx: number, id?: string | number) {
+        if (idFieldName === "idx") {
+            return selected.includes(idx);
+        }
+
+        return selected.includes(id!);
     }
 </script>
 
@@ -57,15 +58,19 @@
         </tr>
     </thead>
     <tbody>
-        {#each data as row}
+        {#each data as row, idx}
             <tr class={clickableRows ? "clickable" : ""}>
                 <td class="selector">
                     <div class="selectorContainer">   
-                        <input type="checkbox" checked={isSelected(row[idFieldName])} on:change={() => toggleProductSelection(row.id)}/>
+                        <input 
+                            type="checkbox" 
+                            checked={isSelected(idx, row[idFieldName])}
+                            on:change={() => toggleProductSelection(idx, row[idFieldName])}
+                        />
                     </div>
                 </td>
                 {#each schema as column}
-                    <td class="text" on:click={() => onRowClick(Number(row[idFieldName]))}>
+                    <td class="text" on:click={() => {onRowClick(Number(row[idFieldName]));} }>
                         {#if column.type === 'selector'}
                             <MultiSelector 
                                 items={ensureArray(row[column.fieldName])} 
@@ -73,7 +78,9 @@
                                 onAddPressed={column.props ? column.props.selectorOnAdd : () => {}}
                                 deleteEndpoint={column.props ? column.props.deleteEndpoint: undefined}
                                 props={{
-                                    id: column.props ? column.props.selectorIdField : Number(row[idFieldName])
+                                    id: column.props && column.props.selectorIdField 
+                                        ? row[column.props.selectorIdField] 
+                                        : Number(row[idFieldName])
                                 }}
                             />
                         {:else}

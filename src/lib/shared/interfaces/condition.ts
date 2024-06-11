@@ -1,5 +1,5 @@
 export interface ICondition {
-    type: string,
+    type: "MinVolume" | "MaxVolume" | "CartTotal",
     value: string;
 }
 

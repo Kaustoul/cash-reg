@@ -1,6 +1,5 @@
 import { sql } from "drizzle-orm";
 import { integer, primaryKey, sqliteTable, text,  } from "drizzle-orm/sqlite-core";
-import Decimal from "decimal.js";
 import { productsTable } from "./product-model";
 import type { DecimalStr } from "$lib/shared/interfaces/money-sum";
 

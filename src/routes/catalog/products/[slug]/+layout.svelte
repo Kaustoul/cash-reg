@@ -9,13 +9,13 @@
 
     let tabs = {
         "Varianty": {
-            url: `/catalog/products/${data.productId}/items`,
+            url: `/catalog/products/${data.product.productId}/items`,
         } ,   
         "Ceny": {
-            url: `/catalog/products/${data.productId}/prices`,
+            url: `/catalog/products/${data.product.productId}/prices`,
         },
         "Slevy": {
-            url: `/catalog/products/${data.productId}/discounts`,
+            url: `/catalog/products/${data.product.productId}/discounts`,
             disabled: true
         }
     };
@@ -25,7 +25,7 @@
     // console.log(data);
 </script>
 
-<ViewTitle title={data.displayName} subtitle={`(${data.displayId})`} showBackArrow={true}/>
+<ViewTitle title={data.displayData.name} subtitle={`(${data.displayData.id})`} showBackArrow={true}/>
 <TabSelector {tabs}/>
 
 <slot></slot>

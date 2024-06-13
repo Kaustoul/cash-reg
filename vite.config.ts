@@ -6,4 +6,16 @@ export default defineConfig({
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
 	},
+
+    css: {
+        preprocessorOptions: {
+            sass: {
+                additionalData: `
+                @use '$lib/styles/vars' as vars;
+                @use '$lib/styles/buttons' as btns;
+                @use '$lib/styles/text-styles' as ts;
+                `,
+            }
+        },
+    }
 });

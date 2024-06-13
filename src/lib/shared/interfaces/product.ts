@@ -8,9 +8,7 @@ interface IItemDiscount {
 export interface IProduct {
     productId: number;
     name: string | null;
-    items: {
-        [itemId: number]: IItem;
-    }
+    items: IItem[];
     prices: IPrice[];
     itemDiscounts: IItemDiscount[];
     units: IUnit;

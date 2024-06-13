@@ -43,6 +43,7 @@
 		"better-sqlite3": "^10.0.0",
 		"decimal.js": "^10.4.3",
 		"drizzle-orm": "^0.30.10",
+		"fuse.js": "^7.0.0",
 		"svelte-material-icons": "^3.0.5"
 	}
 }

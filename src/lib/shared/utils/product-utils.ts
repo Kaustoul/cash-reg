@@ -6,16 +6,24 @@ export const isSingleVariant = (product: IProduct): boolean => {
     return Object.keys(product.items).length === 1;
 }
 
+export const singleVariantFullId = (product: IProduct): number => {
+    if (!isSingleVariant(product)) {
+        throw new Error("Product is not a single variant");
+    }
+
+    return fullItemId(product.items[0]);
+}
+
 export const formatFullId = (product: IProduct): string => {
     if (isSingleVariant(product)) {
-        return fullItemId(Object.values(product.items)[0]).toString();
+        return fullItemId(product.items[0]).toString();
     }
 
     return `${product.productId}${formatItemIds(Object.values(product.items))}`; 
 }
 
 export const formatProductName = (product: IProduct): string => {
-    return isSingleVariant(product) ? Object.values(product.items)[0].subname : product.name!;
+    return isSingleVariant(product) ? product.items[0].subname : product.name!;
 }
 
 export const formatItemIds = (items: IItem[]): string => {

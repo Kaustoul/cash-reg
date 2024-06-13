@@ -21,14 +21,11 @@ export const sqliteProducts = {
 
         
         for (const product of res) {
-            const items: {[itemId: number]: IItem} = {};
+            let items: IItem[] = []; 
             if (fetchItems) {
-                const itemsRes = await database.fetchProductItems(product.productId);
-                for (const item of itemsRes) {
-                    items[item.itemId] = item;
-                }
+                items = await database.fetchProductItems(product.productId);
+        
             }
-            console.log(items); 
             products.push({ 
                 ...product,
                 items: items,
@@ -52,16 +49,12 @@ export const sqliteProducts = {
         const res = productRes[0];
         
         if (!fetchItems) {
-            return { ...res, items: {}, itemDiscounts: [] };
+            return { ...res, items: [], itemDiscounts: [] };
         }
 
         const items = await database.fetchProductItems(productId);
-        const itemsMap: {[itemId: number]: IItem} = {};
-        for (const item of items) {
-            itemsMap[item.itemId] = item;
-        }
 
-        return { ...res, items: itemsMap, itemDiscounts: [] };
+        return { ...res, items: items, itemDiscounts: [] };
     },
 
     /**

@@ -25,7 +25,7 @@ export class MaxVolumeCondition implements Condition {
   
     /**
      * Constructs a new MaxVolumeCondition instance with the given maximum volume
-     * @param maxVolume The maximum volume required to meet the condition
+     * @param maxVolume The maxi mum volume required to meet the condition
      */
     public constructor(maxVolume: Decimal) {
         this.maxVolume = maxVolume;

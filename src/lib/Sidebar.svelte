@@ -38,7 +38,7 @@
 <nav>
     <button type="button"
         class="primary-btn"
-        on:click={() => console.log("Cash")}
+        on:click={() => goto("/cash-register")}
     >
         <CashRegisterIcon size="1.7rem"/>
         <span><b>Do pokladny</b></span>

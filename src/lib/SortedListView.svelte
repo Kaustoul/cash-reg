@@ -74,6 +74,7 @@
 <style lang="scss">
     @use '$lib/styles/vars' as vars;
     @use '$lib/styles/buttons' as buttons;
+    @use '$lib/styles/inputs' as inputs;
 
     .action-bar {
         display: flex; 
@@ -86,30 +87,7 @@
 
     $search-bar-height: 3.5rem;
     .search-bar {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: vars.$medium-radius;
-        height: $search-bar-height;
-        flex-grow: 1;
-        background-color: vars.$primary-color;
-        padding-left: 1rem;
-
-    }
-
-    input[type="search"] {
-        padding: 0.5rem;
-        width: 100%;
-        background-color: vars.$primary-color;
-        border: none;
-        margin-right: .5rem;
-        color: vars.$text-color;
-        font-size: larger;
-    }
-
-    input[type="search"]:focus {
-        border: none;
-        outline: none;
+        @include inputs.search-bar($height: $search-bar-height);
     }
     
     .btn {

@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import { formatDate } from '$lib/shared/utils/date-utils';
     import type { IShoppingCart } from '$lib/shared/interfaces/shopping-cart';
+    import { parseFullItemId } from '$lib/shared/utils/item-utils';
 
     export let cart: IShoppingCart; 
 
@@ -38,9 +39,18 @@
         <div class="items">
             {#each cart.items as item}
                 <div class="item">
-                    <span>{item.name}</span>
-                    <span>{item.quantity}</span>
-                    <span>{item.prices[item.priceIdx].value.value}</span>
+                    <div class="quantity">
+                        <button type="button" class="plus">+</button>
+                        <input type="number" bind:value={item.quantity} />
+                        <button type="button" class="minus">-</button>
+                    </div>
+                    <div class="item-info">
+                        <span class="item-name">{item.name}</span>
+                        <span class="item-id">{parseFullItemId(item.productId, item.itemId)}</span>
+                    </div>
+                    <div class="item-price">
+
+                    </div>
                 </div>
             {/each}
         </div>

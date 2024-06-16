@@ -6,6 +6,7 @@
     import SearchBar from "$lib/componenets/SearchBar.svelte";
     import BackIcon from 'svelte-material-icons/ChevronLeft.svelte'
     import type { IShoppingCartItem } from "$lib/shared/interfaces/shopping-cart";
+    import Decimal from "decimal.js";
 
     export let onItemClicked:(item: IShoppingCartItem) => void;
 
@@ -57,7 +58,10 @@
                         itemId: product.items[0].itemId,
                         name: formatProductName(product),
                         prices: product.items[0].priceIdxs.map(idx => product.prices[idx]),
-                        priceIdx: 0
+                        priceIdx: 0,
+                        quantity: new Decimal(-1),
+                        unit: product.units,
+                        total: new Decimal(-1),
                     })}
                 >
                     <p>{formatProductName(product)}</p>

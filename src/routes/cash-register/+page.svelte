@@ -66,7 +66,7 @@
 
     header {
         grid-area: header;
-        min-height: 6rem;
+        min-height: 5.8rem;
         display: flex;
         align-items: center;
         justify-content: space-between;

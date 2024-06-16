@@ -1,6 +1,7 @@
 import Decimal from 'decimal.js';
 import type { IPrice } from './price';
 import type { IMoneySum } from './money-sum';
+import type { IUnit } from './product';
 
 export interface IShoppingCart {
     items: IShoppingCartItem[];
@@ -12,7 +13,9 @@ export interface IShoppingCartItem {
     itemId: number;
     name: string;
     ean?: string;
-    quantity?: Decimal;
+    quantity: Decimal;
+    total: Decimal;
     prices: IPrice[];
     priceIdx: number;
+    unit: IUnit;
 }

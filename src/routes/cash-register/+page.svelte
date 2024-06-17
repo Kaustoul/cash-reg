@@ -45,12 +45,15 @@
     
     <div class="right">
         <ShoppingCartView cart={carts[selectedCart]}/>
+        <div class="right-buttons">
+        </div>
     </div>
 </main>
 
 <style lang="scss">
     @use '$lib/styles/vars' as vars;
     @use '$lib/styles/buttons' as buttons;
+    @use '$lib/styles/inputs' as inputs;
 
     .grid-container {
         display: grid;
@@ -83,15 +86,18 @@
     }
 
     .left {
+        @include inputs.scrollable;
         grid-area: left;
-        padding: 2.5rem;
         background-color: vars.$content-bg-color;
     }
+
 
     .right {
         grid-area: right;
         background-color: vars.$content-bg-color;
+        overflow: none;
     }
+
 
     .add-customer-btn {
         @include buttons.div-btn;

@@ -5,12 +5,14 @@
     import { parseFullItemId } from '$lib/shared/utils/item-utils';
     import Decimal from 'decimal.js';
     import { CurrencyManager } from '$lib/shared/prices/currency-manager';
-    import { updateItemQuantity } from '$lib/shared/utils/shopping-cart-utils';
+    import { removeItemFromCart, updateItemQuantity } from '$lib/shared/utils/shopping-cart-utils';
+    import CartItem from './CartItem.svelte';
 
     export let cart: IShoppingCart; 
 
     let time: string = "";
     let showDate: boolean = true; 
+    let selectedItem: IShoppingCartItem | null = null;
 
     onMount(() => {
         time = formatDate(new Date());
@@ -26,35 +28,21 @@
 
     $:console.log(cart);
 
-   Decimal.set({ precision: 2, rounding: Decimal.ROUND_HALF_UP, defaults: true});
-    
-    function getPrice(item: IShoppingCartItem): string {
-        const prices = item.prices
-        const idx = item.priceIdx;
-        return new Decimal(prices[idx].value.value).toFixed(2);
-    }
-
-    function newQuantity(item: IShoppingCartItem, quantity: Decimal): void {
-        updateItemQuantity(cart, item, quantity);
-
+    function removeFromCart(item: IShoppingCartItem): void {
+        removeItemFromCart(cart, item);
         // force svelte to reload cart components
         cart = cart;
     }
 
-    function onQunatityInput(item: IShoppingCartItem, event: any): void {
-        if (event.target === null || event.target.value === "") {
-            return;
-        }
-
-        const value = event.target.value;
-        const quantity = new Decimal(value);
-        newQuantity(item, quantity);
+    function newQuantity(item: IShoppingCartItem, quantity: Decimal): void {
+        updateItemQuantity(cart, item, quantity);
+        // force svelte to reload cart components
+        cart = cart;
     }
 
-    function handleFocus(event: any): void {
-        event.target.select();
+    function selectItem(item: IShoppingCartItem): void {
+        selectedItem = selectedItem === item ? null : item;
     }
-
 </script>
 
 <div class="container">
@@ -66,52 +54,47 @@
         {/if}
         <input class="checkbox" type="checkbox" id="view-date" bind:checked={showDate}/>
     </div>
-    <div class="cart">
-    {#if cart.total[CurrencyManager.getDefaultCurrency().getCode()] !== undefined}
-        <div class="total-bar">
-            <span class="total-title">SUMA</span>
-            <span class="total-price">
-                {cart.total[CurrencyManager.getDefaultCurrency().getCode()].value}
-            </span>
-        </div>
-    {:else}
-        <div class="empty-total-bar">
-        </div>
-    {/if}
-
+        {#if cart.total[CurrencyManager.getDefaultCurrency().getCode()] !== undefined}
+            <div class="total-bar">
+                <span class="total-title">SUMA</span>
+                <span class="total-price">
+                    {cart.total[CurrencyManager.getDefaultCurrency().getCode()].value}
+                </span>
+            </div>
+        {:else}
+            <div class="empty-total-bar">
+            </div>
+        {/if}
         <div class="items">
             {#each cart.items as item}
-                <div class="item">
-                    <div class="quantity">
-                        <button type="button" class="minus" 
-                            on:click={() => newQuantity(item, item.quantity.sub(1))}
-                        >-</button>
-                        <div class="vline"></div>
-                        <input type="number" class="quantity-input" value={item.quantity} 
-                            on:input={(e) => onQunatityInput(item, e)}
-                            on:focus={handleFocus}
-                        />
-                        <div class="vline"></div>
-                        <button type="button" class="plus"
-                            on:click={() => newQuantity(item, item.quantity.add(1))}
-                        >+</button>
-                    </div>
-                    <div class="item-info">
-                        <span class="item-name">{item.name}</span>
-                        <span class="item-id">{parseFullItemId(item.productId, item.itemId)}</span>
-                    </div>
-                    <div class="item-price">
-                        {#if item.quantity && item.quantity.gt(1) }
-                            <span class="single-price">{getPrice(item)}</span>
-                        {:else if item.unit !== 'ks'}
-                            <span class="single-price">{getPrice(item)}{item.unit}</span>
-                        {/if}
-                        <span class="total-price">{item.total.toFixed(2).toString()}</span>
-                    </div>
-                </div>
+                <CartItem 
+                    {item}
+                    isSelected={selectedItem === item} 
+                    onClick={selectItem}
+                    onRemove={removeFromCart}
+                    onQuantityChange={newQuantity}
+                />
             {/each}
         </div>
-    </div>
+    {#if cart.items.length !== 0}
+        <div class="buttons">
+            {#if selectedItem !== null}
+                <div class="on-selected-buttons">
+                    <button type="button" class="btn disabled">Sleva %</button>
+                    <button type="button" class="btn disabled">
+                        Sleva {CurrencyManager.getDefaultCurrency().getSymbol()}
+                    </button>
+                    <button type="button" 
+                        class={`${selectedItem.prices.length <= 1 ? 'disabled' : ''} 
+                            btn disabled`
+                        }
+                    >
+                    Vybrat cenu</button>
+                </div>
+            {/if}
+            <button type="button" class="accent-btn">Platba</button>   
+        </div>
+    {/if}
 </div>
 
 <style lang="scss">
@@ -122,6 +105,7 @@
     .container {
         display: flex;
         flex-direction: column;
+        height: 100%;
     }
 
     .header {
@@ -139,17 +123,11 @@
         }
     }
 
-    .cart {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-    }
-
     .total-bar {
         display: flex;
         justify-content: flex-end;
         align-items: stretch;
-        gap: .25rem;
+        gap: .3rem;
         background-color: vars.$bg-color;
 
         min-height: 4rem;
@@ -172,8 +150,9 @@
         }
 
         .total-price {
+            font-family: 'Roboto Mono', monospace;
             padding-right: 1rem;
-            flex: 0 0 22%;
+            flex: 0 0 21.7%;
         }
     }
 
@@ -187,108 +166,39 @@
         display: flex;
         flex-direction: column;
         gap: .3rem;
+        padding: .5rem;
+
+        height: 100%;
+
+        @include inputs.scrollable;
     }
 
-    .item {
+    .buttons {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: .25rem;
-    }
+        flex-direction: column;
+        justify-content: end;
+        background-color: vars.$bg-color;
+    
+        .accent-btn {
+            @include buttons.btn($btn-color: vars.$accent-color, $btn-height: 4.5rem);
+            margin: 1rem;
 
-    $item-height: 3rem;
-    $item-vpadding: .3rem;
-    .quantity {
-        height: $item-height;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex: 0 0 10%;
-        padding: $item-vpadding;
-
-        background-color: vars.$primary-color;
-        border-radius: vars.$medium-radius;
-
-        .quantity-input {
-            @include inputs.number;
-            margin: 0;
-            width: 2rem;
-            text-align: center;
+            font-size: xx-large;
+            font-weight: bold;
         }
 
-        .minus, .plus {
-            @include buttons.div-btn;
-            cursor: pointer;
-            font-size: 2rem;
-            border-radius: vars.$large-radius;
-            font-family: 'Roboto Mono', monospace;
-            padding: 0 .5rem;
+        .on-selected-buttons {
+            display: flex;
+            justify-content: center;
+            gap: .5rem;
+            margin: 1rem 1rem 0 1rem;
 
-            &:hover {
-                background-color: lighten(vars.$primary-color, 10%);
+
+            button {
+                @include buttons.btn($btn-color: vars.$primary-color, $btn-height: 4.5rem);
+                font-size: x-large;
+                flex: 1 0 30%;
             }
         }
     }
-    
-    .item-info {
-        height: $item-height;
-        flex: 1 1 70%;
-        padding: $item-vpadding 1rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: start;
-        
-        background-color: vars.$primary-color;
-        border-radius: vars.$medium-radius;
-
-        .item-name {
-            font-size: larger;
-        }
-
-        .item-id {
-            color: vars.$text2-color;
-        }
-    }
-
-    .item-price {
-        height: $item-height;
-        padding: $item-vpadding 1rem;
-        
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: end;
-        flex: 0 0 20%;
-
-        background-color: vars.$primary-color;
-        font-family: 'Roboto Mono', monospace;
-        border-radius: vars.$medium-radius;
-
-        .single-price {
-            color: vars.$text2-color;
-        }
-
-
-        .total-price {
-            font-size: x-large;
-        }
-    }
-
-
-    .vline {
-        height: 2.5rem;
-
-        &::before {
-            display: block;
-            content: "";
-            border-left: 2px solid vars.$accent-color;
-            height: 100%;
-        }
-    }
-
-    .checkbox {
-    }
-
-
 </style>

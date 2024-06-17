@@ -49,7 +49,6 @@
     
     .search-bar {
         @include inputs.search-bar($height: 3.5rem);
-        margin-bottom: 1rem;
     }
 
 </style>

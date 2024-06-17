@@ -84,7 +84,10 @@
                         itemId: item.itemId,
                         name: currentProduct.name + " - " + item.subname,
                         prices: item.priceIdxs.map(idx => currentProduct.prices[idx]),
-                        priceIdx: 0
+                        priceIdx: 0,
+                        quantity: new Decimal(-1),
+                        unit: currentProduct.units,
+                        total: new Decimal(-1),
                     })}
             >
                 <p>{item.subname}</p>
@@ -104,13 +107,18 @@
         gap: 1rem;
         justify-content: space-evenly;
     
-        margin: auto;
+        margin: 1rem;
     }
     
     .controls {
+        position: sticky;
+        top: 0;
         display: flex;
         justify-content: space-between;
         align-items: end;
+        background-color: vars.$content-bg-color;
+        z-index: 1;
+        padding: 1rem 1rem .6rem 1rem;
 
         .back {
             @include buttons.div-btn;

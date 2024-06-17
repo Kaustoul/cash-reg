@@ -1,3 +1,5 @@
+import type Decimal from "decimal.js";
+
 export function ensureArray<T>(value: Array<T> | T | undefined): Array<T>{
     if (value === undefined) {
         return []
@@ -42,3 +44,12 @@ export function itemIdFromFullId(fullItemId: number): number {
 export function productIdFromFullId(fullItemId: number): number {
     return Math.floor(fullItemId / 1000);
 }
+
+export function formatDecimal(value: Decimal): string {
+    let [integerPart, decimalPart] = value.toFixed().split('.');
+
+    // Add thousand separators to the integer part
+    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    // Combine the integer part and the decimal part
+    return decimalPart ? `${integerPart}.${decimalPart}` : integerPart;}

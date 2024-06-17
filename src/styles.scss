@@ -18,5 +18,17 @@ body {
     color: vars.$text-color;
 
     background-color: vars.$bg-color;
+
+    overflow-y: hidden;
+    height: 100vh;
+    width: 100vw;
 }
+
+html {
+    overflow-y: hidden;
+    height: 100%;
+    width: 100%;
+}
+
+
 

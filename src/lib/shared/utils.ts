@@ -1,4 +1,6 @@
-import type Decimal from "decimal.js";
+import Decimal from "decimal.js";
+import type { IPrice } from "./interfaces/price";
+import { CurrencyManager } from "./prices/currency-manager";
 
 export function ensureArray<T>(value: Array<T> | T | undefined): Array<T>{
     if (value === undefined) {
@@ -52,4 +54,15 @@ export function formatDecimal(value: Decimal): string {
     integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
     // Combine the integer part and the decimal part
-    return decimalPart ? `${integerPart}.${decimalPart}` : integerPart;}
+    return decimalPart ? `${integerPart}.${decimalPart}` : `${integerPart}.00`;
+}
+
+export function formatPrice(price: IPrice, includeCurrency: boolean = false): string {
+    let res = formatDecimal(new Decimal(price.value.value))
+
+    if (includeCurrency) {
+        res += ' ' + CurrencyManager.getCurrency(price.value.currency).getSymbol();
+    }
+
+    return res;
+}

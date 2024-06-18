@@ -4,18 +4,13 @@
     import Decimal from "decimal.js";
     import CloseIcon from "svelte-material-icons/Close.svelte";
     import GrowableInput from "./interactables/GrowableInput.svelte";
+    import { formatDecimal, formatPrice } from "$lib/shared/utils";
 
     export let item: IShoppingCartItem;
     export let isSelected: boolean;
     export let onClick: (item: IShoppingCartItem) => void;
     export let onQuantityChange: (item: IShoppingCartItem, quantity: Decimal) => void;
     export let onRemove: (item: IShoppingCartItem) => void;
-
-    function getPrice(item: IShoppingCartItem): string {
-        const prices = item.prices
-        const idx = item.priceIdx;
-        return new Decimal(prices[idx].value.value).toFixed(2);
-    }
 
     function onQunatityInput(item: IShoppingCartItem, event: any): void {
         if (event.target === null || event.target.value === "") {
@@ -28,8 +23,8 @@
     }
 </script>
 
-<button type="button" class={"item" + (isSelected ? " selected" : "")}
-    on:click={() => onClick(item)}
+<div class={"item" + (isSelected ? " selected" : "")}
+    
 >
     <div class="quantity">
         {#if isSelected}
@@ -56,20 +51,24 @@
         {/if}
     </div>
 
-    <div class="item-info">
+    <button type="button" class="item-info"
+        on:click={() => onClick(item)}
+    >
         <span class="item-name">{item.name}</span>
         <span class="item-id">{parseFullItemId(item.productId, item.itemId)}</span>
-    </div>
+    </button>
 
-    <div class="item-price">
+    <button type="button" class="item-price"
+        on:click={() => onClick(item)}
+    >
         {#if item.quantity && item.quantity.gt(1) }
-        <span class="single-price">{getPrice(item)}</span>
+        <span class="single-price">{formatPrice(item.prices[item.priceIdx])}</span>
         {:else if item.unit !== 'ks'}
-        <span class="single-price">{getPrice(item)}{item.unit}</span>
+        <span class="single-price">{formatPrice(item.prices[item.priceIdx])}/{item.unit}</span>
         {/if}
-        <span class="total-price">{item.total.toFixed(2).toString()}</span>
-    </div>
-</button>
+        <span class="total-price">{formatDecimal(item.total)}</span>
+    </button>
+</div>
 
 <style lang="scss">
     @use '$lib/styles/vars' as vars;
@@ -140,12 +139,15 @@
     }
     
     .item-info {
-        height: $item-height;
+        @include buttons.div-btn;
+        cursor: pointer;
+
+        height: 100%;
         flex: 1 1 70%;
         padding: $item-vpadding 1rem;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: space-evenly;
         align-items: start;
         text-align: left;
         
@@ -162,7 +164,10 @@
     }
 
     .item-price {
-        height: $item-height;
+        @include buttons.div-btn();
+        cursor: pointer;
+
+        height: 100%;
         padding: $item-vpadding 1rem;
         
         display: flex;

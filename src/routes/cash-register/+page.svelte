@@ -3,18 +3,59 @@
     import ShoppingCartView from "$lib/componenets/ShoppingCartView.svelte";
     import type { PageData } from "./$types";
     import CustomerIcon from "svelte-material-icons/AccountPlus.svelte";
-    import { writable } from "svelte/store";
     import type { IShoppingCart, IShoppingCartItem } from "$lib/shared/interfaces/shopping-cart";
     import { addItemToCart } from "$lib/shared/utils/shopping-cart-utils";
     import Decimal from "decimal.js";
+    import BasketIcon from "svelte-material-icons/Basket.svelte";
+    import CloseIcon from "svelte-material-icons/Close.svelte";
+    import Numpad, { type NumpadData } from "$lib/componenets/interactables/Numpad.svelte";
+    import { formatDecimal, formatPrice } from "$lib/shared/utils";
 
     export let data: PageData
     let carts: IShoppingCart[] = [{items: [], total: {}}];
     let selectedCart = 0;
 
+    let numpadData: NumpadData | null = null;
+    let currentItem: IShoppingCartItem | null = null;
+
     function addItemCart(item: IShoppingCartItem) {
+        if (item.unit !== 'ks' && (numpadData === null || numpadData.content.value !== "")) {
+            numpadData = {
+                title: item.name,
+                subtitle: `${formatPrice(item.prices[item.priceIdx])}/${item.unit}`,
+                label: "Zadat hmotnost:",
+                unit: item.unit,
+                content: {
+                    type: 'weight',
+                    value: "",
+                },
+                callback: (value: string) => {
+                    console.log(value);
+                    item.quantity = new Decimal(value);
+                    insertToCart(carts[selectedCart], item);
+                    numpadData = null;
+                }
+            }
+            currentItem = item;
+            return;
+        }
+
         item.quantity = new Decimal(1);
-        addItemToCart(carts[selectedCart], item);
+        insertToCart(carts[selectedCart], item);
+    }
+
+    function insertToCart(cart: IShoppingCart, item: IShoppingCartItem) {
+        if (carts[selectedCart].items.length === 0) {
+            carts.push({items: [], total: {}});
+        }
+
+        addItemToCart(cart, item);
+        carts = carts;
+    }
+
+    function stornoCart() {
+        carts.splice(selectedCart, 1);
+        selectedCart = 0;
 
         carts = carts;
     }
@@ -22,6 +63,39 @@
 
 <main class="grid-container">
     <nav>
+        {#each carts as cart, index}
+            {#if cart.items.length === 0}
+                <button type="button" 
+                    on:click={() => selectedCart = index}
+                    class={"cart-btn" + (selectedCart === index ? " selected" : "")}
+                >
+                    
+                    <div class="cart-btn-icon"><BasketIcon size="3rem"/></div>
+                    <div class="cart-btn-idx">+</div>
+                </button>
+            {:else} 
+                <div class="cart-selector">
+                    {#if selectedCart === index} 
+                        <button type="button" 
+                            on:click|stopPropagation={stornoCart}
+                            class={"cart-storno"}
+                        >
+                            <CloseIcon size="2rem"/>
+                        </button>
+                    {/if}
+                    <button type="button" 
+                        on:click={() => selectedCart = index}
+                        class={"cart-btn" + (selectedCart === index ? " selected" : "")}
+                    >
+                        <div class="cart-btn-icon"><BasketIcon size="3rem"/></div>
+                        <div class="cart-btn-idx">{index + 1}</div>
+                    </button>
+                    {#if selectedCart === index} 
+                        <div class="storno-spacer"></div>
+                    {/if}
+                </div>
+            {/if}
+        {/each}
     </nav>
     
     <header>
@@ -40,11 +114,15 @@
     </header>
     
     <div class="left">
-        <CatalogView products={data.products} onItemClicked={addItemCart}/>
+        {#if numpadData !== null}
+            <Numpad data={numpadData} close={() => numpadData=null}/>
+        {:else}
+            <CatalogView products={data.products} onItemClicked={addItemCart}/>
+        {/if}
     </div>
     
     <div class="right">
-        <ShoppingCartView cart={carts[selectedCart]}/>
+        <ShoppingCartView bind:cart={carts[selectedCart]}/>
         <div class="right-buttons">
         </div>
     </div>
@@ -83,6 +161,92 @@
 
     nav {
         grid-area: nav;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+
+        margin: 1rem 0;
+        color: vars.$text-color;
+
+        .cart-selector {
+            display: flex;
+
+            .storno-spacer {
+                width: 2rem;
+            }
+        }
+
+        .cart-btn {
+            @include buttons.div-btn;
+            cursor: pointer;
+            
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            ovelflow: hidden;
+
+            border-radius: vars.$large-radius;
+            border: 3px solid vars.$primary-color;
+            background-color: vars.$content-bg-color;
+            font-size: xx-large;
+
+            &.selected {
+                color: vars.$accent-color;
+            }
+
+            .cart-btn-icon {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                padding: .5rem .5rem .5rem .3rem;
+                border-radius: vars.$large-radius;
+                background-color: vars.$content-bg-color;
+            }
+
+            .cart-btn-idx {
+                padding: .5rem .5rem .5rem .2rem;
+                border-radius: vars.$large-radius;
+            }
+        }
+
+        .cart-storno {
+            display: contents;
+            @include buttons.div-btn;
+            cursor: pointer;
+            border-radius: vars.$large-radius; 
+            width: 2rem;
+            height: 2rem;
+            aspect-ratio: 1;
+            transform: translate(1.5rem, -.5rem);
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+
+            color: vars.$red;
+            background-color: vars.$content-bg-color;
+            border: 3px solid vars.$primary-color;
+
+        }
+    }
+    
+    .weight-form {
+        height: 100%;
+        width: 100%;
+
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+
+        input {
+            @include inputs.number;
+        }
     }
 
     .left {

@@ -17,7 +17,7 @@ export function addItemToCart(cart: IShoppingCart, item: IShoppingCartItem): voi
         existingItem.quantity = existingItem.quantity.plus(item.quantity);
         updateCartItemPrice(existingItem);
     } else {
-        cart.items.push(item);
+        cart.items.unshift(item);
         updateCartItemPrice(item);
     }
    

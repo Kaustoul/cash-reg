@@ -6,10 +6,11 @@ import type { IUnit } from './product';
 export interface IShoppingCart {
     items: IShoppingCartItem[];
     total: {[currency: string]: IMoneySum};
-    state: "items" | "checkout";
+    state: "items" | "checkout" | "cash-payment" | "card-payment" | "qr-payment";
     checkout: {
         payedAmount: Decimal;
     };
+    tillId: number;
 }
 
 export interface IShoppingCartItem {

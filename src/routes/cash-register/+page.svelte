@@ -9,14 +9,15 @@
     import BasketIcon from "svelte-material-icons/Basket.svelte";
     import CloseIcon from "svelte-material-icons/Close.svelte";
     import Numpad, { type NumpadData } from "$lib/componenets/interactables/Numpad.svelte";
-    import { formatDecimal, formatPrice } from "$lib/shared/utils";
+    import { formatPrice } from "$lib/shared/utils";
+    import QrPaymentModal from "$lib/componenets/modals/QRPaymentModal.svelte";
+    import CashPaymentModal from "$lib/componenets/modals/CashPaymentModal.svelte";
 
     export let data: PageData
     let carts: IShoppingCart[] = [emptyCart()];
     let selectedCart = 0;
 
     let numpadData: NumpadData | null = null;
-    let currentItem: IShoppingCartItem | null = null;
 
     function emptyCart(): IShoppingCart {
         return {
@@ -25,7 +26,8 @@
             state: "items",
             checkout: {
                 payedAmount: new Decimal(0)
-            }
+            },
+            tillId: 1,
         }
     }
 
@@ -47,7 +49,6 @@
                 },
 
             }
-            currentItem = item;
             return;
         }
 
@@ -70,7 +71,25 @@
 
         carts = carts;
     }
+
+    async function finalizeCart() {
+        const data = new FormData();
+        data.set('cart', JSON.stringify(carts[selectedCart]));
+
+        const res = await fetch('?/finalizeOrder', {
+            method: 'POST',
+            body: data
+        });
+
+       stornoCart(); 
+    }
 </script>
+
+{#if carts[selectedCart].state === 'qr-payment'}
+    <QrPaymentModal bind:cart={carts[selectedCart]} onConfirm={finalizeCart}/>
+{:else if carts[selectedCart].state === 'cash-payment'}
+    <CashPaymentModal bind:cart={carts[selectedCart]} onConfirm={finalizeCart}/>
+{/if}
 
 <main class="grid-container">
     <nav>

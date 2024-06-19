@@ -15,12 +15,17 @@ import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
 import type { IItem } from '$lib/shared/interfaces/item';
 import type { IPrice } from '$lib/shared/interfaces/price';
 import type { ICondition } from '$lib/shared/interfaces/condition';
+import type { OrdersDataHandler } from '../orders-data-handler';
+import { sqliteOrders } from './splite-orders-data-handler';
+import type { INewOrder } from '$lib/shared/interfaces/order';
+import Decimal from 'decimal.js';
 
 export class SQLiteDB implements DB {
     readonly db: BetterSQLite3Database;
     readonly _tills: TillsDataHandler;
     readonly _products: ProductsDataHandler;
     readonly _items: ItemsDataHandler
+    readonly _orders: OrdersDataHandler;
 
     constructor(dbFilePath: string) {
         const sqlite = new Database(dbFilePath);
@@ -30,12 +35,17 @@ export class SQLiteDB implements DB {
         this._tills = sqliteTills;
         this._products = sqliteProducts;
         this._items = sqliteItems;
+        this._orders = sqliteOrders;
     }
 
     defaultSchema(): void {
         console.log('Creating default schema');
         migrate(this.db, { migrationsFolder: path.join('src', 'lib', 'server', 'db', 'migrations')});
     }
+
+    //---------------\\
+    // -- PRODUCTS - \\
+    //---------------\\
 
     async fetchProduct(productId: number, fetchItems: boolean = false) {
         return await this._products.fetchProduct(this.db, productId, fetchItems);
@@ -77,6 +87,10 @@ export class SQLiteDB implements DB {
         return await this._products.removeAllPriceConditions(this.db, productId, priceIdx);
     }
 
+    //---------------\\
+    // --- ITEMS --- \\
+    //---------------\\
+
     async fetchItem(fullItemId: number) {
         return await this._items.fetchItem(this.db, fullItemId);
     }
@@ -93,7 +107,7 @@ export class SQLiteDB implements DB {
         return await this._items.newItemPriceIdxs(this.db, productId, itemId, priceIdxs);
     }
 
-    removeItemPriceIdxs(productId: number, itemId: number, priceIdxs: number[]) {
+    async removeItemPriceIdxs(productId: number, itemId: number, priceIdxs: number[]) {
         return this._items.removeItemPriceIdxs(this.db, productId, itemId, priceIdxs);
     }
 
@@ -117,22 +131,53 @@ export class SQLiteDB implements DB {
         return await this._tills.changeStatus(this.db, tillId, status);
     }
 
-    // async saveTill(till) {
-    
-    async changeBalanceTransaction(
+    async updateBalance(tillId: number, balance: IMoneySum) {
+        return await this._tills.updateBalance(this.db, tillId, balance);
+    }
+
+    async recordBalanceUpdate(
         tillId: number,
-        cashierId: number,
-        amount: IMoneySum | IMoneySum[],
-        reason: TransactionReason,
-        note?: string)
-    : Promise<TransactionResult>{
-        return this._tills.changeBalanceTransaction(
-            this.db,
-            tillId,
-            cashierId,
-            amount,
-            reason,
-            note
-        );
+        amount: IMoneySum,
+        reason: 'cash-payment', 
+        orderId?: number,
+    ): Promise<void> {
+        return await this._tills.recordBalanceUpdate(this.db, tillId, amount, reason, orderId);
+    }
+
+    //---------------\\
+    // --- ORDERS ---\\
+    // --------------\\
+
+    async fetchOrder(orderId: number) {
+        return await this._orders.fetchOrder(this.db, orderId);
+    }
+
+    async fetchOrders(tillId: number) {
+        return await this._orders.fetchOrders(this.db, tillId);
+    }
+
+    async newOrder(order: INewOrder) {
+        return await this._orders.newOrder(this.db, order);
+    }
+
+    async newOrderTransaction(order: INewOrder) {
+        await this.db.transaction(async (tx) => {
+            const orderId = await this._orders.newOrder(tx, order);
+            console.log(`New order created with id: ${orderId}`);
+
+            if (order.paymentType === 'cash') {
+                await this._tills.updateBalance(tx, order.tillId, order.total);
+                console.log(`Till balance updated with ${order.total}`);
+                await this._tills.recordBalanceUpdate(
+                    tx,
+                    order.tillId,
+                    order.total,
+                    'cash-payment',
+                    orderId
+                );
+
+                console.log(`Till balance updated with ${order.total}`);
+            }
+        });
     }
 }

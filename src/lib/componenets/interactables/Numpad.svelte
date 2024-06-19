@@ -25,13 +25,14 @@
     import { onMount } from 'svelte';
     import ChevronLeftIcon from 'svelte-material-icons/ChevronLeft.svelte';
     import { formatDecimal } from '$lib/shared/utils';
+    import ReloadIcon from 'svelte-material-icons/Reload.svelte';
 
     export let data: NumpadData;
     export let onClose: () => void;
     export let cart: IShoppingCart | undefined = undefined;
 
     let ref: HTMLInputElement | null = null;
-
+console.log(cart);
     onMount(() => {
         if (ref)
             ref.focus();
@@ -39,7 +40,6 @@
 
     function insertAtCursor(text: string) {
         if (ref) {
-            console.log(ref.selectionStart, ref?.selectionEnd)
             const start = ref.selectionStart || 0;
             const end = ref.selectionEnd || 0;
             const before = data.content.value.substring(0, start);
@@ -106,7 +106,7 @@
         cart.checkout.payedAmount = cart.checkout.payedAmount.add(value);
 
         if (cart.checkout.payedAmount.gte(cart.total["CZK"].value)) {
-            // TODO
+            cart.state = "cash-payment"; 
         }
     }
 
@@ -161,23 +161,33 @@
                 on:click={() => addMoney(new Decimal(200))}
             >200</button>
         </div>
-        <div class="checkout-status">
-            <div class="left">
-                {#if cart !== undefined}
-                    <span class="checkout-status-title">Zaplaceno:</span>
-                    <span class="checkout-status-price">
-                        {formatDecimal(cart.checkout.payedAmount)} Kč
-                    </span>
-                {/if}
+        <div class="checkout-container">
+            <div class="checkout-spacer" />
+            <div class="checkout-status">
+                <div class="left">
+                    {#if cart !== undefined}
+                        <span class="checkout-status-title">Zaplaceno:</span>
+                        <span class="checkout-status-price">
+                            {formatDecimal(cart.checkout.payedAmount)} Kč
+                        </span>
+                    {/if}
+                </div>
+                <div class="right">
+                    {#if cart !== undefined}
+                        <span class="checkout-status-title">Zbývá:</span>
+                        <span class="checkout-status-price">
+                            {formatDecimal(new Decimal(cart.total["CZK"].value)
+                                .minus(cart.checkout.payedAmount))} Kč
+                        </span>
+                    {/if}
+                </div>
             </div>
-            <div class="right">
-                {#if cart !== undefined}
-                    <span class="checkout-status-title">Zbývá:</span>
-                    <span class="checkout-status-price">
-                        {formatDecimal(new Decimal(cart.total["CZK"].value).minus(cart.checkout.payedAmount))} Kč
-                    </span>
-                {/if}
-            </div>
+            <button type="button" class="checkout-reset" 
+                on:click={() => cart.checkout.payedAmount = new Decimal(0)}
+            >
+                <ReloadIcon size="3rem" /> 
+            </button>
+
         </div>
     {/if}
     <label for="input">
@@ -265,12 +275,12 @@
     .content {
         width: 100%;
         flex: 1 1 auto;
-
+        margin: 1rem 0;
+        
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
-        gap: 4rem;
+        justify-content: space-between;
 
         input {
             @include inputs.number;
@@ -298,6 +308,7 @@
         flex-grow: 0;
         align-self: center;
         width: 100%;
+        margin-bottom: 1rem;
 
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -305,7 +316,6 @@
         gap: .2rem;
         background-color: vars.$content-bg-color;
         border-radius: .5rem;
-        margin: 1rem;
 
         max-width: 50rem;
 
@@ -361,12 +371,20 @@
             width: 9rem;
 
             font-size: xx-large;
+            font-family: 'Roboto Mono', monospace;
         }
     }
 
+    .checkout-container {
+        display: flex;
+        align-items: center;
+    }
+
     .checkout-status {
+        min-width: 23rem;
         display: flex;
         flex-direction: column;
+        margin: 0 1rem;
         width: 100%;
         max-width: 30rem;    
         background-color: vars.$primary-color;
@@ -379,6 +397,21 @@
             justify-content: space-between;
             width: 100%;
         }
+
+        .checkout-status-price {
+            font-family: 'Roboto Mono', monospace;
+        }
+    }
+
+    .checkout-reset {
+        @include buttons.div-btn;
+        cursor: pointer;
+
+        width: 5rem;
+    }
+
+    .checkout-spacer {
+        width: 5rem;
     }
 
     .red {

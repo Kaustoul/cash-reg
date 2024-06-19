@@ -1,7 +1,5 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { 
-    TransactionReason,
-    TransactionResult,
     type TillsDataHandler 
 } from '../tills-data-handler';
 import type { SQLiteTx } from '../db';
@@ -11,7 +9,6 @@ import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
 import Decimal from 'decimal.js';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { transactionsTable } from '../schema/money-transfer-model';
-import { ensureArray } from '$lib/shared/utils';
 
 export const sqliteTills = {
     async fetchTill(db: BetterSQLite3Database | SQLiteTx, id: number): Promise<ITill> {
@@ -62,65 +59,76 @@ export const sqliteTills = {
             .execute()
         ;  
     },
-    
-    async changeBalanceTransaction(
-        db: BetterSQLite3Database | SQLiteTx ,
+
+    async updateBalance(
+        db: BetterSQLite3Database | SQLiteTx,
         tillId: number,
-        cashierId: number,
-        amount: IMoneySum | IMoneySum[],
-        reason: TransactionReason,
+        updateValue: IMoneySum
+    ): Promise<void> {
+        const res = await db
+            .select({balance: tillsTable.balance})
+            .from(tillsTable)
+            .where(eq(tillsTable.id, tillId))
+            .limit(1)
+        ;
+
+        if (res.length === 0) {
+            throw new Error(`Till with ID ${tillId} not found`);
+        }
+
+        const balances: IMoneySum[] = res[0].balance;
+        let sumIdx = balances.findIndex((balance) => balance.currency === updateValue.currency);
+
+        if (sumIdx === -1) {
+            balances.push({value: "0", currency: updateValue.currency});
+            sumIdx = 0;
+        }
+
+        balances[sumIdx] = {
+            value: new Decimal(balances[sumIdx].value).add(new Decimal(updateValue.value)).toString(),
+            currency: balances[sumIdx].currency,
+        };
+
+        await db
+            .update(tillsTable)
+            .set({ balance: balances })
+            .where(eq(tillsTable.id, tillId))
+            .execute()
+        ;
+    },
+
+    async recordBalanceUpdate(
+        db: BetterSQLite3Database | SQLiteTx,
+        tillId: number, 
+        updateAmount: IMoneySum,
+        reason: 'cash-payment', 
+        orderId?: number,
         note?: string
-    ): Promise<TransactionResult> {
+    ): Promise<void> {
+        const res = await db
+            .select({ newId: sql`MAX(${transactionsTable.transactionId})` })
+            .from(transactionsTable)
+            .where(eq(transactionsTable.tillId, tillId))
+        ;
 
-        const amounts: IMoneySum[] = ensureArray(amount);
-        const res = await db.transaction(async (tx: SQLiteTx) => {
-            let till;
-            try {
-                till = await this.fetchTill(tx, tillId);
-            } catch (e) {
-                tx.rollback();
-                return false;
-            }
+        let newId = 1;
+        if (res.length !== 0 && res[0].newId !== null) {
+            newId = Number(res[0].newId) + 1;
+        }
 
-            if (till === undefined) {
-                tx.rollback();
-                return false;
-            }
-            
-            for (const _amount of amounts) {
-                const sumIdx = till.balance.findIndex((balance) => balance.currency === _amount.currency);
-        
-                if (sumIdx === -1) {
-                    till.balance.push(_amount);
-                } else {
-                    till.balance[sumIdx].value = new Decimal(till.balance[sumIdx].value)
-                        .add(new Decimal(_amount.value)).toString()
-                ;
-                }
-            }
-        
-            await db
-                .update(tillsTable)
-                .set({ balance: till.balance })
-                .where(eq(tillsTable.id, tillId))
-                .execute()
-            ;
+        await db
+            .insert(transactionsTable)
+            .values({
+                transactionId: newId,
+                tillId: tillId,
+                amount: updateAmount,
+                cashierId: 0,
+                reason: reason,
+                orderId: orderId,
+                note: note,
+            })
+            .execute()
+        ;
 
-            await db
-                .insert(transactionsTable)
-                .values({
-                    tillId: tillId,
-                    cashierId: cashierId,
-                    amounts: amounts,
-                    reason: reason,
-                    note: note,
-                })
-            ;
-
-            return true;
-        });
-
-        return res ? TransactionResult.SUCCESS : TransactionResult.ERROR;
-    }
-
+    },
 } satisfies TillsDataHandler;

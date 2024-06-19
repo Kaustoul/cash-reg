@@ -6,6 +6,7 @@ import type { TillsDataHandler } from './tills-data-handler';
 import { SQLiteDB } from './SQLite/sqlite-db';
 import type { ItemsDataHandler } from './items-data-handler';
 import type { ProductsDataHandler } from './products-data-handler';
+import type { OrdersDataHandler } from './orders-data-handler';
 
 export type SQLiteTx = SQLiteTransaction<
     "sync",
@@ -22,6 +23,7 @@ export interface DB {
     readonly _tills: TillsDataHandler;
     readonly _products: ProductsDataHandler;
     readonly _items: ItemsDataHandler;
+    readonly _orders: OrdersDataHandler;
 
     defaultSchema(): void;
 }

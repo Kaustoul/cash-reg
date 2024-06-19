@@ -28,7 +28,7 @@ export function calculateCartTotal(cart: IShoppingCart): void {
     const total = cart.items.reduce((acc, item) => acc.plus(item.total), new Decimal(0));
     const currency = CurrencyManager.getDefaultCurrency().getCode();
     cart.total[currency] = {
-            value: formatDecimal(total),
+            value: total.toString(),
             currency: currency,
     };
 }
@@ -74,3 +74,5 @@ export function removeItemFromCart(cart: IShoppingCart, item: IShoppingCartItem)
         calculateCartTotal(cart);
     }
 }
+
+

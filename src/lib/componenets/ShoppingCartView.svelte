@@ -7,6 +7,7 @@
     import { CurrencyManager } from '$lib/shared/prices/currency-manager';
     import { removeItemFromCart, updateItemQuantity } from '$lib/shared/utils/shopping-cart-utils';
     import CartItem from './CartItem.svelte';
+    import { formatDecimal } from '$lib/shared/utils';
 
     export let cart: IShoppingCart;
     export let onEmptyCart: () => void;
@@ -74,7 +75,7 @@
             <div class="total-bar">
                 <span class="total-title">SUMA</span>
                 <span class="total-price">
-                    {cart.total[CurrencyManager.getDefaultCurrency().getCode()].value}
+                    {formatDecimal(new Decimal(cart.total[CurrencyManager.getDefaultCurrency().getCode()].value))}
                 </span>
             </div>
         {:else}
@@ -113,13 +114,13 @@
             {#if cart.state === 'checkout'}
                 <div class="checkout-buttons">
                     <button type="button" class="accent-btn"
-                        on:click={() => {}}
+                        on:click={() => cart.state = 'cash-payment'}
                     >Hotovost</button>
                     <button type="button" class="second-accent-btn disabled"
                         on:click={() => {}}
                     >Karta</button>
-                    <button type="button" class="blue-btn disabled"
-                        on:click={() => {}}
+                    <button type="button" class="blue-btn"
+                        on:click={() => cart.state = 'qr-payment'}
                     >QR platba</button>
                 </div>
             {:else}

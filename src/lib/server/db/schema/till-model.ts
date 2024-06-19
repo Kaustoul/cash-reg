@@ -32,6 +32,5 @@ export const tillsTable = sqliteTable('tills', {
     modifiedAt: integer('createdAt', { mode: 'timestamp' })
         .notNull()
         .default(sql`(unixepoch())`)
-        .$onUpdate(() => sql`(unixepoch())`)
     ,
 });

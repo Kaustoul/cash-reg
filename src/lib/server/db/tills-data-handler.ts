@@ -1,4 +1,5 @@
-import type { IMoneySum, ITill, TillStatus } from "$lib/shared/interfaces/till";
+import type { ITill, TillStatus } from "$lib/shared/interfaces/till";
+import type { IMoneySum } from "$lib/shared/interfaces/money-sum";
 import type { Databases, Transactions } from "./db";
 
 export enum TransactionReason {
@@ -26,13 +27,13 @@ export interface TillsDataHandler {
     //saveTill(db: Databases | Transactions, till: ITill): Promise<void>;
     //saveTills(db: Databases | Transactions, tills: ITill[]): Promise<void>;
     changeStatus(db: Databases | Transactions, tillId: number, status: TillStatus): Promise<void>;
-
-    changeBalanceTransaction(
-        db: Databases | Transactions,
-        tillId: number,
-        cashierId: number,
-        amount: IMoneySum | IMoneySum[],
-        reason: TransactionReason,
+    updateBalance(db: Databases | Transactions, tillId: number, balance: IMoneySum): Promise<void>;
+    recordBalanceUpdate(
+        db: Databases | Transactions, 
+        tillId: number, 
+        balance: IMoneySum, 
+        reason: 'cash-payment', 
+        orderId?: number,
         note?: string
-    ): Promise<TransactionResult>;
+    ): Promise<void>;
 }

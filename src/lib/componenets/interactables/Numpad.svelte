@@ -2,8 +2,10 @@
     export type NumpadData = {
         title: string,
         subtitle?: string,
-        subsubtitle: string,
+        subsubtitle?: string,
         label: string,
+        returnLabel?: string,
+        confirmLabel?: string,
         unit?: IUnit,
 
         content: {
@@ -12,16 +14,21 @@
         }
 
         callback: (value: string) => void;
+        moneyCallback?: (value: Decimal) => void;
     }
 </script>
 
 <script lang="ts">
     import type { IUnit } from '$lib/shared/interfaces/product';
+    import Decimal from 'decimal.js';
+    import type { IShoppingCart } from '$lib/shared/interfaces/shopping-cart';
     import { onMount } from 'svelte';
-    import ChevronDownIcon from 'svelte-material-icons/ChevronDown.svelte';
+    import ChevronLeftIcon from 'svelte-material-icons/ChevronLeft.svelte';
+    import { formatDecimal } from '$lib/shared/utils';
 
     export let data: NumpadData;
     export let onClose: () => void;
+    export let cart: IShoppingCart | undefined = undefined;
 
     let ref: HTMLInputElement | null = null;
 
@@ -45,8 +52,6 @@
                 ref.setSelectionRange(start + text.length, start + text.length);
             }, 0);
         }
-
-        console.log(data.content.value)
     }
 
     function onInput(e) {
@@ -54,11 +59,9 @@
             return;
 
         data.content.value = e.target.value;
-        console.log(e.taget.value)
     }
 
     function numberClicked(e: any, num: string) {
-        console.log(ref.selectionStart, ref?.selectionEnd)
         insertAtCursor(num);
     }
 
@@ -72,7 +75,6 @@
             let start = ref.selectionStart || 0;
             const end = ref.selectionEnd || 0;
 
-            console.log(start, end)
             if (start === 0 && end === 0)
                 return;
             
@@ -86,13 +88,38 @@
             }, 0);
         }
     }
+
+    function onConfirm() {
+        if (data.content.type === 'money') {
+            addMoney(new Decimal(data.content.value));
+            data.content.value = "";
+            return;
+        }
+
+        data.callback(data.content.value);
+    }
+
+    function addMoney(value: Decimal) {
+        if (cart === undefined)
+            return;
+
+        cart.checkout.payedAmount = cart.checkout.payedAmount.add(value);
+
+        if (cart.checkout.payedAmount.gte(cart.total["CZK"].value)) {
+            // TODO
+        }
+    }
+
 </script>
 
 <div class="container">
 <div class="header">
     <div class="flex">
         <button type="button" class="close" on:click={onClose}>
-            <ChevronDownIcon size="5rem"/>
+            <ChevronLeftIcon size="5rem"/>
+            {#if data.returnLabel !== undefined}
+                <span class="return-label">{data.returnLabel}</span>
+            {/if}
         </button>
         <span class="left">
             {data.title}
@@ -105,12 +132,54 @@
             </span>
         {/if}
         <span class="right">
-            {data.subtitle}
+            {#if data.subtitle !== undefined}
+                {data.subtitle}
+            {/if}
         </span>
     </div>
 </div>
 
 <div class="content">
+    {#if data.content.type === 'money'}
+        <div class="money">
+            <button type="button" class="money-btn" 
+                on:click={() => addMoney(new Decimal(500))}
+            >500</button>
+            <button type="button" class="money-btn" 
+                on:click={() => addMoney(new Decimal(1000))}
+            >1000</button>
+            <button type="button" class="money-btn" 
+                on:click={() => addMoney(new Decimal(2000))}
+            >2000</button>
+            <button type="button" class="money-btn" 
+                on:click={() => addMoney(new Decimal(50))}
+            >50</button>
+            <button type="button" class="money-btn" 
+                on:click={() => addMoney(new Decimal(100))}
+            >100</button>
+            <button type="button" class="money-btn" 
+                on:click={() => addMoney(new Decimal(200))}
+            >200</button>
+        </div>
+        <div class="checkout-status">
+            <div class="left">
+                {#if cart !== undefined}
+                    <span class="checkout-status-title">Zaplaceno:</span>
+                    <span class="checkout-status-price">
+                        {formatDecimal(cart.checkout.payedAmount)} Kč
+                    </span>
+                {/if}
+            </div>
+            <div class="right">
+                {#if cart !== undefined}
+                    <span class="checkout-status-title">Zbývá:</span>
+                    <span class="checkout-status-price">
+                        {formatDecimal(new Decimal(cart.total["CZK"].value).minus(cart.checkout.payedAmount))} Kč
+                    </span>
+                {/if}
+            </div>
+        </div>
+    {/if}
     <label for="input">
         {data.label}
     <div>
@@ -136,19 +205,21 @@
     <button type="button" class="numpad-btn" on:click|preventDefault={(e) => numberClicked(e, "1")}>1</button>
     <button type="button" class="numpad-btn" on:click|preventDefault={(e) => numberClicked(e, "2")}>2</button>
     <button type="button" class="numpad-btn" on:click|preventDefault={(e) => numberClicked(e, "3")}>3</button>
-    <button type="button" class="numpad-btn" on:click|preventDefault={deleteNumber}>Smazat</button>
+    <button type="button" class="numpad-btn red" on:click|preventDefault={deleteNumber}>Smazat</button>
     <button type="button" class="numpad-btn" on:click|preventDefault={(e) => numberClicked(e, "4")}>4</button>
     <button type="button" class="numpad-btn" on:click|preventDefault={(e) => numberClicked(e, "5")}>5</button>
     <button type="button" class="numpad-btn" on:click|preventDefault={(e) => numberClicked(e, "6")}>6</button>
-    <button type="button" class="numpad-btn" on:click|preventDefault={clearInput}>Smazat vše</button>
+    <button type="button" class="numpad-btn red" on:click|preventDefault={clearInput}>Smazat vše</button>
     <button type="button" class="numpad-btn" on:click|preventDefault={(e) => numberClicked(e, "7")}>7</button>
     <button type="button" class="numpad-btn" on:click|preventDefault={(e) => numberClicked(e, "8")}>8</button>
     <button type="button" class="numpad-btn" on:click|preventDefault={(e) => numberClicked(e, "9")}>9</button>
-    <button type="button" class="numpad-btn"></button>
+    <button type="button" class="numpad-btn disabled" ></button>
     <button type="button" class="numpad-btn" on:click|preventDefault={(e) => numberClicked(e, ".")}>,</button>
     <button type="button" class="numpad-btn" on:click|preventDefault={(e) => numberClicked(e, "0")}>0</button>
-    <button type="button" class="numpad-btn"></button>
-    <button type="button" class="numpad-btn" on:click={() => data.callback(data.content.value)}>Přidat</button>
+    <button type="button" class="numpad-btn" on:click|preventDefault={(e) => numberClicked(e, "00")}>00</button>
+    <button type="button" class="numpad-btn green" 
+        on:click={onConfirm}
+    >{data.confirmLabel !== undefined ? data.confirmLabel : "Přidat"}</button>
 </div>
 </div>
 
@@ -196,8 +267,10 @@
         flex: 1 1 auto;
 
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
+        gap: 4rem;
 
         input {
             @include inputs.number;
@@ -239,6 +312,10 @@
         font-size: xx-large;
     }
 
+    .return-label {
+        font-size: 1.5rem;
+    }
+
     .numpad-btn {
         @include buttons.btn($btn-color: vars.$primary-color);
         border-radius: .5rem;
@@ -264,5 +341,53 @@
     .close {
         @include buttons.div-btn;
         cursor: pointer;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .money {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: .5rem;
+
+        .money-btn {
+            @include buttons.btn($btn-color: vars.$bg-color);
+            flex: 0 1 30%;
+            height: 5rem;
+            width: 9rem;
+
+            font-size: xx-large;
+        }
+    }
+
+    .checkout-status {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 30rem;    
+        background-color: vars.$primary-color;
+        padding: 1rem;
+        border-radius: vars.$large-radius;
+
+        .left, .right {
+            font-size: x-large;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+    }
+
+    .red {
+        @include buttons.btn($btn-color: vars.$red);
+        font-size: xx-large;
+    }
+
+    .green {
+        @include buttons.btn($btn-color: vars.$green);
+        font-size: xx-large;
     }
 </style>

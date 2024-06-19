@@ -8,7 +8,8 @@
     import { removeItemFromCart, updateItemQuantity } from '$lib/shared/utils/shopping-cart-utils';
     import CartItem from './CartItem.svelte';
 
-    export let cart: IShoppingCart; 
+    export let cart: IShoppingCart;
+    export let onEmptyCart: () => void;
 
     let time: string = "";
     let showDate: boolean = true; 
@@ -26,10 +27,13 @@
 		};
 	});
 
-    $:console.log(cart);
-
     function removeFromCart(item: IShoppingCartItem): void {
         removeItemFromCart(cart, item);
+
+        if (cart.items.length === 0) {
+            onEmptyCart(); 
+        }
+
         // force svelte to reload cart components
         cart = cart;
     }
@@ -41,7 +45,19 @@
     }
 
     function selectItem(item: IShoppingCartItem): void {
-        selectedItem = selectedItem === item ? null : item;
+        if (cart.state === 'items') {
+            selectedItem = selectedItem === item ? null : item;
+        }
+    }
+
+    function goToCheckout(): void {
+        if (selectedItem !== null) {
+            selectedItem = null;
+        }
+
+        cart.state = 'checkout';
+        cart.checkout.payedAmount = new Decimal(0);
+        console.log(cart.state);
     }
 </script>
 
@@ -69,6 +85,7 @@
             {#each cart.items as item}
                 <CartItem 
                     {item}
+                    state={cart.state}
                     isSelected={selectedItem === item} 
                     onClick={selectItem}
                     onRemove={removeFromCart}
@@ -92,7 +109,24 @@
                     Vybrat cenu</button>
                 </div>
             {/if}
-            <button type="button" class="accent-btn">Platba</button>   
+
+            {#if cart.state === 'checkout'}
+                <div class="checkout-buttons">
+                    <button type="button" class="accent-btn"
+                        on:click={() => {}}
+                    >Hotovost</button>
+                    <button type="button" class="second-accent-btn disabled"
+                        on:click={() => {}}
+                    >Karta</button>
+                    <button type="button" class="blue-btn disabled"
+                        on:click={() => {}}
+                    >QR platba</button>
+                </div>
+            {:else}
+                <button type="button" class="accent-btn"
+                    on:click={goToCheckout}
+                >Platba</button>   
+            {/if}
         </div>
     {/if}
 </div>
@@ -174,17 +208,40 @@
     }
 
     .buttons {
+        $btn-height: 4.5rem;
         display: flex;
         flex-direction: column;
         justify-content: end;
         background-color: vars.$bg-color;
+        padding: 0 .5rem;
+
+        .checkout-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: .5rem;
+
+            button {
+                margin: 1rem 0;
+            }
+        }
     
-        .accent-btn {
-            @include buttons.btn($btn-color: vars.$accent-color, $btn-height: 4.5rem);
+        .accent-btn, .blue-btn, .second-accent-btn {
             margin: 1rem;
 
             font-size: xx-large;
             font-weight: bold;
+        }
+
+        .accent-btn {
+            @include buttons.btn($btn-color: vars.$accent-color, $btn-height: $btn-height);
+        }
+
+        .blue-btn {
+            @include buttons.btn($btn-color: vars.$blue, $btn-height: $btn-height);
+        }
+
+        .second-accent-btn {
+            @include buttons.btn($btn-color: vars.$second-accent-color, $btn-height: $btn-height);
         }
 
         .on-selected-buttons {

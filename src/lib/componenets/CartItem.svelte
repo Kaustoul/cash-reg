@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { IShoppingCartItem } from "$lib/shared/interfaces/shopping-cart";
+    import type { IShoppingCart, IShoppingCartItem } from "$lib/shared/interfaces/shopping-cart";
     import { parseFullItemId } from "$lib/shared/utils/item-utils";
     import Decimal from "decimal.js";
     import CloseIcon from "svelte-material-icons/Close.svelte";
@@ -8,6 +8,7 @@
 
     export let item: IShoppingCartItem;
     export let isSelected: boolean;
+    export let state: IShoppingCart["state"];
     export let onClick: (item: IShoppingCartItem) => void;
     export let onQuantityChange: (item: IShoppingCartItem, quantity: Decimal) => void;
     export let onRemove: (item: IShoppingCartItem) => void;
@@ -33,6 +34,8 @@
             >
                 <CloseIcon size="3rem"/>
             </button>
+        {:else if state === "checkout"}
+            <span class="quantity-value">{item.quantity.toString()}{item.unit !== "ks" ? item.unit : ""}</span>
         {:else if item.unit === 'ks'}
             <button type="button" class="minus" 
                 on:click|stopPropagation={() => onQuantityChange(item, item.quantity.sub(1))}
@@ -61,10 +64,11 @@
     <button type="button" class="item-price"
         on:click={() => onClick(item)}
     >
-        {#if item.quantity && item.quantity.gt(1) }
-        <span class="single-price">{formatPrice(item.prices[item.priceIdx])}</span>
-        {:else if item.unit !== 'ks'}
-        <span class="single-price">{formatPrice(item.prices[item.priceIdx])}/{item.unit}</span>
+        
+        {#if item.unit !== 'ks'}
+            <span class="single-price">{formatPrice(item.prices[item.priceIdx])}/{item.unit}</span>
+        {:else if item.quantity && item.quantity.gt(1) }
+            <span class="single-price">{formatPrice(item.prices[item.priceIdx])}</span>
         {/if}
         <span class="total-price">{formatDecimal(item.total)}</span>
     </button>
@@ -135,6 +139,11 @@
             cursor: pointer;
             color: vars.$red;
     
+        }
+
+        .quantity-value {
+            font-size: x-large;
+            font-family: 'Roboto Mono', monospace;
         }
     }
     

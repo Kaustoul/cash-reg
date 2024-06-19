@@ -12,11 +12,22 @@
     import { formatDecimal, formatPrice } from "$lib/shared/utils";
 
     export let data: PageData
-    let carts: IShoppingCart[] = [{items: [], total: {}}];
+    let carts: IShoppingCart[] = [emptyCart()];
     let selectedCart = 0;
 
     let numpadData: NumpadData | null = null;
     let currentItem: IShoppingCartItem | null = null;
+
+    function emptyCart(): IShoppingCart {
+        return {
+            items: [],
+            total: {},
+            state: "items",
+            checkout: {
+                payedAmount: new Decimal(0)
+            }
+        }
+    }
 
     function addItemCart(item: IShoppingCartItem) {
         if (item.unit !== 'ks' && (numpadData === null || numpadData.content.value !== "")) {
@@ -30,11 +41,11 @@
                     value: "",
                 },
                 callback: (value: string) => {
-                    console.log(value);
                     item.quantity = new Decimal(value);
                     insertToCart(carts[selectedCart], item);
                     numpadData = null;
-                }
+                },
+
             }
             currentItem = item;
             return;
@@ -46,7 +57,7 @@
 
     function insertToCart(cart: IShoppingCart, item: IShoppingCartItem) {
         if (carts[selectedCart].items.length === 0) {
-            carts.push({items: [], total: {}});
+            carts.push(emptyCart());
         }
 
         addItemToCart(cart, item);
@@ -114,15 +125,31 @@
     </header>
     
     <div class="left">
-        {#if numpadData !== null}
-            <Numpad data={numpadData} close={() => numpadData=null}/>
+        {#if carts[selectedCart].state === 'checkout'}
+            <Numpad 
+                data={{
+                    title: "",
+                    label: "Zaplatit:",
+                    returnLabel: "Zpět na položky",
+                    confirmLabel: "Zaplatit",
+                    content: {
+                        type: 'money',
+                        value: "",
+                    },
+                    callback: (value) => {},
+                }} 
+                onClose={() => carts[selectedCart].state = 'items'}
+                bind:cart={carts[selectedCart]}
+            />
+        {:else if numpadData !== null}
+            <Numpad data={numpadData} onClose={() => numpadData=null}/>
         {:else}
             <CatalogView products={data.products} onItemClicked={addItemCart}/>
         {/if}
     </div>
     
     <div class="right">
-        <ShoppingCartView bind:cart={carts[selectedCart]}/>
+        <ShoppingCartView bind:cart={carts[selectedCart]} onEmptyCart={stornoCart}/>
         <div class="right-buttons">
         </div>
     </div>

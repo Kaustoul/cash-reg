@@ -9,6 +9,7 @@
     import TillCardStatus from './TillCardStatus.svelte';
 
     export let till: ITill;
+    export let onOpenTransaction: (tillId: number, type: 'deposit' | 'withdraw') => void;
 </script>
 
 <div class="card">
@@ -24,7 +25,7 @@
             </div>
 
         </div>
-            {#if true}
+            {#if false}
                 <button type="button"
                 class="btn-red "
                 on:click={() => {}}
@@ -37,14 +38,14 @@
         <div class="card-transactions">
                 <button type="button"
                     class="btn-green"
-                    on:click={() => {}}
+                    on:click={() => onOpenTransaction(till.id, 'deposit')}
                 >
                     <PlusIcon size="2.5rem" />
                     Vklad
                 </button>
                 <button type="button"
                     class="btn-red"
-                    on:click={() => {}}
+                    on:click={() => onOpenTransaction(till.id, 'withdraw')}
                 >
                     <MinusIcon size="2.5rem" />
                     Výběr
@@ -53,7 +54,7 @@
             <div class="card-actions">
 
                 <button type="button"
-                    class="btn"
+                    class="btn disabled"
                     on:click={() => {}}
                 >
                     <ListIcon size="1.5rem" />
@@ -67,7 +68,7 @@
                     Zůstatek
                 </button>
                 <button type="button"
-                    class="btn"
+                    class="btn disabled"
                     on:click={() => {}}
                 >
                     <EyeIcon size="1.5rem" />

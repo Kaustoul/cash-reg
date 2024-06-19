@@ -138,10 +138,28 @@ export class SQLiteDB implements DB {
     async recordBalanceUpdate(
         tillId: number,
         amount: IMoneySum,
-        reason: 'cash-payment', 
+        reason: 'cash-payment' | 'withdraw' | 'deposit', 
         orderId?: number,
     ): Promise<void> {
         return await this._tills.recordBalanceUpdate(this.db, tillId, amount, reason, orderId);
+    }
+
+    async updateBalanceTransaction(
+        tillId: number,
+        amount: IMoneySum,
+        reason: 'cash-payment' | 'withdraw' | 'deposit',
+        orderId?: number
+    ): Promise<void> {
+        await this.db.transaction(async (tx) => { 
+            await this._tills.updateBalance(tx, tillId, amount);
+            await this._tills.recordBalanceUpdate(
+                tx,
+                tillId,
+                amount,
+                reason, 
+                orderId
+            );
+        });
     }
 
     //---------------\\
@@ -163,11 +181,10 @@ export class SQLiteDB implements DB {
     async newOrderTransaction(order: INewOrder) {
         await this.db.transaction(async (tx) => {
             const orderId = await this._orders.newOrder(tx, order);
-            console.log(`New order created with id: ${orderId}`);
 
             if (order.paymentType === 'cash') {
+                // update balance;
                 await this._tills.updateBalance(tx, order.tillId, order.total);
-                console.log(`Till balance updated with ${order.total}`);
                 await this._tills.recordBalanceUpdate(
                     tx,
                     order.tillId,
@@ -176,7 +193,6 @@ export class SQLiteDB implements DB {
                     orderId
                 );
 
-                console.log(`Till balance updated with ${order.total}`);
             }
         });
     }

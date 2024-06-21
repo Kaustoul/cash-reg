@@ -1,0 +1,15 @@
+{
+	"appId": "com.example.app",
+	"productName": "WeedHouse Pokladna",
+	"directories": {
+		"output": "dist"
+	},
+	"files": [
+		"electron/main.cjs",
+		"electron/preload.cjs",
+		{
+			"from": "build",
+			"to": "build"
+		}
+	],
+}

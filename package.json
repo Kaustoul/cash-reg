@@ -2,28 +2,44 @@
 	"name": "cashier",
 	"version": "0.0.1",
 	"private": true,
+	"main": "electron/main.cjs",
 	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
-		"preview": "vite preview",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"test": "vitest",
-		"lint": "prettier --check . && eslint .",
-		"format": "prettier --write ."
+		"dev": "cross-env NODE_ENV=dev vite dev",
+		"prebuild": "yarn fix",
+		"build": "cross-env NODE_ENV=prod vite build",
+		"test": "cross-env NODE_ENV=dev tvitest",
+		"winele": "start cross-env NODE_ENV=dev yarn dev & cross-env NODE_ENV=dev wait-on http://localhost:5173/catalog && yarn electron .",
+		"ele": "cross-env NODE_ENV=dev yarn dev & wait-on http://localhost:5173/catalog && yarn electron .",
+		"ele:build": "cross-env NODE_ENV=prod yarn build && yarn electron .",
+		"ele:prod": "cross-env NODE_ENV=prod yarn electron .",
+		"prepackage": "yarn ele:fix",
+		"package": "cross-env NODE_ENV=prod yarn electron-builder -w --config build.config.json",
+		"fix": "yarn add better-sqlite3 --build-from-source",
+		"preele:fix": "yarn fix",
+		"ele:fix": "electron-rebuild"
 	},
+	"engines": {
+		"node": ">=16.0.0"
+	},
+	"browserslist": [
+		"Chrome 89"
+	],
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.0.0",
+		"@sveltejs/adapter-node": "^5.2.0",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@types/better-sqlite3": "^7.6.10",
 		"@types/eslint": "^8.56.0",
 		"@typescript-eslint/eslint-plugin": "^7.0.0",
 		"@typescript-eslint/parser": "^7.0.0",
+		"concurrently": "^8.2.2",
+		"cross-env": "^7.0.3",
 		"drizzle-kit": "^0.21.2",
 		"easyqrcodejs": "^4.6.1",
-		"electron": "^30.0.2",
+		"electron": "^31.0.2",
 		"electron-builder": "^24.13.3",
+		"electron-rebuild": "^3.2.9",
 		"eslint": "^8.56.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-svelte": "^2.35.1",
@@ -36,14 +52,18 @@
 		"tslib": "^2.4.1",
 		"typescript": "^5.0.0",
 		"vite": "^5.0.3",
-		"vitest": "^1.2.0"
+		"vitest": "^1.2.0",
+		"wait-on": "^7.2.0"
 	},
 	"type": "module",
 	"dependencies": {
 		"@palsch/svelte-sortablejs": "^1.2.1",
-		"better-sqlite3": "^10.0.0",
+		"better-sqlite3": "^11.0.0",
 		"decimal.js": "^10.4.3",
 		"drizzle-orm": "^0.30.10",
+		"electron-reloader": "^1.2.3",
+		"electron-serve": "^2.0.0",
+		"electron-window-state": "^5.0.3",
 		"fuse.js": "^7.0.0",
 		"svelte-material-icons": "^3.0.5"
 	}

@@ -1,5 +1,5 @@
 import { drizzle, type BetterSQLite3Database} from 'drizzle-orm/better-sqlite3';
-import { type DB } from '../db';
+import { getMigrationsPath, type DB } from '../db';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import Database from 'better-sqlite3';
 import { sqliteTills } from './sqlite-tills-data-handler';
@@ -40,7 +40,7 @@ export class SQLiteDB implements DB {
 
     defaultSchema(): void {
         console.log('Creating default schema');
-        migrate(this.db, { migrationsFolder: path.join('src', 'lib', 'server', 'db', 'migrations')});
+        migrate(this.db, { migrationsFolder: getMigrationsPath() });
     }
 
     //---------------\\

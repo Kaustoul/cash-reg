@@ -2,7 +2,7 @@
 	"name": "cashier",
 	"version": "0.0.1",
 	"private": true,
-	"main": "electron/main.cjs",
+	"main": "main.cjs",
 	"scripts": {
 		"dev": "cross-env NODE_ENV=dev vite dev",
 		"prebuild": "yarn fix",
@@ -12,7 +12,6 @@
 		"ele": "cross-env NODE_ENV=dev yarn dev & wait-on http://localhost:5173/catalog && yarn electron .",
 		"ele:build": "cross-env NODE_ENV=prod yarn build && yarn electron .",
 		"ele:prod": "cross-env NODE_ENV=prod yarn electron .",
-		"prepackage": "yarn ele:fix",
 		"package": "cross-env NODE_ENV=prod yarn electron-builder -w --config build.config.json",
 		"fix": "yarn add better-sqlite3 --build-from-source",
 		"preele:fix": "yarn fix",
@@ -58,7 +57,7 @@
 	"type": "module",
 	"dependencies": {
 		"@palsch/svelte-sortablejs": "^1.2.1",
-		"better-sqlite3": "^11.0.0",
+		"better-sqlite3": "^11.1.1",
 		"decimal.js": "^10.4.3",
 		"drizzle-orm": "^0.30.10",
 		"electron-reloader": "^1.2.3",

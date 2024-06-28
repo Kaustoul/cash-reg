@@ -7,6 +7,7 @@ import { SQLiteDB } from './SQLite/sqlite-db';
 import type { ItemsDataHandler } from './items-data-handler';
 import type { ProductsDataHandler } from './products-data-handler';
 import type { OrdersDataHandler } from './orders-data-handler';
+import { join } from 'path';
 
 export type SQLiteTx = SQLiteTransaction<
     "sync",
@@ -30,3 +31,13 @@ export interface DB {
 
 export const database = new SQLiteDB('.db');
 export const db = database.db;
+
+export function getMigrationsPath() {
+    if (process.env.NODE_ENV === 'production') {
+        if (!process.env.APP_PATH) throw new Error('APP_PATH not set');
+
+        return join(process.env.APP_PATH, 'migrations');
+    } else {
+        return join('src', 'lib', 'server', 'db', 'migrations');
+    }
+}

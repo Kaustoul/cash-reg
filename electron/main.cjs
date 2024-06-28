@@ -22,7 +22,7 @@ const { default: windowStateManager } = await import('electron-window-state');
 			nodeIntegration: true,
 			spellcheck: false,
 			devTools: dev,
-			preload: path.join(__dirname, 'preload.js'),
+			preload: path.join(__dirname, 'preload.cjs'),
 		},
 		y: windowState.y,
 		width: windowState.width,
@@ -63,23 +63,18 @@ async function createMainWindow() {
 
 async function start() {
     const { app } = await import('electron');
-    const { spawn } = await import('child_process');
+    const { fork } = await import('child_process');
     const { join } = await import('path');
 
     let backendProcess = undefined;
     if (!dev) {
-        console.log('Starting backend process');
-        backendProcess = spawn('node', ['build'], {
-            cwd: app.getAppPath(),
+        const scriptPath = join(__dirname, 'build', 'index.js');
+        backendProcess = fork(scriptPath, {
+            env: {
+                APP_PATH: __dirname,
+                NODE_ENV: 'production',
+            },
         });
-    
-    backendProcess.on('error', (err) => {
-        console.error('Backend process error:', err);
-    });
-
-    backendProcess.on('close', (code) => {
-        console.log(`Backend process exited with code ${code}`);
-    });
     }
 
     app.once('ready',  createMainWindow);

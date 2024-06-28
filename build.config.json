@@ -5,11 +5,19 @@
 		"output": "dist"
 	},
 	"files": [
-		"electron/main.cjs",
-		"electron/preload.cjs",
+        "package.json",
+        {
+            "from": "electron",
+            "to": ""
+        },
 		{
 			"from": "build",
 			"to": "build"
-		}
+		},
+        {
+            "from": "src/lib/server/db/migrations",
+            "to": "migrations"
+        },
 	],
+    "buildDependenciesFromSource": true,
 }

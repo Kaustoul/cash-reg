@@ -72,6 +72,7 @@ async function start() {
         backendProcess = fork(scriptPath, {
             env: {
                 APP_PATH: __dirname,
+                ORIGIN: 'http://localhost:3000',
                 NODE_ENV: 'production',
             },
         });

@@ -1,14 +1,34 @@
 {
-	"appId": "com.example.app",
-	"productName": "WeedHouse Pokladna",
+	"appId": "me.kaustoul.pos",
+	"productName": "POS",
 	"directories": {
 		"output": "dist"
 	},
-	"files": [
+    "win": {
+        "icon": "static/favicon.ico",
+        "target": {
+            "target": "nsis",
+            "arch": [
+                "x64",
+            ],
+        },
+    },
+    "nsis": {
+        "oneClick": false,
+        "installerIcon": "static/favicon.ico",
+        "license": "dist/LICENSE.html",
+        "allowToChangeInstallationDirectory": true,
+        "createStartMenuShortcut": false,
+        "runAfterFinish": false,
+        "include": "src/electron/nsis/qr-payment-setup.nsi",
+        "shortcutName": "Weedhouse POS",
+    },
+    "files": [
         "package.json",
         {
-            "from": "electron",
-            "to": ""
+            "from": "src/electron",
+            "to": "",
+            "filter": [ "*.cjs" ],
         },
 		{
 			"from": "build",

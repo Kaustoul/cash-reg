@@ -12,11 +12,18 @@
 		"ele": "cross-env NODE_ENV=dev yarn dev & wait-on http://localhost:5173/catalog && yarn electron .",
 		"ele:build": "cross-env NODE_ENV=prod yarn build && yarn electron .",
 		"ele:prod": "cross-env NODE_ENV=prod yarn electron .",
-		"package": "cross-env NODE_ENV=prod yarn electron-builder -w --config build.config.json",
-		"fix": "yarn add better-sqlite3 --build-from-source",
+		
+        "prepackage": "yarn package:license",
+        "package": "cross-env NODE_ENV=prod yarn electron-builder -w --config build.config.json",
+
+        "fix": "yarn add better-sqlite3 --build-from-source",
 		"preele:fix": "yarn fix",
-		"ele:fix": "electron-rebuild"
-	},
+		"ele:fix": "electron-rebuild",
+
+        "prepackage:license": "copy LICENSE dist\\LICENSE.md",
+        "package:license": "pandoc --ascii=true -f markdown -t html dist\\LICENSE.md -o dist\\LICENSE.html",
+        "postpackage:license": "del dist\\LICENSE.md"
+    },
 	"engines": {
 		"node": ">=16.0.0"
 	},

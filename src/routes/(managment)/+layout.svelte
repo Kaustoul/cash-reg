@@ -43,16 +43,17 @@
 
 <style lang="scss">
     @use '$lib/styles/vars' as vars;
+    @use '$lib/styles/inputs' as inputs;
 
     .grid-container {
         display: grid;
         grid-template-columns: 275px 1fr;
         grid-template-rows: auto;
-        height: 100vh;
+        height: 100%;
     }
 
     header {
-        height: 5rem;
+        height: 5.8rem;
         grid-column: 1 / -1;
         display: flex;
         align-items: center;
@@ -60,8 +61,11 @@
     }
 
     main {
+        height: 100%;
         background-color: vars.$content-bg-color;
         padding: 2.5rem;
+
+        @include inputs.scrollable;
     }
 
 

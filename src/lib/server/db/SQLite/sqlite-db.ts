@@ -1,10 +1,10 @@
 import { drizzle, type BetterSQLite3Database} from 'drizzle-orm/better-sqlite3';
-import { getMigrationsPath, type DB } from '../db';
+import { getMigrationsPath } from '../db';
+import type { DB } from '../db';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import Database from 'better-sqlite3';
 import { sqliteTills } from './sqlite-tills-data-handler';
-import path from 'path';
-import type { TillsDataHandler, TransactionReason, TransactionResult } from '../tills-data-handler';
+import type { TillsDataHandler } from '../tills-data-handler';
 import type { TillStatus } from '$lib/shared/interfaces/till';
 import type { ProductsDataHandler } from '../products-data-handler';
 import type { ItemsDataHandler } from '../items-data-handler';
@@ -18,7 +18,6 @@ import type { ICondition } from '$lib/shared/interfaces/condition';
 import type { OrdersDataHandler } from '../orders-data-handler';
 import { sqliteOrders } from './splite-orders-data-handler';
 import type { INewOrder } from '$lib/shared/interfaces/order';
-import Decimal from 'decimal.js';
 
 export class SQLiteDB implements DB {
     readonly db: BetterSQLite3Database;

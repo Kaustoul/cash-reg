@@ -29,9 +29,6 @@ export interface DB {
     defaultSchema(): void;
 }
 
-export const database = new SQLiteDB('.db');
-export const db = database.db;
-
 export function getMigrationsPath() {
     if (process.env.NODE_ENV === 'production') {
         if (!process.env.APP_PATH) throw new Error('APP_PATH not set');
@@ -41,3 +38,8 @@ export function getMigrationsPath() {
         return join('src', 'lib', 'server', 'db', 'migrations');
     }
 }
+
+export const database = new SQLiteDB('.db');
+export const db = database.db;
+
+

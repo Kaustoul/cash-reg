@@ -9,9 +9,9 @@
     import BasketIcon from "svelte-material-icons/Basket.svelte";
     import CloseIcon from "svelte-material-icons/Close.svelte";
     import Numpad, { type NumpadData } from "$lib/componenets/interactables/Numpad.svelte";
-    import { formatPrice } from "$lib/shared/utils";
     import QrPaymentModal from "$lib/componenets/modals/QRPaymentModal.svelte";
     import CashPaymentModal from "$lib/componenets/modals/CashPaymentModal.svelte";
+    import { formatPricesArray } from "$lib/shared/utils/money-sum-utils";
 
     export let data: PageData
     let carts: IShoppingCart[] = [emptyCart()];
@@ -35,7 +35,7 @@
         if (item.unit !== 'ks' && (numpadData === null || numpadData.content.value !== "")) {
             numpadData = {
                 title: item.name,
-                subtitle: `${formatPrice(item.prices[item.priceIdx])}/${item.unit}`,
+                subtitle: `${formatPricesArray(item.prices)}/${item.unit}`,
                 label: "Zadat hmotnost:",
                 unit: item.unit,
                 content: {

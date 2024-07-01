@@ -40,6 +40,7 @@
     }
 
     function newQuantity(item: IShoppingCartItem, quantity: Decimal): void {
+        console.log('new quantity', item, quantity);
         updateItemQuantity(cart, item, quantity);
         // force svelte to reload cart components
         cart = cart;

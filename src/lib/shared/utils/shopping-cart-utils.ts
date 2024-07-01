@@ -39,6 +39,7 @@ export function updateItemQuantity(
     newQuantity: Decimal
 ): void {
     item.quantity = newQuantity;
+    updateCartItemPrice(item);
     calculateItemTotal(item);
     calculateCartTotal(cart);
 }

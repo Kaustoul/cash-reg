@@ -1,6 +1,8 @@
 import type { IProduct } from "../interfaces/product";
 import type { IItem } from "../interfaces/item";
 import { fullItemId } from "./item-utils";
+import Decimal from "decimal.js";
+import { formatDecimal, formatPrice } from "../utils";
 
 export const isSingleVariant = (product: IProduct): boolean => {
     return Object.keys(product.items).length === 1;
@@ -31,3 +33,4 @@ export const formatItemIds = (items: IItem[]): string => {
     return Math.min(...itemIds).toString().padStart(3, '0') 
         + " - " + Math.max(...itemIds).toString().padStart(3, '0');
 }
+

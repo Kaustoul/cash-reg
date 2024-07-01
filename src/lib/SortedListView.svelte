@@ -34,7 +34,6 @@
     const BTN_SIZE = "1.7rem"
 </script>
 
-<div class="container">
 <div class="action-bar">
     {#if showSearchBar}
         <div class="search-bar">
@@ -70,18 +69,18 @@
         </button>
     {/each}
 </div>
-<SortedList {data} {schema} {clickableRows} {onRowClick} {idFieldName} bind:selected/>
+<div class="list">
+    <SortedList {data} {schema} {clickableRows} {onRowClick} {idFieldName} bind:selected/>
 </div>
-
 <style lang="scss">
     @use '$lib/styles/vars' as vars;
     @use '$lib/styles/buttons' as buttons;
     @use '$lib/styles/inputs' as inputs;
 
-    .container {
-        display: flex;
-        flex-direction: column;
-        gap: .5rem;
+    .list {
+        height: 100%;
+
+        @include inputs.scrollable;
     }
 
     .action-bar {

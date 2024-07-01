@@ -46,7 +46,6 @@
     }
 </script>
 
-<div class="list">
 <table>
     <thead>
         <tr>
@@ -93,21 +92,15 @@
         {/each}
     </tbody>
 </table>
-</div>
 
 <style lang="scss">
     @use 'sass:math';
     @use '$lib/styles/vars' as vars;
     @use '$lib/styles/buttons' as buttons;
 
-    .list {
-        flex-grow: 1;
-        display: flex;
-        overflow-y: auto;
-    }
-
     table {
         width: 100%;
+        overflow-y: hidden;
 
         border-collapse: collapse;
         color: vars.$text-color;

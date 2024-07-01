@@ -48,7 +48,7 @@
     .grid-container {
         display: grid;
         grid-template-columns: 275px 1fr;
-        grid-template-rows: auto;
+        grid-template-rows: 5.8rem auto;
         height: 100%;
     }
 
@@ -61,11 +61,13 @@
     }
 
     main {
-        height: 100%;
+        display: flex;
+        flex-direction: column;
+
+        height: 85%;
         background-color: vars.$content-bg-color;
         padding: 2.5rem;
-
-        @include inputs.scrollable;
+        overflow-y: hidden;
     }
 
 

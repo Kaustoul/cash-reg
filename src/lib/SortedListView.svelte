@@ -6,6 +6,7 @@
     import ImportIcon from 'svelte-material-icons/Import.svelte';
 
     import type { DataRows, Schema } from '$lib/componenets/interactables/SortedList.svelte';
+    import { invalidateAll } from "$app/navigation";
 
     export let data: DataRows;
     export let schema: Schema;
@@ -46,7 +47,6 @@
             class={`btn btn-red ${selected.length == 0 ? 'disabled' : ''}`}
             on:click={() => {
                 onRemovePressed(selected);
-                selected = [];
             }}
         >
             <DeleteIcon size="2rem" />

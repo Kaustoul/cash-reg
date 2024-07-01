@@ -16,7 +16,7 @@
         if (deleteEndpoint) {
             const formData = new FormData();
             formData.append('item', value);
-            formData.append('id', props.id);
+            formData.append('priceIdx', props.id);
             formData.append('idx', idx.toString());
 
             await fetch(deleteEndpoint, {

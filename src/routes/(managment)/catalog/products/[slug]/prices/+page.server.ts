@@ -10,7 +10,7 @@ import type { ICondition } from "$lib/shared/interfaces/condition";
 export const actions = {
     newCondition: async (event) => {
         const data = await event.request.formData();
-        const priceIdx = Number(data.get('priceIdx'));
+        const priceIdx = Number(data.get('priceIdx') as string);
         const minValue = data.get('min') as string;
         const maxValue = data.get('max') as string;
         if (priceIdx === undefined) {
@@ -42,7 +42,8 @@ export const actions = {
 
     removeAllPriceConditions: async (event) => {
         const data = await event.request.formData();
-        const priceIdx = Number(data.get('idx'));
+        const priceIdx = Number(data.get('idx') as string);
+        console.log(priceIdx);
         const productId = Number(event.params.slug);
        
         await database.removeAllPriceConditions(productId, priceIdx);

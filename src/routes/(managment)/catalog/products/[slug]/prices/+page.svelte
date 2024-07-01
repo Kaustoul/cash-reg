@@ -3,26 +3,17 @@
     import SortedListView from "$lib/SortedListView.svelte";
     import NewPriceModal from '$lib/componenets/modals/PriceModal.svelte';
     import type { PageData } from '../$types.js';
-    import { invalidateAll } from '$app/navigation';
+    import { invalidate, invalidateAll } from '$app/navigation';
     import { formatConditionStrs } from '$lib/shared/utils/condition-utils.js';
     
     export let data: PageData;
-    const pricesData: {
+    let pricesData: {
         value: string,
         conditionStrs: string[],
         currency: string,
         idx: number
     }[] = []
-
-    for (let i = 0; i < data.product.prices.length; i++) {
-        const price = data.product.prices[i];
-        pricesData.push({
-            value: price.value.value,
-            conditionStrs: formatConditionStrs(price.conditions, data.product.units),
-            idx: i,
-            currency: price.value.currency
-        });
-    }
+    let justClickedIdx: number = 0;
 
     let showModal = {
         "newcondition": false,
@@ -33,7 +24,20 @@
     }
 
     let selected: [] = [];
-
+    
+    $: {
+        pricesData = [];
+        for (let i = 0; i < data.product.prices.length; i++) {
+            const price = data.product.prices[i];
+            pricesData.push({
+                value: price.value.value,
+                conditionStrs: formatConditionStrs(price.conditions, data.product.units),
+                idx: i,
+                currency: price.value.currency
+            });
+        }
+    }
+    
     async function removePrices(selected: (string | number)[]) {
         selected = selected as number[];
 		const data = new FormData();
@@ -43,14 +47,15 @@
 			body: data,
 		});
 
+        selected = [];
         invalidateAll();
     }
-
 </script>
 
 
 <NewConditionModal
     bind:showModal={showModal["newcondition"]}
+    bind:priceIdx={selected[0]}
     units={data.product.units}
 />
 
@@ -66,7 +71,7 @@
         {fieldName: "currency", type: "string", columnHeader: "Měna" },
         {fieldName: "value", type: "string", columnHeader: "Cena" },
         {fieldName: "conditionStrs", type: "selector", columnHeader: "Podmínky",
-            props: {maxSelectorItems: 1, selectorOnAdd: () => openModal("newcondition"),
+            props: {maxSelectorItems: 1, selectorOnAdd: (props) => { justClickedIdx = props.id; openModal("newcondition")},
                 deleteEndpoint: "?/removePriceCondition"
             }
         },

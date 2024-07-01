@@ -6,6 +6,7 @@
 
     export let showModal: boolean = false;
     export let units: string;
+    export let priceIdx: number;
 
     let min = '';
     let max = '';
@@ -25,7 +26,8 @@
     <div slot="header">
         Přidat podmínku
     </div>
-    <form method='POST' action="?/newCondition" >
+    <form method='POST' use:enhance action="?/newCondition" >
+        <input type="hidden" name="priceIdx" value={priceIdx} />
         <div class="inputs-header">
             <span>
                 Množstevní podmínka

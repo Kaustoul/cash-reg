@@ -7,6 +7,8 @@
 
     import type { DataRows, Schema } from '$lib/componenets/interactables/SortedList.svelte';
     import { invalidateAll } from "$app/navigation";
+    import SearchBar from "./componenets/SearchBar.svelte";
+    import type { IProduct } from "./shared/interfaces/product";
 
     export let data: DataRows;
     export let schema: Schema;
@@ -20,10 +22,11 @@
         icon: "plus" | "delete" | "import",
         color: "red" | "blue" | "green" | "yellow" | "accent",
         action: () => void 
-    }} = {};
-    
+    }} = {}; 
     export let selected: (string | number)[] = [];
     let search = '';
+
+    let filteredData = data;
 
     function handleFocus(event: any) {
         event.target.select();
@@ -36,10 +39,11 @@
 
 <div class="action-bar">
     {#if showSearchBar}
-        <div class="search-bar">
-            <MagnifyIcon size="2rem" />
-            <input bind:value={search} on:focus={handleFocus} type="search" placeholder="Search..." />
-        </div>
+        <SearchBar 
+            data={data}
+            keys={['name', 'items.subname', 'productId']}
+            bind:results={filteredData}
+        /> 
     {/if}
     {#if removeButton}
         <button type="button"
@@ -70,7 +74,7 @@
     {/each}
 </div>
 <div class="list">
-    <SortedList {data} {schema} {clickableRows} {onRowClick} {idFieldName} bind:selected/>
+    <SortedList data={filteredData} {schema} {clickableRows} {onRowClick} {idFieldName} bind:selected/>
 </div>
 <style lang="scss">
     @use '$lib/styles/vars' as vars;

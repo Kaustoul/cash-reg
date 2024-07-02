@@ -8,9 +8,12 @@
     import { removeItemFromCart, updateItemQuantity } from '$lib/shared/utils/shopping-cart-utils';
     import CartItem from './CartItem.svelte';
     import { formatDecimal } from '$lib/shared/utils';
+    import type { ISettings } from '$lib/shared/interfaces/settings';
 
+    export let appSettings: ISettings;
     export let cart: IShoppingCart;
     export let onEmptyCart: () => void;
+    console.log(appSettings)
 
     let time: string = "";
     let showDate: boolean = true; 
@@ -120,9 +123,11 @@
                     <button type="button" class="second-accent-btn disabled"
                         on:click={() => {}}
                     >Karta</button>
-                    <button type="button" class="blue-btn"
-                        on:click={() => cart.state = 'qr-payment'}
-                    >QR platba</button>
+                    {#if appSettings.sepaSettings.enabled}
+                        <button type="button" class="blue-btn"
+                            on:click={() => cart.state = 'qr-payment'}
+                        >QR platba</button>
+                    {/if}
                 </div>
             {:else}
                 <button type="button" class="accent-btn"

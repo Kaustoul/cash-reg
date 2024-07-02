@@ -4,7 +4,9 @@
     import QrCode from "../QRCode.svelte";
     import FullscreenModal from "./FullscreenModal.svelte";
     import { formatDecimal } from "$lib/shared/utils";
+    import type { ISettings } from "$lib/shared/interfaces/settings";
 
+    export let appSettings: ISettings;
     export let cart: IShoppingCart;
     export let onConfirm: () => void;
 
@@ -30,7 +32,10 @@
             </div>
             <div class="spacer" />
         </div>
-        <QrCode sum={formatDecimal(new Decimal(cart.total["CZK"].value))}/>
+        <QrCode 
+            sum={formatDecimal(new Decimal(cart.total["CZK"].value))}
+            sepa={appSettings.sepaSettings}
+        />
 
     </div>
 </FullscreenModal>

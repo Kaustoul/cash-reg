@@ -1,34 +1,24 @@
 <script lang="ts">
  import { onMount } from 'svelte';
  import QRCode from 'easyqrcodejs'
+    import type { ISettings } from '$lib/shared/interfaces/settings';
 
     export let sum: string;
-
+    export let sepa: ISettings['sepaSettings'];
     let node: any;
-    const sepaString = `BCD
-001
-1
-SCT
-GIBACZPX
-Radek Svěrák
-CZ9608000000002890023093
-${sum}
-CZK
-test
-001`;
 
     onMount(() => {
         const sepaString = `BCD
 001
 1
 SCT
-GIBACZPX
-Radek Svěrák
-CZ9608000000002890023093
+${sepa.bic}
+${sepa.recipientName}
+${sepa.iban}
 ${sum}
 CZK
-test
-001`;
+${sepa.paymentReason}
+${sepa.referenceText}`;
 
         const options = {
             text: sepaString,

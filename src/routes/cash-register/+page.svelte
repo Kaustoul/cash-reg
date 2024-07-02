@@ -86,7 +86,7 @@
 </script>
 
 {#if carts[selectedCart].state === 'qr-payment'}
-    <QrPaymentModal bind:cart={carts[selectedCart]} onConfirm={finalizeCart}/>
+    <QrPaymentModal bind:cart={carts[selectedCart]} onConfirm={finalizeCart} appSettings={data.settings}/>
 {:else if carts[selectedCart].state === 'cash-payment'}
     <CashPaymentModal bind:cart={carts[selectedCart]} onConfirm={finalizeCart}/>
 {/if}
@@ -168,7 +168,7 @@
     </div>
     
     <div class="right">
-        <ShoppingCartView bind:cart={carts[selectedCart]} onEmptyCart={stornoCart}/>
+        <ShoppingCartView bind:cart={carts[selectedCart]} onEmptyCart={stornoCart} appSettings={data.settings}/>
         <div class="right-buttons">
         </div>
     </div>

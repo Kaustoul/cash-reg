@@ -123,7 +123,7 @@ Function CustomPageLeave
     ; Construct JSON string manually
     FileOpen $9 "$INSTDIR\settings.json" w
     FileWrite $9 "{"
-    FileWrite $9 '"allowQRPayments": $0,'
+    FileWrite $9 '"enabled": $0,'
     FileWrite $9 ' "bic": "$1",'
     FileWrite $9 ' "recipientName": "$2",'
     FileWrite $9 ' "iban": "$3",'

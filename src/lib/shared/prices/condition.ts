@@ -87,7 +87,6 @@ export class MinVolumeCondition implements Condition {
     }
 
     public toString(units: Unit, placeholder?: string): string {
-        console.log(this)
         return `${this.minVolume} ${units} ≤` + (placeholder !== undefined ? ` ${placeholder}` : '');
     }
 }

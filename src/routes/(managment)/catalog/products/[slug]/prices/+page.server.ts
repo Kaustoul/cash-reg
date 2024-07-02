@@ -43,7 +43,6 @@ export const actions = {
     removeAllPriceConditions: async (event) => {
         const data = await event.request.formData();
         const priceIdx = Number(data.get('idx') as string);
-        console.log(priceIdx);
         const productId = Number(event.params.slug);
        
         await database.removeAllPriceConditions(productId, priceIdx);
@@ -100,7 +99,6 @@ export const actions = {
 
     removePrice: async (event) => {
         const data = await event.request.formData();
-        console.log(data);
         const idxsStr = data.get('idxs') as string;
         const idxs = idxsStr.split(',').map(Number);
 

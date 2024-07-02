@@ -4,9 +4,6 @@
 
     export let data: PageData;
    
-
-    data.itemsDisplayData.forEach(item => console.log(item));
-
     function addPriceToItem(id: number) {
         
     }

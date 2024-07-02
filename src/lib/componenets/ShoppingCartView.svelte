@@ -13,7 +13,6 @@
     export let appSettings: ISettings;
     export let cart: IShoppingCart;
     export let onEmptyCart: () => void;
-    console.log(appSettings)
 
     let time: string = "";
     let showDate: boolean = true; 
@@ -43,7 +42,6 @@
     }
 
     function newQuantity(item: IShoppingCartItem, quantity: Decimal): void {
-        console.log('new quantity', item, quantity);
         updateItemQuantity(cart, item, quantity);
         // force svelte to reload cart components
         cart = cart;
@@ -62,7 +60,6 @@
 
         cart.state = 'checkout';
         cart.checkout.payedAmount = new Decimal(0);
-        console.log(cart.state);
     }
 </script>
 

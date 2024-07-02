@@ -13,7 +13,6 @@ export async function importItemsAndProductsFromCSV(
     database: any = db
 ): Promise<number> {
     const csvData = parseCSV(rawCSV);
-    console.log(csvData);
     // filter lines with product id to the front.
     //
     //const lines = csvData.filter(line => 

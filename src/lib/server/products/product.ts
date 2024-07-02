@@ -188,7 +188,6 @@ export class Product {
 
         if (applyToItems) {
             for (const item of this.items.values()) {
-                console.log(idx)
                 await item.addPriceIdx(idx);
             }
         }

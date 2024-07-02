@@ -32,7 +32,6 @@
     export let cart: IShoppingCart | undefined = undefined;
 
     let ref: HTMLInputElement | null = null;
-console.log(cart);
     onMount(() => {
         if (ref)
             ref.focus();

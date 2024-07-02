@@ -34,8 +34,6 @@
         alert(`Chyba při importu: ${form.error}`);
     }
 
-    console.log(data)
-
 </script>
 
 <ImportItemsModal bind:showModal={showImportModal}/>
@@ -52,7 +50,7 @@
     ]}
     clickableRows={true}
     idFieldName="productId"
-    onRowClick={(id) => {console.log(id); goto(`/catalog/products/${id}`);} }
+    onRowClick={(id) => goto(`/catalog/products/${id}`) }
     showSearchBar={true}
     buttons={{
         "Přidat": {

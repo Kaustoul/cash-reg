@@ -10,7 +10,6 @@ export const load: PageServerLoad = async () => {
 
 export const actions = {
     newTill: async (event) => {
-        console.log("INCOMING NEW TILL REQUEST");
         const res = await database.newTill();
         return {success: res};
     },

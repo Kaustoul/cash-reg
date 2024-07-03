@@ -10,6 +10,7 @@
 
     export let till: ITill;
     export let onOpenTransaction: (tillId: number, type: 'deposit' | 'withdraw') => void;
+    export let onOpenBalance: () => void;
 </script>
 
 <div class="card">
@@ -62,7 +63,7 @@
                 </button>
                 <button type="button"
                     class="btn"
-                    on:click={() => {}}
+                    on:click={() => onOpenBalance()}
                 >
                     <WalletIcon size="1.5rem" />
                     Zůstatek

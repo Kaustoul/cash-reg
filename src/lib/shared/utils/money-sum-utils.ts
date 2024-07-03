@@ -5,7 +5,7 @@ import type { IPrice } from "../interfaces/price";
 import { formatDecimal } from "../utils";
 
 export const formatSum = (moneySum: IMoneySum): string => {
-    return `${moneySum.value} ${CurrencyManager.getCurrency(moneySum.currency).getSymbol()}`;
+    return `${formatDecimal(new Decimal(moneySum.value))} ${CurrencyManager.getCurrency(moneySum.currency).getSymbol()}`;
 }
 
 export const formatSumsArray = (moneySums: IMoneySum[]): string => {

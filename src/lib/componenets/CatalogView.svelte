@@ -7,6 +7,7 @@
     import BackIcon from 'svelte-material-icons/ChevronLeft.svelte'
     import type { IShoppingCartItem } from "$lib/shared/interfaces/shopping-cart";
     import Decimal from "decimal.js";
+    import { onMount } from "svelte";
 
     export let onItemClicked:(item: IShoppingCartItem) => void;
 
@@ -15,6 +16,13 @@
     let searchBar;
 
     let currentProduct: IProduct | undefined = undefined;
+
+    products.sort((a, b) => {
+        const nameA = formatProductName(a)
+        const nameB = formatProductName(b)
+
+        return nameA.localeCompare(nameB);
+    });
 
     function viewProductItems(productId: number) {
         currentProduct = products.find((product) => product.productId === productId)!; 

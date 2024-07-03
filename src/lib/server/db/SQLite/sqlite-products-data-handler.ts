@@ -3,7 +3,7 @@ import { database, type SQLiteTx } from "../db";
 import type { ProductsDataHandler } from "../products-data-handler"
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { productsTable } from "../schema/product-model";
-import { eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import type { IItem } from "$lib/shared/interfaces/item";
 import type { IPrice } from "$lib/shared/interfaces/price";
 import type { ICondition } from "$lib/shared/interfaces/condition";
@@ -12,13 +12,12 @@ import { sqliteItems } from "./sqlite-items-data-handler";
 export const sqliteProducts = {
     async fetchProducts(
         db: BetterSQLite3Database | SQLiteTx,
-        fetchItems: boolean = false
+        fetchItems: boolean = false,
     ): Promise<IProduct[]> {
         const products: IProduct[] = [];
         const res = await db
             .select()
             .from(productsTable)
-
         
         for (const product of res) {
             let items: IItem[] = []; 
@@ -32,7 +31,8 @@ export const sqliteProducts = {
                 itemDiscounts: [],
             });
         }
-        
+       
+        console.log(products)
         return products;
     },
 

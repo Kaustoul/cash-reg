@@ -5,6 +5,7 @@
     import DashboardIcon from 'svelte-material-icons/Finance.svelte';
     import CustomersIcon from 'svelte-material-icons/AccountGroup.svelte';
     import MoneyIcon from 'svelte-material-icons/CashMultiple.svelte';
+    import ReceiptIcon from 'svelte-material-icons/ReceiptText.svelte';
 
     let viewTitle: string = "";
     
@@ -23,6 +24,11 @@
             url: "/tills",
             // disabled: true,
         },
+        "Prodeje": {
+            icon: ReceiptIcon,
+            url: "/sales",
+        },
+
         "Zákazníci": {
             icon: CustomersIcon,
             url: "/customers",

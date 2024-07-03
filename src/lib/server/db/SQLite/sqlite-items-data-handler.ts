@@ -1,5 +1,5 @@
 import type { IItem } from "$lib/shared/interfaces/item";
-import { eq , and, max } from 'drizzle-orm';
+import { eq , and, max, asc } from 'drizzle-orm';
 import type { SQLiteTx } from "../db";
 import type { ItemsDataHandler } from "../items-data-handler";
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';

@@ -868,6 +868,11 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-4.6.0.tgz#3c7c9c46e678feefe7a2e5bb609d3dbd665ffb3f"
   integrity sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==
 
+"@svelte-plugins/datepicker@^1.0.9":
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@svelte-plugins/datepicker/-/datepicker-1.0.9.tgz#25e66f7f757e5fe402092877ded3930c22f69417"
+  integrity sha512-HagVB8jLUwNFbwfAcJBNURN1QMQ+qAQQjLJPH97GMqI6auo7jIxOMiSIEWpx7SxTDewHJAlH1izQy3cwBVV8oQ==
+
 "@sveltejs/adapter-auto@^3.0.0":
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/@sveltejs/adapter-auto/-/adapter-auto-3.2.0.tgz#00720dfad99f95452c6e47cc64a1cb58324337d2"

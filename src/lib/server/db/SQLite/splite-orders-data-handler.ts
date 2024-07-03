@@ -1,5 +1,5 @@
 import type { INewOrder, IOrder } from '$lib/shared/interfaces/order';
-import { eq } from 'drizzle-orm';
+import { eq, and, desc, sql, Column, SQL } from 'drizzle-orm';
 import type { OrdersDataHandler } from '../orders-data-handler';
 import { ordersTable } from '../schema/order-model';
 import type { SQLiteTx } from '../db';
@@ -26,12 +26,28 @@ export const sqliteOrders = {
 
     async fetchOrders(
         db: BetterSQLite3Database | SQLiteTx, 
-        tillId: number
+        date: Date = new Date()
     ): Promise<IOrder[]> {
         const res = await db
             .select()
             .from(ordersTable)
-            .where(eq(ordersTable.tillId, tillId))
+            .where(sql`${matchDateString(ordersTable.createdAt, date)}`)
+            .orderBy(desc(ordersTable.createdAt))
+        ;
+
+        return res;
+    },
+
+    async fetchTillOrders(
+        db: BetterSQLite3Database | SQLiteTx, 
+        tillId: number,
+        date: Date = new Date()
+    ): Promise<IOrder[]> {
+
+        const res = await db
+            .select()
+            .from(ordersTable)
+            .where(and(eq(ordersTable.tillId, tillId), sql`${matchDateString('', date)}`))
         ;
 
         return res;
@@ -55,3 +71,14 @@ export const sqliteOrders = {
         return res[0].orderId;
     },
 } satisfies OrdersDataHandler;
+
+
+function matchDateString(column: Column, date: Date): SQL {
+    const targetYear = date.getFullYear();
+    const targetMonth = date.getMonth() + 1;  // Months are zero-based in JavaScript, not in SQL
+    const targetDay = date.getDate();
+
+    return sql`strftime('%Y', ${column}, 'unixepoch') = ${String(targetYear)}
+        AND strftime('%m', ${column}, 'unixepoch') = ${String(targetMonth).padStart(2, '0')}
+        AND strftime('%d', ${column}, 'unixepoch') = ${String(targetDay).padStart(2, '0')}`
+}

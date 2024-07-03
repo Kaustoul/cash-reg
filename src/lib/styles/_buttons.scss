@@ -62,6 +62,7 @@
     border: none;
     color: vars.$text-color;
     background-color: $btn-color;
+    cursor: pointer;
 
     &.disabled {
         @include disabled(vars.$text-disabled-color);

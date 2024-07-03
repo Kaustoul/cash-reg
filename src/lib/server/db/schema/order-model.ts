@@ -3,7 +3,8 @@ import { tillsTable } from "./till-model";
 import { sql } from "drizzle-orm";
 import type { IOrder, IOrderItem } from "$lib/shared/interfaces/order";
 
-export const ordersTable = sqliteTable('orders', {
+export const ORDERS_TABLE_NAME = 'orders';
+export const ordersTable = sqliteTable(ORDERS_TABLE_NAME, {
     orderId: integer('orderid', { mode: 'number' })
        .notNull() 
        .primaryKey({ autoIncrement: true })

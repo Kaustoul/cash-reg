@@ -169,8 +169,12 @@ export class SQLiteDB implements DB {
         return await this._orders.fetchOrder(this.db, orderId);
     }
 
-    async fetchOrders(tillId: number) {
-        return await this._orders.fetchOrders(this.db, tillId);
+    async fetchOrders(date: Date) {
+        return await this._orders.fetchOrders(this.db, date);
+    }
+
+    async fetchTillOrders(tillId: number, date: Date) {
+        return await this._orders.fetchTillOrders(this.db, tillId, date);
     }
 
     async newOrder(order: INewOrder) {

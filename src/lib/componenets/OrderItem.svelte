@@ -44,9 +44,9 @@
     </div>
     {#if isOpen}
         <div class="order-detail">
-            {#each Object.entries(order.items) as [itemId, item]}
+            {#each order.items as item}
                     <div class="order-item">
-                        <span class="item-id">{itemId}</span>
+                        <span class="item-id">{item.fullId}</span>
                         <span class="name">{item.name}</span>
                         <span class="price">{formatPrice(item.price)}</span>
                         <span class="quantity">{item.quantity}</span>

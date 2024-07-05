@@ -30,7 +30,7 @@ export const actions = {
             items: items,
             total: cart.total["CZK"],
             paymentType: cart.state.split("-")[0] as IOrder["paymentType"],
-            note: null,
+            note: cart.note ?? null,
         })
         
 

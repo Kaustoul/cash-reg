@@ -13,6 +13,7 @@
     export let appSettings: ISettings;
     export let cart: IShoppingCart;
     export let onEmptyCart: () => void;
+    export let onNote: () => void;
 
     let time: string = "";
     let showDate: boolean = true; 
@@ -113,21 +114,32 @@
             {/if}
 
             {#if cart.state === 'checkout'}
+                <div class="checkout-actions">
+                    <button type="button" class="btn disabled">Sleva %</button>
+                    <button type="button" class="btn disabled">
+                        Sleva {CurrencyManager.getDefaultCurrency().getSymbol()}
+                    </button>
+                    <button type="button" 
+                        class="btn"
+                        on:click={onNote}
+                    >
+                    Přidat poznámku</button>
+                </div>
                 <div class="checkout-buttons">
-                    <button type="button" class="accent-btn"
+                    <button type="button" class="accent-btn btn"
                         on:click={() => cart.state = 'cash-payment'}
                     >Hotovost</button>
-                    <button type="button" class="second-accent-btn disabled"
+                    <button type="button" class="second-accent-btn btn disabled"
                         on:click={() => {}}
                     >Karta</button>
                     {#if appSettings.sepaSettings.enabled}
-                        <button type="button" class="blue-btn"
+                        <button type="button" class="blue-btn btn"
                             on:click={() => cart.state = 'qr-payment'}
                         >QR platba</button>
                     {/if}
                 </div>
             {:else}
-                <button type="button" class="accent-btn"
+                <button type="button" class="accent-btn payment-btn"
                     on:click={goToCheckout}
                 >Platba</button>   
             {/if}
@@ -235,6 +247,12 @@
             font-size: xx-large;
             font-weight: bold;
         }
+        
+        .btn {
+            @include buttons.btn($btn-color: vars.$primary-color, $btn-height: $btn-height);
+
+            flex: 1 0 30%;
+        }
 
         .accent-btn {
             @include buttons.btn($btn-color: vars.$accent-color, $btn-height: $btn-height);
@@ -261,5 +279,14 @@
                 flex: 1 0 30%;
             }
         }
+    }
+
+    .checkout-actions, .checkout-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: .5rem;
+        margin-top: 1rem;
+
+        
     }
 </style>

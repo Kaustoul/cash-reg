@@ -11,6 +11,7 @@ export interface IShoppingCart {
         payedAmount: Decimal;
     };
     tillId: number;
+    note?: string
 }
 
 export interface IShoppingCartItem {

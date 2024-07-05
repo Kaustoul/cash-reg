@@ -12,10 +12,12 @@
     import QrPaymentModal from "$lib/componenets/modals/QRPaymentModal.svelte";
     import CashPaymentModal from "$lib/componenets/modals/CashPaymentModal.svelte";
     import { formatPricesArray } from "$lib/shared/utils/money-sum-utils";
+    import Modal from "$lib/componenets/modals/Modal.svelte";
 
     export let data: PageData
     let carts: IShoppingCart[] = [emptyCart()];
     let selectedCart = 0;
+    let showNoteModal = false;
 
     let numpadData: NumpadData | null = null;
 
@@ -90,6 +92,13 @@
 {:else if carts[selectedCart].state === 'cash-payment'}
     <CashPaymentModal bind:cart={carts[selectedCart]} onConfirm={finalizeCart}/>
 {/if}
+
+<Modal bind:showModal={showNoteModal}>
+    <div slot="header">
+        Přidat poznámku
+    </div>
+    <input type="text" class="note-input" placeholder="Poznámka..." bind:value={carts[selectedCart].note}/>
+</Modal>
 
 <main class="grid-container">
     <nav>
@@ -168,7 +177,12 @@
     </div>
     
     <div class="right">
-        <ShoppingCartView bind:cart={carts[selectedCart]} onEmptyCart={stornoCart} appSettings={data.settings}/>
+        <ShoppingCartView 
+            bind:cart={carts[selectedCart]} 
+            onEmptyCart={stornoCart} 
+            onNote={() => showNoteModal = true}
+            appSettings={data.settings}
+        />
         <div class="right-buttons">
         </div>
     </div>
@@ -314,5 +328,12 @@
         cursor: pointer;
 
         margin-right: .7rem;
+    }
+
+    .note-input {
+        @include inputs.text;
+        padding: 2rem;
+        border-radius: vars.$large-radius;
+        border: 2px solid vars.$accent-color;
     }
 </style>

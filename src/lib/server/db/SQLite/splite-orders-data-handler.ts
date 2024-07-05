@@ -1,9 +1,12 @@
 import type { INewOrder, IOrder } from '$lib/shared/interfaces/order';
-import { eq, and, desc, sql, Column, SQL } from 'drizzle-orm';
+import { eq, and, desc, sql, inArray, Column, SQL } from 'drizzle-orm';
 import type { OrdersDataHandler } from '../orders-data-handler';
 import { ordersTable } from '../schema/order-model';
 import type { SQLiteTx } from '../db';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
+import { productsTable } from '../schema/product-model';
+import { itemsTable } from '../schema/item-model';
+import { parseFullItemId, parseItemName, reduceFullItemId } from '$lib/shared/utils/item-utils';
 
 export const sqliteOrders = {
     async fetchOrder(
@@ -34,6 +37,39 @@ export const sqliteOrders = {
             .where(sql`${matchDateString(ordersTable.createdAt, date)}`)
             .orderBy(desc(ordersTable.createdAt))
         ;
+
+        for (const order of res) {
+            const productIds = []
+            const itemIds = []
+            for (const key of order.items) {
+                const [productId, itemId] = reduceFullItemId(key.fullId);
+                productIds.push(productId);
+                itemIds.push(itemId);
+            }
+
+            const names = await db
+                .select({
+                    productId: itemsTable.productId,
+                    itemId: itemsTable.itemId,
+                    name: productsTable.name,
+                    subname: itemsTable.subname
+                })
+                .from(itemsTable)
+                .innerJoin(productsTable, eq(productsTable.productId, itemsTable.productId))
+                .where(inArray(itemsTable.productId, productIds))
+            ;
+
+            const nameMap = names.reduce((map, name) => {
+                map[parseFullItemId(name.productId, name.itemId)] = parseItemName(name.name, name.subname);
+                return map;
+            }, {} as Record<number, string>);
+            console.log(nameMap);
+
+
+            for (const item of order.items) {
+                item.name = nameMap[Number(item.fullId)];
+            }
+        }
 
         return res;
     },

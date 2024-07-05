@@ -3,10 +3,12 @@
     import ChevronUpIcon from 'svelte-material-icons/ChevronUp.svelte';
     import type { IOrder } from '$lib/shared/interfaces/order';
     import { formatSum } from '$lib/shared/utils/money-sum-utils';
+    import { fullItemId } from "$lib/shared/utils/item-utils";
+    import { formatPrice } from "$lib/shared/utils";
 
     export let order: IOrder;
-
     let isOpen: boolean = false;
+    console.log(order);
 
     async function fetchOrderDetail(): Promise<void> {
 
@@ -42,7 +44,14 @@
     </div>
     {#if isOpen}
         <div class="order-detail">
-            Hello from order detail
+            {#each Object.entries(order.items) as [itemId, item]}
+                    <div class="order-item">
+                        <span class="item-id">{itemId}</span>
+                        <span class="name">{item.name}</span>
+                        <span class="price">{formatPrice(item.price)}</span>
+                        <span class="quantity">{item.quantity}</span>
+                    </div>
+            {/each}
         </div>
     {/if}
 </div>
@@ -76,8 +85,16 @@
     }
 
     .order-detail {
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
         margin-right: 1rem;
         background-color: vars.$primary-color;
+
+        & > * {
+            display: flex;
+            justify-content: space-between;
+        }
     }
 
     .show {

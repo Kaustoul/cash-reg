@@ -4,7 +4,7 @@ import type { IPrice } from './price';
 export interface IOrder {
     orderId: number;
     tillId: number;
-    items: {[fullItemId: number]: IOrderItem};
+    items: IOrderItem & { name: string }[];
     total: IMoneySum;
     paymentType: "qr" | "cash" | "card";
     note: string | null;
@@ -20,6 +20,7 @@ export interface INewOrder {
 }
 
 export interface IOrderItem {
+    fullId: number;
     quantity: DecimalStr;
     price: IPrice;
 }

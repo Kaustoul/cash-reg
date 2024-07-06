@@ -88,11 +88,12 @@
         margin: 1rem;
         
         label {
-            font-size: x-large;
+            font-size: vars.$large;
         }
 
         input {
             margin-left: 1rem;
+            font-size: vars.$larger;
         }
     }
 

@@ -22,14 +22,11 @@ ${sepa.referenceText}`;
 
         const options = {
             text: sepaString,
-            width: 420,
-            height: 420,
+            width: 300,
+            height: 300,
             quietZone: 20,
-            logo: 'src/logo.svg',
-            logoWidth: 160,
-            logoHeight: 100,
-    };
-    new QRCode(node, options);
+        };
+        new QRCode(node, options);
   });
 </script>
 

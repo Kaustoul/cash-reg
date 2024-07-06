@@ -58,8 +58,8 @@
         padding: .5rem 1rem;
         cursor: pointer;
         transition: background-color .2s;
-        font-size: x-large;
-        width: 10%;
+        font-size: vars.$larger;
+        width: 10rem;
         text-align: center;
     
         &.selected {

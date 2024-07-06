@@ -44,10 +44,6 @@
     @use '$lib/styles/vars' as vars;
     @use '$lib/styles/buttons' as buttons;
 
-    .container {
-
-    }
-
     .qr-payment {
     
         display: flex;
@@ -89,12 +85,12 @@
     }
 
     .sum-title {
-        font-size: xx-large;
+        font-size: vars.$x-large;
         font-weight: bold;
     }
 
     .sum-value {
-        font-size: 3rem;
+        font-size: vars.$x-large;
         color: vars.$accent-color;
         font-weight: bold;
         font-family: 'Roboto Mono', monospace;

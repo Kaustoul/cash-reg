@@ -82,6 +82,7 @@
     @use '$lib/styles/inputs' as inputs;
 
     .list {
+        margin-bottom: 3.5rem;
         height: 100%;
 
         @include inputs.scrollable;

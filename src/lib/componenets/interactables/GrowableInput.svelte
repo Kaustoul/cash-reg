@@ -40,5 +40,6 @@
         padding: 0;
         margin: 0;
         text-align: center;
+        font-size: inherit;
     }
 </style>

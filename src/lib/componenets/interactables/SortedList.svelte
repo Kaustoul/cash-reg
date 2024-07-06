@@ -110,6 +110,11 @@
         border-radius: vars.$large-radius;
     }
 
+    thead {
+        position: sticky; 
+        top: 0;
+    }
+
     th, td {
         text-align: center;
         vertical-align: middle;
@@ -149,6 +154,7 @@
     }
 
     th {
+        padding: .5rem 0;
         background-color: vars.$accent-color;
         color: vars.$text-color;
     }

@@ -60,16 +60,16 @@
     @use '$lib/styles/buttons' as buttons;
 
     nav {
-        height: 100vh;
+        height: 100%;
         margin: .7rem;
     }
 
     .primary-btn {
         @include buttons.btn($btn-color: vars.$accent-color, $btn-height: 3.5rem);
-        width: 100%;
+        width: 90%;
         height: auto;
-        margin-bottom: 2rem;
-        font-size: x-large;
+        margin: 1rem auto;
+        font-size: vars.$larger;
    }
 
 </style>

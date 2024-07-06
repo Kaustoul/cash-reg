@@ -28,6 +28,10 @@ html {
     overflow-y: hidden;
     height: 100%;
     width: 100%;
+
+    @media (max-width: 1400px) {
+        font-size: 12px;
+    }
 }
 
 

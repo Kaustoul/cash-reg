@@ -101,6 +101,7 @@
         flex: 0 0 9rem;
         padding: $item-vpadding 0;
 
+        font-size: vars.$larger;
         background-color: vars.$primary-color;
         border-radius: vars.$medium-radius;
 
@@ -109,6 +110,7 @@
             margin: 0;
             width: 3rem;
             text-align: center;
+            font-size: vars.$larger;
 
             &.unit {
                 padding: 0;
@@ -116,15 +118,14 @@
             }
         }
         
-        .quantity-input-unit {
-                font-size: x-large;
+        .quantity-input-unit, .quantity-value, & > .input {
                 font-family: 'Roboto Mono', monospace;
             }
 
         .minus, .plus {
             @include buttons.div-btn;
             cursor: pointer;
-            font-size: 2rem;
+            font-size: vars.$large;
             border-radius: vars.$large-radius;
             font-family: 'Roboto Mono', monospace;
             padding: 0 .7rem;
@@ -140,23 +141,17 @@
             color: vars.$red;
     
         }
-
-        .quantity-value {
-            font-size: x-large;
-            font-family: 'Roboto Mono', monospace;
-        }
     }
     
     .item-info {
         @include buttons.div-btn;
-        cursor: pointer;
 
         height: 100%;
         flex: 1 1 70%;
         padding: $item-vpadding 1rem;
         display: flex;
         flex-direction: column;
-        justify-content: space-evenly;
+        justify-content: center;
         align-items: start;
         text-align: left;
         
@@ -164,11 +159,12 @@
         border-radius: vars.$medium-radius;
 
         .item-name {
-            font-size: larger;
+            font-size: vars.$normal;
         }
 
         .item-id {
             color: vars.$text2-color;
+            font-size: vars.$smaller;
         }
     }
 
@@ -183,7 +179,7 @@
         flex-direction: column;
         justify-content: center;
         align-items: end;
-        flex: 0 0 20%;
+        flex: 0 0 25%;
 
         background-color: vars.$primary-color;
         font-family: 'Roboto Mono', monospace;
@@ -195,7 +191,7 @@
 
 
         .total-price {
-            font-size: x-large;
+            font-size: vars.$larger;
         }
     }
 

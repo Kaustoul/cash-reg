@@ -110,7 +110,7 @@
                 >
                     
                     <div class="cart-btn-icon"><BasketIcon size="3rem"/></div>
-                    <div class="cart-btn-idx">+</div>
+                    <span class="cart-btn-idx">+</span>
                 </button>
             {:else} 
                 <div class="cart-selector">
@@ -127,7 +127,7 @@
                         class={"cart-btn" + (selectedCart === index ? " selected" : "")}
                     >
                         <div class="cart-btn-icon"><BasketIcon size="3rem"/></div>
-                        <div class="cart-btn-idx">{index + 1}</div>
+                        <span class="cart-btn-idx">{index + 1}</span>
                     </button>
                     {#if selectedCart === index} 
                         <div class="storno-spacer"></div>
@@ -197,7 +197,7 @@
         display: grid;
         grid-template-columns: 7.5rem 1fr 1fr;
         grid-template-rows: auto 1fr;
-        height: 100vh;
+        height: 100%;
         grid-template-areas:
             "header header right"
             "nav left right";
@@ -240,18 +240,16 @@
 
         .cart-btn {
             @include buttons.div-btn;
-            cursor: pointer;
             
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 0;
-            ovelflow: hidden;
 
             border-radius: vars.$large-radius;
             border: 3px solid vars.$primary-color;
             background-color: vars.$content-bg-color;
-            font-size: xx-large;
+            font-size: vars.$large;
 
             &.selected {
                 color: vars.$accent-color;

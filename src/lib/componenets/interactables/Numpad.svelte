@@ -241,6 +241,7 @@
         height: 100%;
         display: flex;
         flex-direction: column;
+        justify-content: space-between;
     }
 
     .header {
@@ -254,12 +255,12 @@
         border-radius: .5rem;
         
         .left {
-            font-size: 2.5rem;
+            font-size: vars.$x-large;
         }
 
         .right {
             margin-right: 1rem;
-            font-size: 2rem;
+            font-size: vars.$large;
             text-align: right;
         }
 
@@ -284,19 +285,20 @@
         input {
             @include inputs.number;
             text-align: center;
-            font-size: xx-large;
-            height: 4rem;
+            font-size: vars.$larger;
+            height: 3rem;
         }
 
         label {
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            font-size: xx-large;
+            font-size: vars.$larger;
         }
 
         .unit {
-            font-size: xx-large;
+            font-size: vars.$large;
             font-family: 'Roboto Mono', monospace;
             padding: 0;
             margin: 0;
@@ -307,7 +309,7 @@
         flex-grow: 0;
         align-self: center;
         width: 100%;
-        margin-bottom: 1rem;
+        margin-bottom: .5rem;
 
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -318,17 +320,17 @@
 
         max-width: 50rem;
 
-        font-size: xx-large;
+        font-size: vars.$larger;
     }
 
     .return-label {
-        font-size: 1.5rem;
+        font-size: vars.$larger;
     }
 
     .numpad-btn {
         @include buttons.btn($btn-color: vars.$primary-color);
         border-radius: .5rem;
-        height: 6rem;
+        height: 4rem;
     }
 
     .column {
@@ -366,10 +368,10 @@
         .money-btn {
             @include buttons.btn($btn-color: vars.$bg-color);
             flex: 0 1 30%;
-            height: 5rem;
+            height: 3rem;
             width: 9rem;
 
-            font-size: xx-large;
+            font-size: vars.$larger;
             font-family: 'Roboto Mono', monospace;
         }
     }
@@ -377,13 +379,14 @@
     .checkout-container {
         display: flex;
         align-items: center;
+        height: 100%;
     }
 
     .checkout-status {
         min-width: 23rem;
         display: flex;
         flex-direction: column;
-        margin: 0 1rem;
+        margin: 1rem;
         width: 100%;
         max-width: 30rem;    
         background-color: vars.$primary-color;
@@ -391,7 +394,7 @@
         border-radius: vars.$large-radius;
 
         .left, .right {
-            font-size: x-large;
+            font-size: vars.$larger;
             display: flex;
             justify-content: space-between;
             width: 100%;
@@ -406,7 +409,7 @@
         @include buttons.div-btn;
         cursor: pointer;
 
-        width: 5rem;
+        width: 3rem;
     }
 
     .checkout-spacer {
@@ -415,11 +418,11 @@
 
     .red {
         @include buttons.btn($btn-color: vars.$red);
-        font-size: xx-large;
+        font-size: vars.$larger;
     }
 
     .green {
         @include buttons.btn($btn-color: vars.$green);
-        font-size: xx-large;
+        font-size: vars.$larger;
     }
 </style>

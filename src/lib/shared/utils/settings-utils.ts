@@ -10,6 +10,7 @@ function getSeetingsPath(): string {
     }
 
     if (process.env.APP_PATH == undefined) {
+        return "-1.-1";
         throw new Error('APP_PATH is not set');
     }
 

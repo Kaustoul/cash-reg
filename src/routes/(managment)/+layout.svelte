@@ -53,13 +53,12 @@
 
     .grid-container {
         display: grid;
-        grid-template-columns: 275px 1fr;
-        grid-template-rows: 5.8rem auto;
+        grid-template-columns: 17rem 1fr;
+        grid-template-rows: 80px 1fr;
         height: 100%;
     }
 
     header {
-        height: 5.8rem;
         grid-column: 1 / -1;
         display: flex;
         align-items: center;
@@ -70,9 +69,9 @@
         display: flex;
         flex-direction: column;
 
-        height: 85%;
+        height: 100%;
         background-color: vars.$content-bg-color;
-        padding: 2.5rem;
+        padding: 2.5rem 2.5rem 0 2.5rem;
         overflow-y: hidden;
     }
 

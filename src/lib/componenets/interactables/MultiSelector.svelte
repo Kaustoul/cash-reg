@@ -94,8 +94,6 @@
         display: flex;
         align-items: center;
         justify-content: start;
-
-        font-size: large;
         
         span {
             padding-left: 1rem;

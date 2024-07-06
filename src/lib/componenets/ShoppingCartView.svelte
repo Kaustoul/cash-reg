@@ -188,7 +188,7 @@
             justify-content: end;
 
             background-color: vars.$accent-color;
-            font-size: xx-large;
+            font-size: vars.$large;
             font-weight: bold;
         }
 
@@ -202,7 +202,7 @@
         .total-price {
             font-family: 'Roboto Mono', monospace;
             padding-right: 1rem;
-            flex: 0 0 21.7%;
+            flex: 0 0 25%;
         }
     }
 

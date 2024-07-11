@@ -3,6 +3,7 @@ import type { IShoppingCart, IShoppingCartItem } from '../interfaces/shopping-ca
 import { areConditionsMet } from './condition-utils';
 import { CurrencyManager } from '../prices/currency-manager';
 import { formatDecimal } from '../utils';
+import { applyDiscounts } from './discount-utils';
 
 export function addItemToCart(cart: IShoppingCart, item: IShoppingCartItem): void {
     if (item.quantity.eq(-1)) {
@@ -25,12 +26,20 @@ export function addItemToCart(cart: IShoppingCart, item: IShoppingCartItem): voi
 }
 
 export function calculateCartTotal(cart: IShoppingCart): void {
-    const total = cart.items.reduce((acc, item) => acc.plus(item.total), new Decimal(0));
+    cart.subtotal = cart.items.reduce((acc, item) => acc.plus(item.total), new Decimal(0));
+    
+    let total = cart.subtotal;
+    if (cart.discounts !== undefined) {
+        total = applyDiscounts(total, cart.discounts);
+    }    
+    
     const currency = CurrencyManager.getDefaultCurrency().getCode();
     cart.total[currency] = {
             value: total.toString(),
             currency: currency,
-    };
+    };    
+
+    console.log("calculated cart", cart);
 }
 
 export function updateItemQuantity(
@@ -45,7 +54,15 @@ export function updateItemQuantity(
 }
 
 export function calculateItemTotal(item: IShoppingCartItem): void {
-    item.total = item.quantity.times(getItemPrice(item));
+    item.subtotal = item.quantity.times(getItemPrice(item));
+
+    if (item.discounts !== undefined) {
+        item.total = applyDiscounts(item.subtotal, item.discounts)
+    } else {
+        item.total = item.subtotal;
+    }
+
+    console.log("item price", item);
 }
 
 export function updateCartItemPrice(item : IShoppingCartItem): void {

@@ -22,6 +22,13 @@
       "when": 1718823124665,
       "tag": "0002_messy_goliath",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1720453532457,
+      "tag": "0003_lazy_jimmy_woo",
+      "breakpoints": true
     }
   ]
 }

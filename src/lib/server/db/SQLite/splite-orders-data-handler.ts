@@ -63,7 +63,6 @@ export const sqliteOrders = {
                 map[parseFullItemId(name.productId, name.itemId)] = parseItemName(name.name, name.subname);
                 return map;
             }, {} as Record<number, string>);
-            console.log(nameMap);
 
 
             for (const item of order.items) {

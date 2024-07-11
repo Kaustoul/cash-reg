@@ -8,11 +8,6 @@
 
     export let order: IOrder;
     let isOpen: boolean = false;
-    console.log(order);
-
-    async function fetchOrderDetail(): Promise<void> {
-
-    }
 
     function formatTime(date: Date): string {
         const hours = date.getHours().toString(); 

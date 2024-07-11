@@ -9,7 +9,6 @@
 
     onMount(() => {
         const sepaString = `SPD*1.0*ACC:${sepa.iban}*AM:${sum}*CC:CZK*RN:${sepa.recipientName}*MSG:${sepa.paymentReason}`;
-        console.log(sepaString)
 
         const options = {
             text: sepaString,

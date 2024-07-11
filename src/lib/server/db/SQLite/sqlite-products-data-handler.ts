@@ -32,7 +32,6 @@ export const sqliteProducts = {
             });
         }
        
-        console.log(products)
         return products;
     },
 

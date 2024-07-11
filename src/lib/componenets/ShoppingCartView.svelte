@@ -7,17 +7,24 @@
     import { CurrencyManager } from '$lib/shared/prices/currency-manager';
     import { removeItemFromCart, updateItemQuantity } from '$lib/shared/utils/shopping-cart-utils';
     import CartItem from './CartItem.svelte';
-    import { formatDecimal } from '$lib/shared/utils';
+    import { formatDecimal, formatPrice } from '$lib/shared/utils';
     import type { ISettings } from '$lib/shared/interfaces/settings';
+    import type { NumpadData } from './interactables/Numpad.svelte';
+    import type { IDiscount } from '$lib/shared/interfaces/discount';
 
     export let appSettings: ISettings;
     export let cart: IShoppingCart;
+    export let onDiscountPressed: (
+        type: IDiscount['type'], 
+        targetType: "cart" | "item",
+        target: IShoppingCartItem | IShoppingCart
+    )=> void;
     export let onEmptyCart: () => void;
     export let onNote: () => void;
+    let selectedItem: IShoppingCartItem | null = null;
 
     let time: string = "";
     let showDate: boolean = true; 
-    let selectedItem: IShoppingCartItem | null = null;
 
     onMount(() => {
         time = formatDate(new Date());
@@ -73,12 +80,41 @@
         {/if}
         <input class="checkbox" type="checkbox" id="view-date" bind:checked={showDate}/>
     </div>
-        {#if cart.total[CurrencyManager.getDefaultCurrency().getCode()] !== undefined}
+        {#if cart.state === "checkout" || cart.total[CurrencyManager.getDefaultCurrency().getCode()] !== undefined }
             <div class="total-bar">
-                <span class="total-title">SUMA</span>
-                <span class="total-price">
-                    {formatDecimal(new Decimal(cart.total[CurrencyManager.getDefaultCurrency().getCode()].value))}
-                </span>
+                <div class="total-info">
+                    {#if cart.state === "checkout" && cart.discounts !== undefined }
+                    <span class="subtotal-title">Před slevou</span>
+                    {#each cart.discounts as discount}
+                    <span class="total-discount-title">
+                        Sleva
+                                {#if discount.type === "PRC"}
+                                    {discount.value}%
+                                {/if}
+                            </span>
+                            {/each}
+                    <span class="total-title">Celkem</span>        
+                    {:else}
+                        <span class="total-title padded">Celkem</span>
+                    {/if}
+                </div>
+                <div class="total-value">
+                        {#if cart.state === "checkout"}
+                            <span class="total-subtotal">{formatDecimal(cart.subtotal.round())}</span>
+                            {#if cart.discounts !== undefined}
+                                {#each cart.discounts as discount}
+                                    <span class="total-discount-value">
+                                        {#if discount.subtotal !== undefined}
+                                            -{formatDecimal(discount.subtotal)}
+                                        {/if}
+                                    </span>
+                                {/each}
+                                <span class="total-total">{formatDecimal(new Decimal(cart.total['CZK'].value).round())}</span>
+                            {/if}
+                        {:else}
+                            <span class="total-total">{formatDecimal(new Decimal(cart.total[CurrencyManager.getDefaultCurrency().getCode()].value))}</span>
+                        {/if}
+                </div>
             </div>
         {:else}
             <div class="empty-total-bar">
@@ -100,8 +136,12 @@
         <div class="buttons">
             {#if selectedItem !== null}
                 <div class="on-selected-buttons">
-                    <button type="button" class="btn disabled">Sleva %</button>
-                    <button type="button" class="btn disabled">
+                    <button type="button" class="btn"
+                        on:click={() => { if (!selectedItem) return; onDiscountPressed("PRC", "item", selectedItem)}}
+                    >Sleva %</button>
+                    <button type="button" class="btn"
+                        on:click={() => { if (!selectedItem) return; onDiscountPressed("CZK", "item", selectedItem)}}
+                    >
                         Sleva {CurrencyManager.getDefaultCurrency().getSymbol()}
                     </button>
                     <button type="button" 
@@ -115,8 +155,12 @@
 
             {#if cart.state === 'checkout'}
                 <div class="checkout-actions">
-                    <button type="button" class="btn disabled">Sleva %</button>
-                    <button type="button" class="btn disabled">
+                    <button type="button" class="btn"
+                        on:click={() => onDiscountPressed("PRC", "cart", cart)}
+                    >Sleva %</button>
+                    <button type="button" class="btn"
+                        on:click={() => onDiscountPressed("CZK", "cart", cart)}
+                    >
                         Sleva {CurrencyManager.getDefaultCurrency().getSymbol()}
                     </button>
                     <button type="button" 
@@ -179,30 +223,52 @@
         align-items: stretch;
         gap: .3rem;
         background-color: vars.$bg-color;
+        font-family: 'Roboto Mono', monospace;
 
-        min-height: 4rem;
-
-        .total-title, .total-price {
+        .total-info {
             display: flex;
-            align-items: center;
-            justify-content: end;
-
-            background-color: vars.$accent-color;
-            font-size: vars.$large;
-            font-weight: bold;
-        }
-
-        .total-title {
+            flex-direction: column;
+            justify-content: center;
             flex: 1 0 70%;
-            padding-right: 1rem;
 
+            padding-right: 1rem;
             text-align: right;
+            background-color: vars.$accent-color;
+
+            .total-title, .total-total {
+                font-size: vars.$large;
+                font-weight: bold;
+
+                &.padded {
+                    padding: 1.1rem 0;
+                }
+            }
         }
 
-        .total-price {
+        .total-value {
+            display: flex;
+            flex-direction: column;
+            flex: 0 0 25%;
+            justify-content: center;
+            align-items: end;
+
             font-family: 'Roboto Mono', monospace;
             padding-right: 1rem;
-            flex: 0 0 25%;
+            background-color: vars.$accent-color;
+
+            .total-total {
+                font-size: vars.$large;
+                font-weight: bold;    
+            }
+        }
+
+        .total-subtotal, .subtotal-title {
+            font-size: vars.$larger;
+        }
+        
+        .total-discount-value, .total-discount-title {
+            font-size: vars.$normal;
+            color: vars.$second-accent-color;
         }
     }
 

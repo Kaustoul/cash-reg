@@ -11,7 +11,6 @@ export const parseFullItemId = (productId: number, itemId: number): number => {
 export const reduceFullItemId = (fullItemId: number | string): [number, number] => {
     const fullItemIdStr = fullItemId.toString();
 
-    console.log("fullItemId:", fullItemIdStr);
     const productId = parseInt(fullItemIdStr.slice(0, -3));
     const itemId = parseInt(fullItemIdStr.slice(-3));
 

@@ -4,7 +4,7 @@
     import type { PageData } from "./$types";
     import CustomerIcon from "svelte-material-icons/AccountPlus.svelte";
     import type { IShoppingCart, IShoppingCartItem } from "$lib/shared/interfaces/shopping-cart";
-    import { addItemToCart } from "$lib/shared/utils/shopping-cart-utils";
+    import { addItemToCart, calculateCartTotal, calculateItemTotal } from "$lib/shared/utils/shopping-cart-utils";
     import Decimal from "decimal.js";
     import BasketIcon from "svelte-material-icons/Basket.svelte";
     import CloseIcon from "svelte-material-icons/Close.svelte";
@@ -13,6 +13,9 @@
     import CashPaymentModal from "$lib/componenets/modals/CashPaymentModal.svelte";
     import { formatPricesArray } from "$lib/shared/utils/money-sum-utils";
     import Modal from "$lib/componenets/modals/Modal.svelte";
+    import type { IDiscount } from "$lib/shared/interfaces/discount";
+    import { itemIdFromFullId } from "$lib/shared/utils";
+    import { CurrencyManager } from "$lib/shared/prices/currency-manager";
 
     export let data: PageData
     let carts: IShoppingCart[] = [emptyCart()];
@@ -76,6 +79,7 @@
 
     async function finalizeCart() {
         const data = new FormData();
+        console.log("FINALIZING CART", carts[selectedCart])
         data.set('cart', JSON.stringify(carts[selectedCart]));
 
         const res = await fetch('?/finalizeOrder', {
@@ -84,6 +88,45 @@
         });
 
        stornoCart(); 
+    }
+
+    function setDiscountNumpadData(
+        type: IDiscount['type'], 
+        targetType: "cart" | "item",
+        target: IShoppingCartItem | IShoppingCart
+    ): void {
+        numpadData = {
+            title: targetType == "cart" ? "Sleva na nákup" : (target as IShoppingCartItem).name, 
+            label: "Zadejte slevu",
+            unit: type === "PRC" ? "%" : CurrencyManager.getCurrency(type).getSymbol(),
+            content: {
+                type: 'discount',
+                value: "",
+            },
+            callback: (value: string) => {
+                const numpadDataCpy = numpadData;
+                numpadData = null;
+
+                if (target.discounts === undefined) {
+                    target.discounts = [];
+                }
+
+                target.discounts.push({
+                    type,
+                    value,
+                    source: "till"
+                });
+
+                console.log(type);
+                if (targetType === "item") {
+                    calculateItemTotal(target as IShoppingCartItem)
+                    carts[selectedCart].items = carts[selectedCart].items;
+                }
+
+                calculateCartTotal(carts[selectedCart]);
+                numpadData = numpadData;
+            },
+        }
     }
 </script>
 
@@ -153,7 +196,7 @@
     </header>
     
     <div class="left">
-        {#if carts[selectedCart].state === 'checkout'}
+        {#if !numpadData && carts[selectedCart].state === 'checkout'}
             <Numpad 
                 data={{
                     title: "",
@@ -170,7 +213,7 @@
                 bind:cart={carts[selectedCart]}
             />
         {:else if numpadData !== null}
-            <Numpad data={numpadData} onClose={() => numpadData=null}/>
+            <Numpad bind:data={numpadData} onClose={() => numpadData=null}/>
         {:else}
             <CatalogView products={data.products} onItemClicked={addItemCart}/>
         {/if}
@@ -182,6 +225,7 @@
             onEmptyCart={stornoCart} 
             onNote={() => showNoteModal = true}
             appSettings={data.settings}
+            onDiscountPressed={setDiscountNumpadData}
         />
         <div class="right-buttons">
         </div>

@@ -58,8 +58,6 @@
 
         return formatSum(balanceModalData.balance[0] ?? zeroSum);
     }
-
-    $: console.log(balanceModalData);
 </script>
 
 <Modal bind:showModal={balanceModalData.show}>

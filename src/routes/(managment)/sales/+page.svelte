@@ -14,8 +14,6 @@
 
     let orders = data.orders;
 
-    console.log(data);
-
     const toggleDatePicker = () => (isDatePickerOpen = !isDatePickerOpen);
 
     const formatDate = (date: Date): string => {
@@ -47,7 +45,7 @@
 
 <ViewTitle title="Prodeje" />
 <div class="controls">
-    <DatePicker bind:isOpen={isDatePickerOpen} bind:startDate onDayClick={onChange}>
+    <DatePicker bind:isOpen={isDatePickerOpen} bind:startDate onDayClick={onChange} align={"right"}>
         <label for="date">Datum:
             <input type="text"
                 class="date-input"

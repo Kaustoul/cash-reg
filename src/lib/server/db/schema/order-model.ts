@@ -20,6 +20,10 @@ export const ordersTable = sqliteTable(ORDERS_TABLE_NAME, {
         .$type<IOrder["items"]>()
     ,
 
+    discounts: text('discounts', {mode: 'json'})
+        .$type<IOrder['discounts']>()
+    ,
+
     total: text('total', { mode: 'json' })
         .notNull()
         .$type<IOrder["total"]>()

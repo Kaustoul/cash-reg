@@ -5,6 +5,7 @@
     import CloseIcon from "svelte-material-icons/Close.svelte";
     import GrowableInput from "./interactables/GrowableInput.svelte";
     import { formatDecimal, formatPrice } from "$lib/shared/utils";
+    import { CurrencyManager } from '$lib/shared/prices/currency-manager'
 
     export let item: IShoppingCartItem;
     export let isSelected: boolean;
@@ -58,7 +59,21 @@
         on:click={() => onClick(item)}
     >
         <span class="item-name">{item.name}</span>
+    <div class="item-subtitle">
         <span class="item-id">{parseFullItemId(item.productId, item.itemId)}</span>
+        <div class="item-discounts">
+            {#if item.discounts !== undefined}
+                {#each item.discounts as discount}
+                    <span class="item-discount">
+                        Sleva
+                        {#if discount.type === "PRC"}
+                            {formatDecimal(new Decimal(discount.value))}%
+                        {/if}
+                    </span>
+                {/each}
+            {/if}
+        </div>
+    </div>
     </button>
 
     <button type="button" class="item-price"
@@ -70,7 +85,18 @@
         {:else if item.quantity && item.quantity.gt(1) }
             <span class="single-price">{formatPrice(item.prices[item.priceIdx])}</span>
         {/if}
+        {#if item.discounts !== undefined}
+            <span class="subtotal-price">{formatDecimal(item.subtotal)}</span>
+            {#each item.discounts as discount}
+                <span class="item-discount-value">
+                    { #if discount.subtotal !== undefined } 
+                        -{formatDecimal(discount.subtotal)}
+                    {/if}
+                </span>
+            {/each}
+        {/if}
         <span class="total-price">{formatDecimal(item.total)}</span>
+        
     </button>
 </div>
 
@@ -91,16 +117,15 @@
         }
     }
 
-    $item-height: 3rem;
+    $item-height: 3.6rem;
     $item-vpadding: .3rem;
     .quantity {
-        height: $item-height;
+        height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
         flex: 0 0 9rem;
-        padding: $item-vpadding 0;
-
+        min-height: $item-height;
         font-size: vars.$larger;
         background-color: vars.$primary-color;
         border-radius: vars.$medium-radius;
@@ -166,6 +191,22 @@
             color: vars.$text2-color;
             font-size: vars.$smaller;
         }
+
+        .item-subtitle {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            align-items: start;
+
+            .item-discounts {
+                display: flex;
+                flex-direction: column;
+                align-items: end;
+
+                font-size: vars.$smaller;
+                color: vars.$text2-color;
+            }
+        }
     }
 
     .item-price {
@@ -192,6 +233,15 @@
 
         .total-price {
             font-size: vars.$larger;
+        }
+
+        .subtotal-price {
+            font-size: vars.$normal;
+            color: vars.$text2-color;
+        }
+
+        .item-discount-value {
+            font-size: vars.$smaller;
         }
     }
 

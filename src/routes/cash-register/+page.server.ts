@@ -23,16 +23,18 @@ export const actions = {
                 fullId: parseFullItemId(item.productId, item.itemId),
                 quantity: item.quantity.toString(),
                 price: item.prices[item.priceIdx],
+                discounts: item.discounts,
             }
         });
+
         await database.newOrderTransaction({
             tillId: cart.tillId,
             items: items,
             total: cart.total["CZK"],
+            discounts: cart.discounts ?? null,
             paymentType: cart.state.split("-")[0] as IOrder["paymentType"],
             note: cart.note ?? null,
-        })
-        
+        });
 
         return {
             success: true,

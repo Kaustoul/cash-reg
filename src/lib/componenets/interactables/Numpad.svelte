@@ -6,10 +6,10 @@
         label: string,
         returnLabel?: string,
         confirmLabel?: string,
-        unit?: IUnit,
+        unit?: IUnit | IDiscount['type'],
 
         content: {
-            type: 'weight' | 'money',
+            type: 'weight' | 'money' | 'discount',
             value: string,
         }
 
@@ -26,6 +26,7 @@
     import ChevronLeftIcon from 'svelte-material-icons/ChevronLeft.svelte';
     import { formatDecimal } from '$lib/shared/utils';
     import ReloadIcon from 'svelte-material-icons/Reload.svelte';
+    import type { IDiscount } from '$lib/shared/interfaces/discount';
 
     export let data: NumpadData;
     export let onClose: () => void;

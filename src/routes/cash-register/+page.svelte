@@ -4,7 +4,7 @@
     import type { PageData } from "./$types";
     import CustomerIcon from "svelte-material-icons/AccountPlus.svelte";
     import type { IShoppingCart, IShoppingCartItem } from "$lib/shared/interfaces/shopping-cart";
-    import { addItemToCart, calculateCartTotal, calculateItemTotal } from "$lib/shared/utils/shopping-cart-utils";
+    import { calculateCartTotal, calculateItemTotal } from "$lib/shared/utils/shopping-cart-utils";
     import Decimal from "decimal.js";
     import BasketIcon from "svelte-material-icons/Basket.svelte";
     import CloseIcon from "svelte-material-icons/Close.svelte";
@@ -14,29 +14,20 @@
     import { formatPricesArray } from "$lib/shared/utils/money-sum-utils";
     import Modal from "$lib/componenets/modals/Modal.svelte";
     import type { IDiscount } from "$lib/shared/interfaces/discount";
-    import { itemIdFromFullId } from "$lib/shared/utils";
     import { CurrencyManager } from "$lib/shared/prices/currency-manager";
+    import { shoppingCartStore } from "$lib/shared/stores/shoppingCartStore";
 
     export let data: PageData
-    let carts: IShoppingCart[] = [emptyCart()];
-    let selectedCart = 0;
     let showNoteModal = false;
+
+    $: ({ carts, selectedCart } = $shoppingCartStore);
+    $: console.log(carts[selectedCart]);
+
 
     let numpadData: NumpadData | null = null;
 
-    function emptyCart(): IShoppingCart {
-        return {
-            items: [],
-            total: {},
-            state: "items",
-            checkout: {
-                payedAmount: new Decimal(0)
-            },
-            tillId: 1,
-        }
-    }
-
     function addItemCart(item: IShoppingCartItem) {
+        // Adding a weight item
         if (item.unit !== 'ks' && (numpadData === null || numpadData.content.value !== "")) {
             numpadData = {
                 title: item.name,
@@ -47,47 +38,21 @@
                     type: 'weight',
                     value: "",
                 },
+
                 callback: (value: string) => {
                     item.quantity = new Decimal(value);
-                    insertToCart(carts[selectedCart], item);
+                    shoppingCartStore.addItem(item);
                     numpadData = null;
                 },
 
             }
+
             return;
         }
-
+        
+        //Adding a piece item
         item.quantity = new Decimal(1);
-        insertToCart(carts[selectedCart], item);
-    }
-
-    function insertToCart(cart: IShoppingCart, item: IShoppingCartItem) {
-        if (carts[selectedCart].items.length === 0) {
-            carts.push(emptyCart());
-        }
-
-        addItemToCart(cart, item);
-        carts = carts;
-    }
-
-    function stornoCart() {
-        carts.splice(selectedCart, 1);
-        selectedCart = 0;
-
-        carts = carts;
-    }
-
-    async function finalizeCart() {
-        const data = new FormData();
-        console.log("FINALIZING CART", carts[selectedCart])
-        data.set('cart', JSON.stringify(carts[selectedCart]));
-
-        const res = await fetch('?/finalizeOrder', {
-            method: 'POST',
-            body: data
-        });
-
-       stornoCart(); 
+        shoppingCartStore.addItem(item);
     }
 
     function setDiscountNumpadData(
@@ -117,10 +82,8 @@
                     source: "till"
                 });
 
-                console.log(type);
                 if (targetType === "item") {
                     calculateItemTotal(target as IShoppingCartItem)
-                    carts[selectedCart].items = carts[selectedCart].items;
                 }
 
                 calculateCartTotal(carts[selectedCart]);
@@ -131,9 +94,9 @@
 </script>
 
 {#if carts[selectedCart].state === 'qr-payment'}
-    <QrPaymentModal bind:cart={carts[selectedCart]} onConfirm={finalizeCart} appSettings={data.settings}/>
+    <QrPaymentModal appSettings={data.settings}/>
 {:else if carts[selectedCart].state === 'cash-payment'}
-    <CashPaymentModal bind:cart={carts[selectedCart]} onConfirm={finalizeCart}/>
+    <CashPaymentModal/>
 {/if}
 
 <Modal bind:showModal={showNoteModal}>
@@ -148,7 +111,7 @@
         {#each carts as cart, index}
             {#if cart.items.length === 0}
                 <button type="button" 
-                    on:click={() => selectedCart = index}
+                    on:click={() => shoppingCartStore.selectCart(index)}
                     class={"cart-btn" + (selectedCart === index ? " selected" : "")}
                 >
                     
@@ -159,14 +122,14 @@
                 <div class="cart-selector">
                     {#if selectedCart === index} 
                         <button type="button" 
-                            on:click|stopPropagation={stornoCart}
+                            on:click|stopPropagation={() => shoppingCartStore.removeCart()}
                             class={"cart-storno"}
                         >
                             <CloseIcon size="2rem"/>
                         </button>
                     {/if}
                     <button type="button" 
-                        on:click={() => selectedCart = index}
+                        on:click={() => shoppingCartStore.selectCart(index)}
                         class={"cart-btn" + (selectedCart === index ? " selected" : "")}
                     >
                         <div class="cart-btn-icon"><BasketIcon size="3rem"/></div>
@@ -221,8 +184,6 @@
     
     <div class="right">
         <ShoppingCartView 
-            bind:cart={carts[selectedCart]} 
-            onEmptyCart={stornoCart} 
             onNote={() => showNoteModal = true}
             appSettings={data.settings}
             onDiscountPressed={setDiscountNumpadData}

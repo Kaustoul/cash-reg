@@ -39,7 +39,7 @@ export function calculateCartTotal(cart: IShoppingCart): void {
             currency: currency,
     };    
 
-    console.log("calculated cart", cart);
+    // console.log("calculated cart", cart);
 }
 
 export function updateItemQuantity(
@@ -62,7 +62,7 @@ export function calculateItemTotal(item: IShoppingCartItem): void {
         item.total = item.subtotal;
     }
 
-    console.log("item price", item);
+    // console.log("item price", item);
 }
 
 export function updateCartItemPrice(item : IShoppingCartItem): void {

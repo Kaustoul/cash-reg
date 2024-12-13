@@ -4,10 +4,12 @@ import type { DecimalStr, IMoneySum } from './money-sum';
 import type { IUnit } from './product';
 import type { IDiscount } from './discount';
 
+export type ShoppingCartState = "items" | "checkout" | "cash-payment" | "card-payment" | "qr-payment";
+
 export interface IShoppingCart {
     items: IShoppingCartItem[];
     total: {[currency: string]: IMoneySum};
-    state: "items" | "checkout" | "cash-payment" | "card-payment" | "qr-payment";
+    state: ShoppingCartState;
     checkout: {
         payedAmount: Decimal;
     };

@@ -1,22 +1,18 @@
 <script lang="ts">
-    import type { IShoppingCart } from "$lib/shared/interfaces/shopping-cart";
     import Decimal from "decimal.js";
     import QrCode from "../QRCode.svelte";
     import FullscreenModal from "./FullscreenModal.svelte";
     import { formatDecimal } from "$lib/shared/utils";
     import type { ISettings } from "$lib/shared/interfaces/settings";
+    import { shoppingCartStore } from "$lib/shared/stores/shoppingCartStore";
 
     export let appSettings: ISettings;
-    export let cart: IShoppingCart;
-    export let onConfirm: () => void;
 
-    function cancel() {
-        cart.state = "checkout";
-        cart.checkout.payedAmount = new Decimal(0);
-    }
+    $: ({ carts, selectedCart } = $shoppingCartStore);
+    $: cart = carts[selectedCart];
 </script>
 
-<FullscreenModal showModal={true} onCancel={cancel} onConfirm={onConfirm}>
+<FullscreenModal showModal={true} onCancel={shoppingCartStore.cancelPayment} onConfirm={shoppingCartStore.finalizeCart}>
     <div class="qr-payment">
         <div class="left">
             <div class="header">

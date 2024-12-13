@@ -2,24 +2,23 @@
     import { onMount } from 'svelte';
     import { formatDate } from '$lib/shared/utils/date-utils';
     import type { IShoppingCart, IShoppingCartItem } from '$lib/shared/interfaces/shopping-cart';
-    import { parseFullItemId } from '$lib/shared/utils/item-utils';
     import Decimal from 'decimal.js';
     import { CurrencyManager } from '$lib/shared/prices/currency-manager';
-    import { removeItemFromCart, updateItemQuantity } from '$lib/shared/utils/shopping-cart-utils';
     import CartItem from './CartItem.svelte';
     import { formatDecimal, formatPrice } from '$lib/shared/utils';
     import type { ISettings } from '$lib/shared/interfaces/settings';
-    import type { NumpadData } from './interactables/Numpad.svelte';
     import type { IDiscount } from '$lib/shared/interfaces/discount';
+    import { shoppingCartStore } from '$lib/shared/stores/shoppingCartStore';
+
+    $: ({ carts, selectedCart } = $shoppingCartStore);
+    $: cart = carts[selectedCart];
 
     export let appSettings: ISettings;
-    export let cart: IShoppingCart;
     export let onDiscountPressed: (
         type: IDiscount['type'], 
         targetType: "cart" | "item",
         target: IShoppingCartItem | IShoppingCart
     )=> void;
-    export let onEmptyCart: () => void;
     export let onNote: () => void;
     let selectedItem: IShoppingCartItem | null = null;
 
@@ -38,23 +37,6 @@
 		};
 	});
 
-    function removeFromCart(item: IShoppingCartItem): void {
-        removeItemFromCart(cart, item);
-
-        if (cart.items.length === 0) {
-            onEmptyCart(); 
-        }
-
-        // force svelte to reload cart components
-        cart = cart;
-    }
-
-    function newQuantity(item: IShoppingCartItem, quantity: Decimal): void {
-        updateItemQuantity(cart, item, quantity);
-        // force svelte to reload cart components
-        cart = cart;
-    }
-
     function selectItem(item: IShoppingCartItem): void {
         if (cart.state === 'items') {
             selectedItem = selectedItem === item ? null : item;
@@ -66,8 +48,7 @@
             selectedItem = null;
         }
 
-        cart.state = 'checkout';
-        cart.checkout.payedAmount = new Decimal(0);
+        shoppingCartStore.goToCheckout();
     }
 </script>
 
@@ -127,8 +108,8 @@
                     state={cart.state}
                     isSelected={selectedItem === item} 
                     onClick={selectItem}
-                    onRemove={removeFromCart}
-                    onQuantityChange={newQuantity}
+                    onRemove={shoppingCartStore.removeItem}
+                    onQuantityChange={shoppingCartStore.changeItemQuantity}
                 />
             {/each}
         </div>
@@ -171,14 +152,14 @@
                 </div>
                 <div class="checkout-buttons">
                     <button type="button" class="accent-btn btn"
-                        on:click={() => cart.state = 'cash-payment'}
+                        on:click={shoppingCartStore.cashPayment}
                     >Hotovost</button>
                     <button type="button" class="second-accent-btn btn disabled"
-                        on:click={() => {}}
+                        on:click={shoppingCartStore.cardPayment}
                     >Karta</button>
                     {#if appSettings.sepaSettings.enabled}
                         <button type="button" class="blue-btn btn"
-                            on:click={() => cart.state = 'qr-payment'}
+                            on:click={shoppingCartStore.qrPayment}
                         >QR platba</button>
                     {/if}
                 </div>

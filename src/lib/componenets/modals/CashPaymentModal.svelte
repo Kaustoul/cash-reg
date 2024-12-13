@@ -1,24 +1,30 @@
 <script lang="ts">
-    import type { IShoppingCart } from "$lib/shared/interfaces/shopping-cart";
     import Decimal from "decimal.js";
     import FullscreenModal from "./FullscreenModal.svelte";
     import { formatDecimal } from "$lib/shared/utils";
+    import { shoppingCartStore } from "$lib/shared/stores/shoppingCartStore";
 
-    export let cart: IShoppingCart;
-
-    const sum = new Decimal(cart.total["CZK"].value);
-    const payed = cart.checkout.payedAmount;
-    const returnAmount = payed.sub(sum);
-
-    export let onConfirm: () => void;
-
-    function cancel() {
-        cart.state = "checkout";
-        cart.checkout.payedAmount = new Decimal(0);
-    }
+    $: ({ carts, selectedCart } = $shoppingCartStore);
+    $: ({ sum, payed, returnAmount } = (() => {
+        const cart = carts[selectedCart];
+        if (!cart) {
+            return {
+                sum: new Decimal(0),
+                payed: new Decimal(0),
+                returnAmount: new Decimal(0)
+            };
+        }
+        const sum = new Decimal(cart.total["CZK"].value);
+        const payed = cart.checkout.payedAmount;
+        return {
+            sum,
+            payed,
+            returnAmount: payed.sub(sum)
+        };
+    })());
 </script>
 
-<FullscreenModal showModal={true} onCancel={cancel} onConfirm={onConfirm}>
+<FullscreenModal showModal={true} onCancel={shoppingCartStore.cancelPayment} onConfirm={shoppingCartStore.finalizeCart}>
     <div class="cash-payment">
     <span class="title">Platba v hotovosti</span>
             <div class="content">
@@ -54,7 +60,6 @@
 
         gap: 3rem;
         padding: 3rem;
-
     }
 
     .content {

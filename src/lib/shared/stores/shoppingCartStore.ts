@@ -1,8 +1,9 @@
 import { writable, get } from 'svelte/store';
 import Decimal from 'decimal.js';
 import type { IShoppingCart, IShoppingCartItem, ShoppingCartState } from '$lib/shared/interfaces/shopping-cart';
-import { addItemToCart, removeItemFromCart, updateItemQuantity } from '../utils/shopping-cart-utils';
+import { addItemToCart, removeItemFromCart, updateItemQuantity, calculateCartTotal } from '../utils/shopping-cart-utils';
 import type { ShoppingCart } from '../till/shopping-cart';
+import type { ICustomer } from '../interfaces/customer';
 
 function createShoppingCartStore() {
     const { subscribe, set, update } = writable<{ carts: IShoppingCart[], selectedCart: number }>({
@@ -15,10 +16,9 @@ function createShoppingCartStore() {
             items: [],
             total: {},
             state: "items",
-            checkout: {
-                payedAmount: new Decimal(0)
-            },
+            checkout: { payedAmount: new Decimal(0) },
             tillId: 1,
+            customerId: null,
         };
     }
 
@@ -131,6 +131,25 @@ function createShoppingCartStore() {
         }),
         qrPayment: () => update(store => {
             store.carts[store.selectedCart].state = "qr-payment";
+            return store;
+        }),
+        setCustomer: (customer: ICustomer | null) => update(store => {
+            const cart = store.carts[store.selectedCart];
+            cart.customerId = customer ? customer.customerId : null;
+
+            // Remove any previous customer discount
+            cart.discounts = (cart.discounts ?? []).filter(d => d.source !== "customer");
+
+            if (customer && customer.discount && customer.discount.type === "PRC") {
+                cart.discounts.push({
+                    ...customer.discount,
+                    source: "customer"
+                });
+            }
+
+            // Recalculate cart total after changing discounts
+            calculateCartTotal(cart);
+
             return store;
         }),
     };

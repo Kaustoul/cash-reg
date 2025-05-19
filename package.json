@@ -20,7 +20,9 @@
 		"ele:fix": "electron-rebuild",
 		"prepackage:license": "copy LICENSE dist\\LICENSE.md",
 		"package:license": "pandoc --ascii=true -f markdown -t html dist\\LICENSE.md -o dist\\LICENSE.html",
-		"postpackage:license": "del dist\\LICENSE.md"
+		"postpackage:license": "del dist\\LICENSE.md",
+		"migrate": "drizzle-kit migrate",
+		"migratesqlite": "drizzle-kit push"
 	},
 	"engines": {
 		"node": ">=16.0.0"

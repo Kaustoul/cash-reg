@@ -3,20 +3,22 @@ import type { IPrice } from './price';
 import type { DecimalStr, IMoneySum } from './money-sum';
 import type { IUnit } from './product';
 import type { IDiscount } from './discount';
+import type { ICustomer } from './customer';
 
 export type ShoppingCartState = "items" | "checkout" | "cash-payment" | "card-payment" | "qr-payment";
 
 export interface IShoppingCart {
     items: IShoppingCartItem[];
     total: {[currency: string]: IMoneySum};
+    subtotal: { [currency: string]: IMoneySum }; // <-- change from Decimal to object
     state: ShoppingCartState;
     checkout: {
         payedAmount: Decimal;
     };
     discounts?: IDiscount[];
-    subtotal: Decimal;
     tillId: number;
-    note?: string
+    note?: string;
+    customerId?: number | null;
 }
 
 export interface IShoppingCartItem {

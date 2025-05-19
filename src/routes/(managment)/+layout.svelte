@@ -32,7 +32,6 @@
         "Zákazníci": {
             icon: CustomersIcon,
             url: "/customers",
-            disabled: true,
         }
     }
 </script>

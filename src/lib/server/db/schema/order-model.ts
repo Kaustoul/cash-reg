@@ -42,4 +42,5 @@ export const ordersTable = sqliteTable(ORDERS_TABLE_NAME, {
         .default(sql`(unixepoch())`)
     ,
         
+    customerId: integer('customerId', { mode: 'number' })
 });

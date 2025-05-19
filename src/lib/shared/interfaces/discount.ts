@@ -5,7 +5,7 @@ import type { DecimalStr } from "./money-sum";
 export interface IDiscount {
     value: DecimalStr;
     type: Currency['code'] | "PRC";
-    source: "till";
+    source: "till" | "customer" | "item";
     subtotal?: Decimal;
     code?: string;
     note?: string;

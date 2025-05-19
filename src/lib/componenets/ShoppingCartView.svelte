@@ -9,7 +9,7 @@
     import type { ISettings } from '$lib/shared/interfaces/settings';
     import type { IDiscount } from '$lib/shared/interfaces/discount';
     import { shoppingCartStore } from '$lib/shared/stores/shoppingCartStore';
-
+    
     $: ({ carts, selectedCart } = $shoppingCartStore);
     $: cart = carts[selectedCart];
 
@@ -64,7 +64,7 @@
         {#if cart.state === "checkout" || cart.total[CurrencyManager.getDefaultCurrency().getCode()] !== undefined }
             <div class="total-bar">
                 <div class="total-info">
-                    {#if cart.state === "checkout" && cart.discounts !== undefined }
+                    {#if cart.state === "checkout" && cart.discounts !== undefined && cart.discounts.length > 0 }
                     <span class="subtotal-title">Před slevou</span>
                     {#each cart.discounts as discount}
                     <span class="total-discount-title">
@@ -81,7 +81,9 @@
                 </div>
                 <div class="total-value">
                         {#if cart.state === "checkout"}
-                            <span class="total-subtotal">{formatDecimal(cart.subtotal.round())}</span>
+                            {#if cart.discounts !== undefined && cart.discounts.length > 0 }
+                                <span class="total-subtotal">{formatDecimal(new Decimal(cart.subtotal[CurrencyManager.getDefaultCurrency().getCode()].value))}</span>
+                            {/if}
                             {#if cart.discounts !== undefined}
                                 {#each cart.discounts as discount}
                                     <span class="total-discount-value">
@@ -90,10 +92,10 @@
                                         {/if}
                                     </span>
                                 {/each}
-                                <span class="total-total">{formatDecimal(new Decimal(cart.total['CZK'].value).round())}</span>
+                                <span class="total-total">{formatDecimal(new Decimal(cart.total[CurrencyManager.getDefaultCurrency().getCode()].value))}</span>
                             {/if}
                         {:else}
-                            <span class="total-total">{formatDecimal(new Decimal(cart.total[CurrencyManager.getDefaultCurrency().getCode()].value))}</span>
+                            <span class="total-total">{formatDecimal(new Decimal(cart.subtotal[CurrencyManager.getDefaultCurrency().getCode()].value))}</span>
                         {/if}
                 </div>
             </div>

@@ -11,6 +11,7 @@ export interface IOrder {
     paymentType: "qr" | "cash" | "card";
     note: string | null;
     createdAt: Date;
+    customerId?: number | null;
 }
 
 export interface INewOrder {
@@ -20,6 +21,7 @@ export interface INewOrder {
     discounts: IDiscount[] | null;
     paymentType: IOrder["paymentType"];
     note: IOrder["note"];
+    customerId?: number | null;
 }
 
 export interface IOrderItem {

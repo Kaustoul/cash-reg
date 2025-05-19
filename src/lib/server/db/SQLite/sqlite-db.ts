@@ -18,13 +18,17 @@ import type { ICondition } from '$lib/shared/interfaces/condition';
 import type { OrdersDataHandler } from '../orders-data-handler';
 import { sqliteOrders } from './splite-orders-data-handler';
 import type { INewOrder } from '$lib/shared/interfaces/order';
+import { sqliteCustomers } from './sqlite-customers-data-handler';
+import type { CustomersDataHandler } from '../customers-data-handler';
+import type { ICustomer } from '$lib/shared/interfaces/customer';
 
 export class SQLiteDB implements DB {
     readonly db: BetterSQLite3Database;
     readonly _tills: TillsDataHandler;
     readonly _products: ProductsDataHandler;
-    readonly _items: ItemsDataHandler
+    readonly _items: ItemsDataHandler;
     readonly _orders: OrdersDataHandler;
+    readonly _customers: CustomersDataHandler;
 
     constructor(dbFilePath: string) {
         const sqlite = new Database(dbFilePath);
@@ -35,6 +39,7 @@ export class SQLiteDB implements DB {
         this._products = sqliteProducts;
         this._items = sqliteItems;
         this._orders = sqliteOrders;
+        this._customers = sqliteCustomers;
     }
 
     defaultSchema(): void {
@@ -198,5 +203,33 @@ export class SQLiteDB implements DB {
 
             }
         });
+    }
+
+    //---------------\\
+    // -- CUSTOMERS -\\
+    //---------------\\
+
+    async fetchCustomer(customerId: number) {
+        return await this._customers.fetchCustomer(this.db, customerId);
+    }
+
+    async fetchCustomers() {
+        return await this._customers.fetchCustomers(this.db);
+    }
+
+    async newCustomer(customer: Omit<ICustomer, "customerId" | "createdAt" | "modifiedAt">) {
+        return await this._customers.newCustomer(this.db, customer);
+    }
+
+    async updateCustomer(customer: ICustomer) {
+        return await this._customers.updateCustomer(this.db, customer);
+    }
+
+    async removeCustomer(customerId: number) {
+        return await this._customers.removeCustomer(this.db, customerId);
+    }
+
+    async updateCustomerBalance(customerId: number, balance: IMoneySum[]) {
+        return await this._customers.updateBalance(this.db, customerId, balance);
     }
 }

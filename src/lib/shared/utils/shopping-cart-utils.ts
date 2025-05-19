@@ -4,6 +4,8 @@ import { areConditionsMet } from './condition-utils';
 import { CurrencyManager } from '../prices/currency-manager';
 import { formatDecimal } from '../utils';
 import { applyDiscounts } from './discount-utils';
+import { get } from 'svelte/store';
+import { customerStore } from '$lib/shared/stores/customerStore';
 
 export function addItemToCart(cart: IShoppingCart, item: IShoppingCartItem): void {
     if (item.quantity.eq(-1)) {
@@ -26,20 +28,26 @@ export function addItemToCart(cart: IShoppingCart, item: IShoppingCartItem): voi
 }
 
 export function calculateCartTotal(cart: IShoppingCart): void {
-    cart.subtotal = cart.items.reduce((acc, item) => acc.plus(item.total), new Decimal(0));
-    
-    let total = cart.subtotal;
+    const currency = CurrencyManager.getDefaultCurrency().getCode();
+
+    // Calculate subtotal per currency
+    const subtotal = cart.items.reduce((acc, item) => acc.plus(item.total), new Decimal(0));
+    cart.subtotal = {
+        [currency]: {
+            value: subtotal.toString(),
+            currency: currency,
+        }
+    };
+
+    let total = subtotal;
     if (cart.discounts !== undefined) {
         total = applyDiscounts(total, cart.discounts);
-    }    
-    
-    const currency = CurrencyManager.getDefaultCurrency().getCode();
-    cart.total[currency] = {
-            value: total.toString(),
-            currency: currency,
-    };    
+    }
 
-    // console.log("calculated cart", cart);
+    cart.total[currency] = {
+        value: total.toString(),
+        currency: currency,
+    };
 }
 
 export function updateItemQuantity(

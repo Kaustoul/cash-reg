@@ -16,6 +16,7 @@
     import type { IDiscount } from "$lib/shared/interfaces/discount";
     import { CurrencyManager } from "$lib/shared/prices/currency-manager";
     import { shoppingCartStore } from "$lib/shared/stores/shoppingCartStore";
+    import CustomerDropdown from "$lib/componenets/CustomerDropdown.svelte";
 
     export let data: PageData
     let showNoteModal = false;
@@ -150,12 +151,13 @@
         >
             <img src="/logo.svg" alt="Logo" style="filter: invert(100%)" height="75"/>
         </button>
-        <button type="button"
+        <CustomerDropdown/>
+        <!-- <button type="button"
             class="add-customer-btn"
             on:click={() => {}}
             >
             <CustomerIcon size="4rem"/>
-        </button>
+        </button> -->
     </header>
     
     <div class="left">

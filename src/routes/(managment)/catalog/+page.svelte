@@ -21,7 +21,7 @@
     };
 
     function removeProducts(selected: (string | number)[]) {
-        console.log(selected);
+        // console.log(selected);
     }
     
     let showImportModal = false;
@@ -58,6 +58,11 @@
             icon: "plus",
             color: "green"
         },
+        "Upravit": {
+            action: () => {},
+            icon: "import",
+            color: "yellow"
+        },
         "Import CSV": {
             action: () => showImportModal = true,
             icon: "import",
@@ -66,6 +71,7 @@
      }}
     removeButton={true}
     onRemovePressed={removeProducts}
+    customSearchKeys={['name', 'subnames', 'productId', 'fullId']}
 />
 
 <style lang="scss">

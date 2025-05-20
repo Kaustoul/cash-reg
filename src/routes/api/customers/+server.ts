@@ -9,8 +9,6 @@ export const POST: RequestHandler = async ({ request }) => {
 };
 
 export const GET: RequestHandler = async () => {
-    console.log('Fetching customers');
     const customers = await database.fetchCustomers();
-    console.log('Fetched customers:', customers);
     return new Response(JSON.stringify(customers), { status: 200 });
 };

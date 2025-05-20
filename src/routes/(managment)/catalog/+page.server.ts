@@ -11,6 +11,7 @@ export const load: PageServerLoad = async () => {
     for (const product of products) {
         productsDisplayList.push({
             fullId: formatFullId(product),
+            subnames: product.items.map(i => i.subname),
             productId: product.productId,
             prices: formatSumsArray(product.prices.map(p => p.value)),
             name: formatProductName(product),

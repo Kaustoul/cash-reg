@@ -33,9 +33,6 @@ export const sqliteCustomers = {
         const unpaidOrders = await sqliteOrders.fetchUnpaidOrdersForCustomer(db, customer.customerId);
         const unpaidSums = unpaidOrders.map(o => o.total);
 
-        console.log("Unpaid orders for customer:", unpaidOrders);
-        console.log("Unpaid sums for customer:", unpaidSums);
-
         return {
             ...customer,
             unpaidAmount: unpaidSums.length > 0 ? calculateDebt(unpaidSums) : [],

@@ -24,6 +24,7 @@
         action: () => void 
     }} = {}; 
     export let selected: (string | number)[] = [];
+    export let customSearchKeys: string[] | null = null;
     let search = '';
 
     let filteredData = data;
@@ -35,13 +36,21 @@
 
 
     const BTN_SIZE = "1.7rem"
+
+    // Compute search keys from schema
+    $: searchKeys = schema
+        .filter(col => col.searchKey)
+        .map(col => col.fieldName);
+
+    // If you want to fall back to some defaults if none are set:
+    // $: searchKeys = schema.filter(col => col.searchIndex).map(col => col.fieldName) || ['name', 'surname', 'email'];
 </script>
 
 <div class="action-bar">
     {#if showSearchBar}
         <SearchBar 
             data={data}
-            keys={['name', 'items.subname', 'productId']}
+            keys={customSearchKeys ? customSearchKeys : searchKeys}
             bind:results={filteredData}
         /> 
     {/if}

@@ -28,8 +28,6 @@ export function applyDiscounts(value: Decimal, discounts: IDiscount[]): Decimal 
         return 0;
     });
 
-    console.log("Discounts sorted: ", discounts);
-
     // Apply each discount in order
     for (const discount of discounts) {
         value = applyDiscount(value, discount);

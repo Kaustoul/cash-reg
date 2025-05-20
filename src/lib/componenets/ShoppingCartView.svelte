@@ -9,9 +9,7 @@
     import type { ISettings } from '$lib/shared/interfaces/settings';
     import type { IDiscount } from '$lib/shared/interfaces/discount';
     import { shoppingCartStore } from '$lib/shared/stores/shoppingCartStore';
-    
-    $: ({ carts, selectedCart } = $shoppingCartStore);
-    $: cart = carts[selectedCart];
+
 
     export let appSettings: ISettings;
     export let onDiscountPressed: (
@@ -24,6 +22,9 @@
 
     let time: string = "";
     let showDate: boolean = true; 
+
+    $: ({ carts, selectedCart } = $shoppingCartStore);
+    $: cart = carts[selectedCart];
 
     onMount(() => {
         time = formatDate(new Date());
@@ -65,16 +66,25 @@
             <div class="total-bar">
                 <div class="total-info">
                     {#if cart.state === "checkout" && cart.discounts !== undefined && cart.discounts.length > 0 }
-                    <span class="subtotal-title">Před slevou</span>
-                    {#each cart.discounts as discount}
-                    <span class="total-discount-title">
-                        Sleva
-                                {#if discount.type === "PRC"}
-                                    {discount.value}%
-                                {/if}
-                            </span>
+                        <span class="subtotal-title">Před slevou</span>
+                            {#each cart.discounts as discount}
+                                <span class="total-discount-title">
+                                    {#if discount.source === "till"}
+                                        (Pokladna)
+                                    {:else if discount.source === "customer"}
+                                        (Zákazník)
+                                    {:else if discount.source === "item"}
+                                        (Položka)
+                                    {/if}
+
+                                    Sleva
+                                    
+                                    {#if discount.type === "PRC"}
+                                        {discount.value}%
+                                    {/if}
+                                </span>
                             {/each}
-                    <span class="total-title">Celkem</span>        
+                        <span class="total-title">Celkem</span>        
                     {:else}
                         <span class="total-title padded">Celkem</span>
                     {/if}

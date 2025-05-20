@@ -4,6 +4,7 @@ import type { IShoppingCart, IShoppingCartItem, ShoppingCartState } from '$lib/s
 import { addItemToCart, removeItemFromCart, updateItemQuantity, calculateCartTotal } from '../utils/shopping-cart-utils';
 import type { ShoppingCart } from '../till/shopping-cart';
 import type { ICustomer } from '../interfaces/customer';
+import type { IDiscount } from '../interfaces/discount';
 
 function createShoppingCartStore() {
     const { subscribe, set, update } = writable<{ carts: IShoppingCart[], selectedCart: number }>({
@@ -152,6 +153,14 @@ function createShoppingCartStore() {
 
             return store;
         }),
+        addCartDiscount: (discount: IDiscount) => update(store => {
+            const cart = store.carts[store.selectedCart];
+            if (!cart.discounts) cart.discounts = [];
+            cart.discounts.push(discount);
+            calculateCartTotal(cart);
+            return store;
+        }),
+        
     };
 }
 

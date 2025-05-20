@@ -47,8 +47,16 @@ export function productIdFromFullId(fullItemId: number): number {
     return Math.floor(fullItemId / 1000);
 }
 
-export function formatDecimal(value: Decimal): string {
-    let [integerPart, decimalPart] = value.toFixed().split('.');
+export function formatDecimal(value: Decimal, roundToWhole: boolean = false): string {
+    if (value.isNaN()) {
+        return '0.00';
+    }
+
+    if (roundToWhole) {
+        value = value.round();
+    }
+
+    let [integerPart, decimalPart] = value.toFixed(2).split('.');
 
     // Add thousand separators to the integer part
     integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');

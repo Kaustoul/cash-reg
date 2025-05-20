@@ -77,7 +77,7 @@
                     target.discounts = [];
                 }
 
-                target.discounts.push({
+                shoppingCartStore.addCartDiscount({
                     type,
                     value,
                     source: "till"

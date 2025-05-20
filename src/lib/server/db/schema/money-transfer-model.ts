@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text, foreignKey, primaryKey } from "drizzle-orm/sqlite-core";
 import { tillsTable } from "./till-model";
 import type { IMoneySum } from "$lib/shared/interfaces/money-sum";
+import { ordersTable } from "./order-model";
 
 export const transactionsTable = sqliteTable('money_transfers', {
     transactionId: integer('transferId')
@@ -24,9 +25,6 @@ export const transactionsTable = sqliteTable('money_transfers', {
     
     reason: text('reason', { length: 32 })
         .notNull()
-    ,
-
-    orderId: integer('orderId')
     ,
 
     note: text('note', { length: 256 })

@@ -44,7 +44,7 @@ export class SQLiteDB implements DB {
 
     defaultSchema(): void {
         console.log('Creating default schema');
-        migrate(this.db, { migrationsFolder: getMigrationsPath() });
+        // migrate(this.db, { migrationsFolder: getMigrationsPath() });
     }
 
     //---------------\\
@@ -192,14 +192,14 @@ export class SQLiteDB implements DB {
 
             if (order.paymentType === 'cash') {
                 // update balance;
+                // await this._tills.recordBalanceUpdate(
+                //     tx,
+                //     order.tillId,
+                //     order.total,
+                //     'payment',
+                //     orderId
+                // );
                 await this._tills.updateBalance(tx, order.tillId, order.total);
-                await this._tills.recordBalanceUpdate(
-                    tx,
-                    order.tillId,
-                    order.total,
-                    'cash-payment',
-                    orderId
-                );
 
             }
         });

@@ -3,9 +3,8 @@ import type { IPrice } from './price';
 import type { DecimalStr, IMoneySum } from './money-sum';
 import type { IUnit } from './product';
 import type { IDiscount } from './discount';
-import type { ICustomer } from './customer';
 
-export type ShoppingCartState = "items" | "checkout" | "cash-payment" | "card-payment" | "qr-payment";
+export type ShoppingCartState = "items" | "checkout" | "cash-payment" | "card-payment" | "qr-payment" | "account-payment";
 
 export interface IShoppingCart {
     items: IShoppingCartItem[];

@@ -134,6 +134,10 @@ function createShoppingCartStore() {
             store.carts[store.selectedCart].state = "qr-payment";
             return store;
         }),
+        accountPayment: () => update(store => {
+            store.carts[store.selectedCart].state = "account-payment";
+            return store;
+        }),
         setCustomer: (customer: ICustomer | null) => update(store => {
             const cart = store.carts[store.selectedCart];
             cart.customerId = customer ? customer.customerId : null;
@@ -160,7 +164,6 @@ function createShoppingCartStore() {
             calculateCartTotal(cart);
             return store;
         }),
-        
     };
 }
 

@@ -7,6 +7,7 @@ import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { productsTable } from '../schema/product-model';
 import { itemsTable } from '../schema/item-model';
 import { parseFullItemId, parseItemName, reduceFullItemId } from '$lib/shared/utils/item-utils';
+import { transactionsTable } from '../schema/money-transfer-model'; // Make sure this import exists
 
 export const sqliteOrders = {
     async fetchOrder(
@@ -92,18 +93,57 @@ export const sqliteOrders = {
         db: BetterSQLite3Database | SQLiteTx, 
         order: INewOrder
     ): Promise<number> {
-        const res = await db
-            .insert(ordersTable)
-            .values(order)
-            .returning({ orderId: ordersTable.orderId })
-            .execute()
-        ;
+        // Start a SQL transaction
+        return await db.transaction(async (tx) => {
+            // 1. Insert the order
+            const res = await tx
+                .insert(ordersTable)
+                .values(order)
+                .returning({ orderId: ordersTable.orderId })
+                .execute();
 
-        if (res.length <= 0) {
-            throw new Error('Failed to create new order');
-        }
+            if (res.length <= 0) {
+                throw new Error('Failed to create new order');
+            }
+            const orderId = res[0].orderId;
 
-        return res[0].orderId;
+            // 2. Create a transaction for the order, except for account payments
+            let transactionId: number | null = null;
+            if (order.paymentType !== "account") {
+                // Find the next transactionId for this till
+                const txRes = await tx
+                    .select({ newId: sql`MAX(${transactionsTable.transactionId})` })
+                    .from(transactionsTable)
+                    .where(eq(transactionsTable.tillId, order.tillId));
+
+                transactionId = 1;
+                if (txRes.length !== 0 && txRes[0].newId !== null) {
+                    transactionId = Number(txRes[0].newId) + 1;
+                }
+
+                await tx
+                    .insert(transactionsTable)
+                    .values({
+                        transactionId: transactionId,
+                        tillId: order.tillId,
+                        amount: order.total,
+                        cashierId: 0, // Set appropriately if you have cashier info
+                        reason: order.paymentType,
+                        orderId: orderId,
+                        note: order.note ?? null,
+                    })
+                    .execute();
+
+                // 3. Update the order with the transactionId
+                await tx
+                    .update(ordersTable)
+                    .set({ transactionId })
+                    .where(eq(ordersTable.orderId, orderId))
+                    .execute();
+            }
+
+            return orderId;
+        });
     },
 } satisfies OrdersDataHandler;
 

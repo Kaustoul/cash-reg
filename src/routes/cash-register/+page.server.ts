@@ -34,7 +34,7 @@ export const actions = {
             discounts: cart.discounts ?? null,
             paymentType: cart.state.split("-")[0] as IOrder["paymentType"],
             note: cart.note ?? null,
-            customerId: cart.customerId ?? null // <-- pass customerId if present
+            customerId: cart.customerId ?? null
         });
 
         return {

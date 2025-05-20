@@ -11,6 +11,7 @@
     import Numpad, { type NumpadData } from "$lib/componenets/interactables/Numpad.svelte";
     import QrPaymentModal from "$lib/componenets/modals/QRPaymentModal.svelte";
     import CashPaymentModal from "$lib/componenets/modals/CashPaymentModal.svelte";
+    import AccountPaymentModal from "$lib/componenets/modals/AccountPaymentModal.svelte";
     import { formatPricesArray } from "$lib/shared/utils/money-sum-utils";
     import Modal from "$lib/componenets/modals/Modal.svelte";
     import type { IDiscount } from "$lib/shared/interfaces/discount";
@@ -98,6 +99,8 @@
     <QrPaymentModal appSettings={data.settings}/>
 {:else if carts[selectedCart].state === 'cash-payment'}
     <CashPaymentModal/>
+{:else if carts[selectedCart].state === 'account-payment'}
+    <AccountPaymentModal/>
 {/if}
 
 <Modal bind:showModal={showNoteModal}>

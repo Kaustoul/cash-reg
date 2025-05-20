@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "26fb27d0-363d-4512-abd3-874aedeb2f80",
+  "id": "1357cfa7-e024-4302-9858-b12dfeea0481",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "products": {
@@ -200,6 +200,73 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
+    "customers": {
+      "name": "customers",
+      "columns": {
+        "customerId": {
+          "name": "customerId",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text(256)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "surname": {
+          "name": "surname",
+          "type": "text(256)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text(256)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "balance": {
+          "name": "balance",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "discount": {
+          "name": "discount",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        },
+        "modifiedAt": {
+          "name": "modifiedAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "money_transfers": {
       "name": "money_transfers",
       "columns": {
@@ -237,6 +304,13 @@
           "type": "text(32)",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "orderId": {
+          "name": "orderId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         },
         "note": {
@@ -280,6 +354,113 @@
           "name": "money_transfers_tillId_transferId_pk"
         }
       },
+      "uniqueConstraints": {}
+    },
+    "orders": {
+      "name": "orders",
+      "columns": {
+        "orderid": {
+          "name": "orderid",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "tillid": {
+          "name": "tillid",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "items": {
+          "name": "items",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "discounts": {
+          "name": "discounts",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "total": {
+          "name": "total",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paymentType": {
+          "name": "paymentType",
+          "type": "text(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "note": {
+          "name": "note",
+          "type": "text(256)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        },
+        "customerId": {
+          "name": "customerId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "transactionId": {
+          "name": "transactionId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "orders_tillid_tills_tillId_fk": {
+          "name": "orders_tillid_tills_tillId_fk",
+          "tableFrom": "orders",
+          "tableTo": "tills",
+          "columnsFrom": [
+            "tillid"
+          ],
+          "columnsTo": [
+            "tillId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "orders_transactionId_money_transfers_transferId_fk": {
+          "name": "orders_transactionId_money_transfers_transferId_fk",
+          "tableFrom": "orders",
+          "tableTo": "money_transfers",
+          "columnsFrom": [
+            "transactionId"
+          ],
+          "columnsTo": [
+            "transferId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     }
   },

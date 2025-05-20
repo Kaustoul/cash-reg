@@ -32,7 +32,7 @@ export interface TillsDataHandler {
         db: Databases | Transactions, 
         tillId: number, 
         balance: IMoneySum, 
-        reason: 'cash-payment' | 'withdraw' | 'deposit', 
+        reason: 'cash-payment' | 'withdraw' | 'deposit' | 'payment', 
         orderId?: number,
         note?: string
     ): Promise<void>;

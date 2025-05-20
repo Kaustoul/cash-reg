@@ -2,6 +2,7 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { tillsTable } from "./till-model";
 import { sql } from "drizzle-orm";
 import type { IOrder, IOrderItem } from "$lib/shared/interfaces/order";
+import { transactionsTable } from "./money-transfer-model";
 
 export const ORDERS_TABLE_NAME = 'orders';
 export const ordersTable = sqliteTable(ORDERS_TABLE_NAME, {
@@ -43,4 +44,11 @@ export const ordersTable = sqliteTable(ORDERS_TABLE_NAME, {
     ,
         
     customerId: integer('customerId', { mode: 'number' })
+    ,
+
+    transactionId: integer('transactionId', { mode: 'number' })
+        .$type<number | null>()
+        .references(() => transactionsTable.transactionId)
+        .default(null)
+    ,
 });

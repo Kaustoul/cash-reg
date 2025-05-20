@@ -8,7 +8,7 @@ export interface IOrder {
     items: IOrderItem & { name: string }[];
     total: IMoneySum;
     discounts: IDiscount[] | null;
-    paymentType: "qr" | "cash" | "card";
+    paymentType: "qr" | "cash" | "card" | "account";
     note: string | null;
     createdAt: Date;
     customerId?: number | null;

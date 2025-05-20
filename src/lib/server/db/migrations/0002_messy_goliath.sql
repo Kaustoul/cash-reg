@@ -1,1 +1,0 @@
-ALTER TABLE `money_transfers` ADD `orderId` integer;

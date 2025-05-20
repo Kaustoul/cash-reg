@@ -69,6 +69,8 @@
                         <span class="subtotal-title">Před slevou</span>
                             {#each cart.discounts as discount}
                                 <span class="total-discount-title">
+                                    Sleva
+
                                     {#if discount.source === "till"}
                                         (Pokladna)
                                     {:else if discount.source === "customer"}
@@ -76,8 +78,6 @@
                                     {:else if discount.source === "item"}
                                         (Položka)
                                     {/if}
-
-                                    Sleva
                                     
                                     {#if discount.type === "PRC"}
                                         {discount.value}%
@@ -166,14 +166,19 @@
                     <button type="button" class="accent-btn btn"
                         on:click={shoppingCartStore.cashPayment}
                     >Hotovost</button>
-                    <button type="button" class="second-accent-btn btn disabled"
+                    <!-- <button type="button" class="second-accent-btn btn disabled"
                         on:click={shoppingCartStore.cardPayment}
-                    >Karta</button>
+                    >Karta</button> -->
                     {#if appSettings.sepaSettings.enabled}
                         <button type="button" class="blue-btn btn"
                             on:click={shoppingCartStore.qrPayment}
                         >QR platba</button>
                     {/if}
+                    <button type="button" class="yellow-btn btn {cart.customerId ? '' : 'disabled'}" 
+                        on:click={shoppingCartStore.accountPayment}
+                    >
+                        Na účet
+                    </button>
                 </div>
             {:else}
                 <button type="button" class="accent-btn payment-btn"
@@ -294,13 +299,14 @@
             display: flex;
             justify-content: space-between;
             gap: .5rem;
+            font-weight: bold;
 
             button {
                 margin: 1rem 0;
             }
         }
     
-        .accent-btn, .blue-btn, .second-accent-btn {
+        .accent-btn, .blue-btn, .second-accent-btn, .yellow-btn {
             margin: 1rem;
 
             font-size: xx-large;
@@ -319,6 +325,10 @@
 
         .blue-btn {
             @include buttons.btn($btn-color: vars.$blue, $btn-height: $btn-height);
+        }
+
+        .yellow-btn {
+            @include buttons.btn($btn-color: vars.$yellow, $btn-height: $btn-height);
         }
 
         .second-accent-btn {

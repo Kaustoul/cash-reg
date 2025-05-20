@@ -36,8 +36,6 @@
         showCustomerDropdown = false;
     }
 
-    $: console.log(showCustomerDropdown)
-
     $: ({ carts, selectedCart } = $shoppingCartStore);
     $: cart = carts[selectedCart];
 

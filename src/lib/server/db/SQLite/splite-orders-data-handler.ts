@@ -1,5 +1,5 @@
 import type { INewOrder, IOrder } from '$lib/shared/interfaces/order';
-import { eq, and, desc, sql, inArray, Column, SQL } from 'drizzle-orm';
+import { eq, and, desc, sql, inArray, Column, SQL, isNull } from 'drizzle-orm';
 import type { OrdersDataHandler } from '../orders-data-handler';
 import { ordersTable } from '../schema/order-model';
 import type { SQLiteTx } from '../db';
@@ -8,6 +8,7 @@ import { productsTable } from '../schema/product-model';
 import { itemsTable } from '../schema/item-model';
 import { parseFullItemId, parseItemName, reduceFullItemId } from '$lib/shared/utils/item-utils';
 import { transactionsTable } from '../schema/money-transfer-model'; // Make sure this import exists
+import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
 
 export const sqliteOrders = {
     async fetchOrder(
@@ -145,6 +146,25 @@ export const sqliteOrders = {
             return orderId;
         });
     },
+
+    async fetchUnpaidOrdersForCustomer(
+        db: BetterSQLite3Database,
+        customerId: number
+    ): Promise<{ orderId: number, total: IMoneySum }[]> {
+        const res = await db
+            .select({ orderId: ordersTable.orderId, total: ordersTable.total })
+            .from(ordersTable)
+            .where(
+                and(
+                    eq(ordersTable.customerId, customerId),
+                    eq(ordersTable.paymentType, 'account'),
+                    isNull(ordersTable.transactionId)
+                )
+            )
+            .execute();
+        
+        return res;
+    }
 } satisfies OrdersDataHandler;
 
 

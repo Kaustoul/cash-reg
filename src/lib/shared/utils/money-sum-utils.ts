@@ -52,3 +52,21 @@ export const formatPricesArray = (prices: IPrice[]): string => {
 
     return formatDecimal(minPrice) + " - " + formatDecimal(maxPrice) + " " + prices[0].value.currency;
 }
+
+export function sumMoneySums(sums: IMoneySum[][]): IMoneySum[] {
+    const totals: Record<string, Decimal> = {};
+
+    for (const sum of sums) {
+        for (const currency of sum) {
+            if (!totals[currency.currency]) {
+                totals[currency.currency] = new Decimal(0);
+            }
+            totals[currency.currency] = totals[currency.currency].add(currency.value);
+        }
+    }
+
+    return Object.entries(totals).map(([currency, value]) => ({
+        currency,
+        value: value.toString()
+    }));
+}

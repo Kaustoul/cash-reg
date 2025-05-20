@@ -5,6 +5,7 @@ import { addItemToCart, removeItemFromCart, updateItemQuantity, calculateCartTot
 import type { ShoppingCart } from '../till/shopping-cart';
 import type { ICustomer } from '../interfaces/customer';
 import type { IDiscount } from '../interfaces/discount';
+import { customerStore } from './customerStore';
 
 function createShoppingCartStore() {
     const { subscribe, set, update } = writable<{ carts: IShoppingCart[], selectedCart: number }>({
@@ -59,6 +60,10 @@ function createShoppingCartStore() {
                 method: 'POST',
                 body: data
             });
+
+            if (cart.customerId && cart.state === "account-payment") {
+                await customerStore.reloadCustomer(cart.customerId)
+            }
 
             update(store => {
                 store.carts.splice(store.selectedCart, 1);

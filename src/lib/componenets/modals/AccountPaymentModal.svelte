@@ -4,15 +4,16 @@
     import { formatDecimal } from "$lib/shared/utils";
     import Decimal from "decimal.js";
     import { customerStore } from "$lib/shared/stores/customerStore";
-    import { get } from "svelte/store";
+    import { get, derived } from "svelte/store";
 
     $: ({ carts, selectedCart } = $shoppingCartStore);
     $: cart = carts[selectedCart];
 
     // Find the customer info
-    $: customer = cart.customerId
-        ? get(customerStore).find(c => c.customerId === cart.customerId)
-        : null;
+    $: customer = derived(
+        customerStore,
+        $customers => $customers.find(c => c.customerId === cart.customerId)
+    );
 
     $: sum = cart?.total?.["CZK"] ? new Decimal(cart.total["CZK"].value) : new Decimal(0);
 
@@ -29,21 +30,18 @@
     <div class="account-payment">
         <span class="title">Platba na účet zákazníka</span>
         <div class="content">
-            {#if customer}
+            {#if $customer}
                 <div class="customer-info">
                     <span class="customer-title">Zákazník:</span>
-                    <span class="customer-name">{customer.name} {customer.surname}</span>
-                    {#if customer.email}
-                        <span class="customer-email">{customer.email}</span>
+                    <span class="customer-name">{$customer.name} {$customer.surname}</span>
+                    {#if $customer.email}
+                        <span class="customer-email">{$customer.email}</span>
                     {/if}
-                    <!-- <span class="customer-balance">
+                    <span class="customer-balance">
                         Aktuální dluh: 
-                        {#if customer.balance && customer.balance.length > 0}
-                            {customer.balance[0].value} {customer.balance[0].currency}
-                        {:else}
-                            0 CZK
-                        {/if}
-                    </span> -->
+                            {formatDecimal(new Decimal(
+                                customerStore.calculateTotalBalance($customer)[0].value))} Kč
+                    </span>
                 </div>
             {:else}
                 <div class="customer-info error">

@@ -2,7 +2,20 @@ import type { ICustomer } from "$lib/shared/interfaces/customer";
 import type { IMoneySum } from "$lib/shared/interfaces/money-sum";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { customersTable } from "../schema/customer-model";
-import { eq } from "drizzle-orm";
+import { ordersTable } from "../schema/order-model";
+import { eq, and, isNull } from "drizzle-orm";
+import { sqliteOrders } from "./splite-orders-data-handler"; // adjust import as needed
+
+function calculateDebt(sums: IMoneySum[]): IMoneySum[] {
+    const result: Record<string, number> = {};
+    for (const sum of sums) {
+        result[sum.currency] = (result[sum.currency] || 0) + Number(sum.value);
+    }
+    return Object.entries(result).map(([currency, value]) => ({
+        currency,
+        value: "-" + value.toString()
+    }));
+}
 
 export const sqliteCustomers = {
     async fetchCustomer(db: BetterSQLite3Database, customerId: number): Promise<ICustomer> {
@@ -11,14 +24,41 @@ export const sqliteCustomers = {
             .from(customersTable)
             .where(eq(customersTable.customerId, customerId))
             .limit(1)
-        ;
-        
+            .execute();
+
         if (res.length === 0) throw new Error(`Customer with ID ${customerId} not found`);
-        return res[0];
+        const customer = res[0];
+
+        // Fetch unpaid orders for this customer using the orders data handler
+        const unpaidOrders = await sqliteOrders.fetchUnpaidOrdersForCustomer(db, customer.customerId);
+        const unpaidSums = unpaidOrders.map(o => o.total);
+
+        console.log("Unpaid orders for customer:", unpaidOrders);
+        console.log("Unpaid sums for customer:", unpaidSums);
+
+        return {
+            ...customer,
+            unpaidAmount: unpaidSums.length > 0 ? calculateDebt(unpaidSums) : [],
+            unpaidOrders: unpaidOrders.map(o => o.orderId),
+        };
     },
 
     async fetchCustomers(db: BetterSQLite3Database): Promise<ICustomer[]> {
-        return await db.select().from(customersTable).execute();
+        const customers = await db.select().from(customersTable).execute();
+        let updatedCustomers: ICustomer[] = [];
+        // For each customer, fetch their unpaid orders and calculate unpaidAmount and unpaidOrders (as order IDs)
+        for (const customer of customers) {
+            const unpaidOrders = await sqliteOrders.fetchUnpaidOrdersForCustomer(db, customer.customerId);
+            const unpaidSums = unpaidOrders.map(o => o.total);
+
+            updatedCustomers.push({
+                ...customer,
+                unpaidAmount: unpaidSums.length > 0 ? calculateDebt(unpaidSums) : [],
+                unpaidOrders: unpaidOrders.map(o => o.orderId),
+            });
+        }
+
+        return updatedCustomers;
     },
 
     async newCustomer(db: BetterSQLite3Database, customer: Omit<ICustomer, "customerId" | "createdAt" | "modifiedAt">): Promise<number> {

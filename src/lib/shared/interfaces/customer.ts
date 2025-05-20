@@ -10,4 +10,6 @@ export interface ICustomer {
     discount?: IDiscount | null;
     createdAt: Date;
     modifiedAt: Date;
+    unpaidAmount: IMoneySum[] | null;
+    unpaidOrders: number[] | null;
 }

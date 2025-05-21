@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1747744148863,
-      "tag": "0000_remarkable_giant_man",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1747744760473,
-      "tag": "0001_complex_killraven",
+      "when": 1747845665358,
+      "tag": "0000_unusual_sprite",
       "breakpoints": true
     }
   ]

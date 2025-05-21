@@ -69,9 +69,13 @@
         <span>Čas</span>
         <div class="spacer" />
     </div>
-    {#each orders as order}
-        <OrderItem {order} />
-    {/each}
+    {#if orders && orders.length > 0}
+        {#each orders as order}
+            <OrderItem {order} />
+        {/each}
+    {:else}
+        <p>Žádné objednávky pro tento den.</p>
+    {/if}
 </div>
 
 <style lang="scss">

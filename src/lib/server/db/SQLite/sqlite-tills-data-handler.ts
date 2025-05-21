@@ -96,39 +96,4 @@ export const sqliteTills = {
             .execute()
         ;
     },
-
-    async recordBalanceUpdate(
-        db: BetterSQLite3Database | SQLiteTx,
-        tillId: number, 
-        updateAmount: IMoneySum,
-        reason: 'cash-payment', 
-        orderId?: number,
-        note?: string
-    ): Promise<void> {
-        const res = await db
-            .select({ newId: sql`MAX(${transactionsTable.transactionId})` })
-            .from(transactionsTable)
-            .where(eq(transactionsTable.tillId, tillId))
-        ;
-
-        let newId = 1;
-        if (res.length !== 0 && res[0].newId !== null) {
-            newId = Number(res[0].newId) + 1;
-        }
-
-        await db
-            .insert(transactionsTable)
-            .values({
-                transactionId: newId,
-                tillId: tillId,
-                amount: updateAmount,
-                cashierId: 0,
-                reason: reason,
-                orderId: orderId,
-                note: note,
-            })
-            .execute()
-        ;
-
-    },
 } satisfies TillsDataHandler;

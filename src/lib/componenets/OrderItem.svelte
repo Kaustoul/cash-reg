@@ -3,7 +3,6 @@
     import ChevronUpIcon from 'svelte-material-icons/ChevronUp.svelte';
     import type { IOrder } from '$lib/shared/interfaces/order';
     import { formatSum } from '$lib/shared/utils/money-sum-utils';
-    import { fullItemId } from "$lib/shared/utils/item-utils";
     import { formatPrice } from "$lib/shared/utils";
 
     export let order: IOrder;

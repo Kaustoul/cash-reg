@@ -9,6 +9,8 @@ import type { ProductsDataHandler } from './products-data-handler';
 import type { OrdersDataHandler } from './orders-data-handler';
 import { join } from 'path';
 import type { CustomersDataHandler } from './customers-data-handler';
+import type { CustomerPaymentDataHandler } from './customer-payment-data-handler';
+import type { TransactionsDataHandler } from './transaction-data-handler';
 
 export type SQLiteTx = SQLiteTransaction<
     "sync",
@@ -27,8 +29,12 @@ export interface DB {
     readonly _items: ItemsDataHandler;
     readonly _orders: OrdersDataHandler;
     readonly _customers: CustomersDataHandler;
+    readonly _customerPayments: CustomerPaymentDataHandler;
+    readonly _transactions: TransactionsDataHandler;
 
     defaultSchema(): void;
+
+    markOrderAsPaid(orderId: number, transactionId: number): Promise<void>;
 }
 
 export function getMigrationsPath() {

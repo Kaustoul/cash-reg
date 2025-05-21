@@ -11,4 +11,9 @@ export interface OrdersDataHandler {
         db: Databases | Transactions, 
         customerId: number
     ): Promise<{ orderId: number, total: IMoneySum }[]>,
+    markOrderAsPaid(
+        db: Databases | Transactions,
+        orderId: number,
+        transactionId: number
+    ): Promise<void>;
 }

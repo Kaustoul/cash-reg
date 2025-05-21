@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "1357cfa7-e024-4302-9858-b12dfeea0481",
+  "id": "6f579015-1c92-4f8b-a04d-53b6ed7276ca",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "products": {
@@ -267,16 +267,114 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "money_transfers": {
-      "name": "money_transfers",
+    "customer_payments": {
+      "name": "customer_payments",
       "columns": {
-        "transferId": {
-          "name": "transferId",
+        "paymentId": {
+          "name": "paymentId",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "customerId": {
+          "name": "customerId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "transactionId": {
+          "name": "transactionId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "orderId": {
+          "name": "orderId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "(newid())"
+          "default": "(unixepoch())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "customer_payments_customerId_customers_customerId_fk": {
+          "name": "customer_payments_customerId_customers_customerId_fk",
+          "tableFrom": "customer_payments",
+          "tableTo": "customers",
+          "columnsFrom": [
+            "customerId"
+          ],
+          "columnsTo": [
+            "customerId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "customer_payments_transactionId_money_transfers_transactionId_fk": {
+          "name": "customer_payments_transactionId_money_transfers_transactionId_fk",
+          "tableFrom": "customer_payments",
+          "tableTo": "money_transfers",
+          "columnsFrom": [
+            "transactionId"
+          ],
+          "columnsTo": [
+            "transactionId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "customer_payments_orderId_orders_orderid_fk": {
+          "name": "customer_payments_orderId_orders_orderid_fk",
+          "tableFrom": "customer_payments",
+          "tableTo": "orders",
+          "columnsFrom": [
+            "orderId"
+          ],
+          "columnsTo": [
+            "orderid"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "money_transfers": {
+      "name": "money_transfers",
+      "columns": {
+        "transactionId": {
+          "name": "transactionId",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
         },
         "tillId": {
           "name": "tillId",
@@ -299,18 +397,19 @@
           "notNull": false,
           "autoincrement": false
         },
+        "type": {
+          "name": "type",
+          "type": "text(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'unknown'"
+        },
         "reason": {
           "name": "reason",
           "type": "text(32)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
-        },
-        "orderId": {
-          "name": "orderId",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
           "autoincrement": false
         },
         "note": {
@@ -345,15 +444,7 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {
-        "money_transfers_tillId_transferId_pk": {
-          "columns": [
-            "tillId",
-            "transferId"
-          ],
-          "name": "money_transfers_tillId_transferId_pk"
-        }
-      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
     "orders": {
@@ -428,7 +519,8 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "'null'"
         }
       },
       "indexes": {},
@@ -446,15 +538,15 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "orders_transactionId_money_transfers_transferId_fk": {
-          "name": "orders_transactionId_money_transfers_transferId_fk",
+        "orders_transactionId_money_transfers_transactionId_fk": {
+          "name": "orders_transactionId_money_transfers_transactionId_fk",
           "tableFrom": "orders",
           "tableTo": "money_transfers",
           "columnsFrom": [
             "transactionId"
           ],
           "columnsTo": [
-            "transferId"
+            "transactionId"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"

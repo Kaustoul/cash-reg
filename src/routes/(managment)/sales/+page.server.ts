@@ -13,7 +13,6 @@ export const actions = {
         const data = await event.request.formData();
         const date = new Date(Number(data.get('date') as string));
         const orders = await database.fetchOrders(date);
-
         return {
             success: true,
             orders: orders

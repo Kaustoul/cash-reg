@@ -3,11 +3,12 @@ import { integer, sqliteTable, text, foreignKey, primaryKey } from "drizzle-orm/
 import { tillsTable } from "./till-model";
 import type { IMoneySum } from "$lib/shared/interfaces/money-sum";
 import { ordersTable } from "./order-model";
+import { type PaymentType, type TransactionReason, type TransactionType } from "$lib/shared/interfaces/transaction";
 
 export const transactionsTable = sqliteTable('money_transfers', {
-    transactionId: integer('transferId')
+    transactionId: integer('transactionId')
         .notNull()
-        .default(sql`(newid())`)
+        .primaryKey({ autoIncrement: true })
     ,
     
     tillId: integer('tillId')
@@ -22,8 +23,15 @@ export const transactionsTable = sqliteTable('money_transfers', {
 
     cashierId: integer('cashierId')
     ,
+
+    type: text('type', { length: 16 })
+        .notNull()
+        .$type<TransactionType>()
+        .default('unknown')
+    ,
     
     reason: text('reason', { length: 32 })
+        .$type<TransactionReason>()
         .notNull()
     ,
 
@@ -34,8 +42,4 @@ export const transactionsTable = sqliteTable('money_transfers', {
         .notNull()
         .default(sql`(unixepoch())`)
     ,
-}, (table) => {
-    return {
-        pk: primaryKey({columns: [table.tillId, table.transactionId]})
-    };
 });

@@ -16,11 +16,17 @@ import type { IItem } from '$lib/shared/interfaces/item';
 import type { IPrice } from '$lib/shared/interfaces/price';
 import type { ICondition } from '$lib/shared/interfaces/condition';
 import type { OrdersDataHandler } from '../orders-data-handler';
-import { sqliteOrders } from './splite-orders-data-handler';
+import { sqliteOrders } from "./splite-orders-data-handler";
 import type { INewOrder } from '$lib/shared/interfaces/order';
 import { sqliteCustomers } from './sqlite-customers-data-handler';
 import type { CustomersDataHandler } from '../customers-data-handler';
 import type { ICustomer } from '$lib/shared/interfaces/customer';
+import { sqliteCustomerPayments } from './sqlite-customer-payment-data-handler';
+import type { CustomerPaymentDataHandler } from '../customer-payment-data-handler';
+import type { ICustomerPayment } from '$lib/shared/interfaces/customer-payment';
+import type { TransactionsDataHandler } from '../transaction-data-handler';
+import { sqliteTransactions } from './sqlite-transactions-data-handler';
+import type { TransactionReason, TransactionType } from '$lib/shared/interfaces/transaction';
 
 export class SQLiteDB implements DB {
     readonly db: BetterSQLite3Database;
@@ -29,6 +35,8 @@ export class SQLiteDB implements DB {
     readonly _items: ItemsDataHandler;
     readonly _orders: OrdersDataHandler;
     readonly _customers: CustomersDataHandler;
+    readonly _customerPayments: CustomerPaymentDataHandler;
+    readonly _transactions: TransactionsDataHandler;
 
     constructor(dbFilePath: string) {
         const sqlite = new Database(dbFilePath);
@@ -40,6 +48,8 @@ export class SQLiteDB implements DB {
         this._items = sqliteItems;
         this._orders = sqliteOrders;
         this._customers = sqliteCustomers;
+        this._customerPayments = sqliteCustomerPayments;
+        this._transactions = sqliteTransactions;
     }
 
     defaultSchema(): void {
@@ -139,30 +149,22 @@ export class SQLiteDB implements DB {
         return await this._tills.updateBalance(this.db, tillId, balance);
     }
 
-    async recordBalanceUpdate(
-        tillId: number,
-        amount: IMoneySum,
-        reason: 'cash-payment' | 'withdraw' | 'deposit', 
-        orderId?: number,
-    ): Promise<void> {
-        return await this._tills.recordBalanceUpdate(this.db, tillId, amount, reason, orderId);
-    }
-
     async updateBalanceTransaction(
         tillId: number,
+        cashierId: number,
         amount: IMoneySum,
-        reason: 'cash-payment' | 'withdraw' | 'deposit',
-        orderId?: number
+        reason: TransactionReason,
+        type: TransactionType,
     ): Promise<void> {
         await this.db.transaction(async (tx) => { 
             await this._tills.updateBalance(tx, tillId, amount);
-            await this._tills.recordBalanceUpdate(
-                tx,
+            await this._transactions.newTransaction(tx, {
                 tillId,
-                amount,
+                cashierId,
+                type,
                 reason, 
-                orderId
-            );
+                amount,
+            });
         });
     }
 
@@ -186,23 +188,8 @@ export class SQLiteDB implements DB {
         return await this._orders.newOrder(this.db, order);
     }
 
-    async newOrderTransaction(order: INewOrder) {
-        await this.db.transaction(async (tx) => {
-            const orderId = await this._orders.newOrder(tx, order);
-
-            if (order.paymentType === 'cash') {
-                // update balance;
-                // await this._tills.recordBalanceUpdate(
-                //     tx,
-                //     order.tillId,
-                //     order.total,
-                //     'payment',
-                //     orderId
-                // );
-                await this._tills.updateBalance(tx, order.tillId, order.total);
-
-            }
-        });
+    async markOrderAsPaid(orderId: number, transactionId: number) {
+        return await this._orders.markOrderAsPaid(this.db, orderId, transactionId);
     }
 
     //---------------\\
@@ -229,7 +216,18 @@ export class SQLiteDB implements DB {
         return await this._customers.removeCustomer(this.db, customerId);
     }
 
-    async updateCustomerBalance(customerId: number, balance: IMoneySum[]) {
-        return await this._customers.updateBalance(this.db, customerId, balance);
+    async updateCustomerBalance(customer: ICustomer, balance: IMoneySum[]) {
+        return await this._customers.updateBalance(this.db, customer, balance);
+    }
+
+    //-------------------------\\
+    // -- CUSTOMER PAYMENTS -- \\
+    //-------------------------\\
+
+    async fetchCustomerPayments(customerId: number) {
+        return await this._customerPayments.fetchPaymentsForCustomer(this.db, customerId);
+    }
+    async newCustomerPayment(payment: Omit<ICustomerPayment, "customerPaymentId" | "createdAt">) {
+        return await this._customerPayments.newCustomerPayment(this.db, payment);
     }
 }

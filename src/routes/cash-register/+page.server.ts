@@ -1,6 +1,7 @@
 import { database } from "$lib/server/db/db";
 import type { IOrder } from "$lib/shared/interfaces/order";
 import type { IShoppingCart } from "$lib/shared/interfaces/shopping-cart";
+import type { PaymentType } from "$lib/shared/interfaces/transaction";
 import { fullItemId, parseFullItemId } from "$lib/shared/utils/item-utils";
 import type { PageServerLoad } from "./$types";
 import type { Actions } from '@sveltejs/kit';
@@ -27,12 +28,12 @@ export const actions = {
             }
         });
 
-        await database.newOrderTransaction({
+        await database.newOrder({
             tillId: cart.tillId,
             items: items,
             total: cart.total["CZK"],
             discounts: cart.discounts ?? null,
-            paymentType: cart.state.split("-")[0] as IOrder["paymentType"],
+            paymentType: cart.state.split("-")[0] as PaymentType,
             note: cart.note ?? null,
             customerId: cart.customerId ?? null
         });

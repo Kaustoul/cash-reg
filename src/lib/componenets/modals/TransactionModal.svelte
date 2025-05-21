@@ -1,32 +1,37 @@
 <script lang="ts">
     import { enhance } from '$app/forms';
+    import type { TransactionReason, TransactionType } from '$lib/shared/interfaces/transaction';
     import Modal from './Modal.svelte';
 
     export let showModal: boolean = false;
-    export let type: 'deposit' | 'withdraw';
+    export let reason: TransactionReason;
+    export let type: TransactionType;
     export let tillId: number;
+    export let cashierId: number = 0;
 </script>
 
 <Modal bind:showModal>
     <div slot="header">
-        {#if type === 'deposit'}
+        {#if reason === 'deposit'}
             Vložit peníze
-        {:else if type === 'withdraw'}
+        {:else if reason === 'withdraw'}
             Vybrat peníze
         {/if}
     </div>
     <form use:enhance method="POST" action="?/moneyTransfer">
+        <input type="hidden" name="reason" value={reason} />
         <input type="hidden" name="type" value={type} />
         <input type="hidden" name="tillId" value={tillId} />
+        <input type="hidden" name="cashierId" value={cashierId} />
 
         <label>
             Částka
             <input type="number" name="amount" required />
         </label>
         <button type="submit" class="btn" on:click={() => showModal = false}>
-            {#if type === 'deposit'}
+            {#if reason === 'deposit'}
                 Vložit
-            {:else if type === 'withdraw'}
+            {:else if reason === 'withdraw'}
                 Vybrat
             {/if}
         </button>

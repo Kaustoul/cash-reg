@@ -70,3 +70,14 @@ export function sumMoneySums(sums: IMoneySum[][]): IMoneySum[] {
         value: value.toString()
     }));
 }
+
+export function combineSums(sums: IMoneySum[]): IMoneySum[] {
+    const result: Record<string, number> = {};
+    for (const sum of sums) {
+        result[sum.currency] = (result[sum.currency] || 0) + Number(sum.value);
+    }
+    return Object.entries(result).map(([currency, value]) => ({
+        currency,
+        value: "-" + value.toString()
+    }));
+}

@@ -1,4 +1,4 @@
-CREATE TABLE `products` (
+CREATE TABLE IF NOT EXISTS `products` (
 	`productid` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text(256),
 	`prices` text NOT NULL,
@@ -7,7 +7,7 @@ CREATE TABLE `products` (
 	`modifiedAt` integer DEFAULT (unixepoch()) NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE `items` (
+CREATE TABLE IF NOT EXISTS `items` (
 	`itemid` integer DEFAULT (0) NOT NULL,
 	`productid` integer NOT NULL,
 	`name` text(256) NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE `items` (
 	FOREIGN KEY (`productid`) REFERENCES `products`(`productid`) ON UPDATE no action ON DELETE restrict
 );
 --> statement-breakpoint
-CREATE TABLE `tills` (
+CREATE TABLE IF NOT EXISTS `tills` (
 	`tillId` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`balance` text NOT NULL,
 	`note` text(256),
@@ -29,7 +29,7 @@ CREATE TABLE `tills` (
 	`createdAt` integer DEFAULT (unixepoch()) NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE `customers` (
+CREATE TABLE IF NOT EXISTS `customers` (
 	`customerId` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text(256) NOT NULL,
 	`surname` text(256) NOT NULL,
@@ -40,20 +40,32 @@ CREATE TABLE `customers` (
 	`modifiedAt` integer DEFAULT (unixepoch()) NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE `money_transfers` (
-	`transferId` integer DEFAULT (newid()) NOT NULL,
+CREATE TABLE IF NOT EXISTS `customer_payments` (
+	`paymentId` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`customerId` integer NOT NULL,
+	`transactionId` integer NOT NULL,
+	`orderId` integer,
+	`amount` text NOT NULL,
+	`type` text(16) NOT NULL,
+	`createdAt` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`customerId`) REFERENCES `customers`(`customerId`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`transactionId`) REFERENCES `money_transfers`(`transactionId`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`orderId`) REFERENCES `orders`(`orderid`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `money_transfers` (
+	`transactionId` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`tillId` integer NOT NULL,
 	`moneySums` text NOT NULL,
 	`cashierId` integer,
+	`type` text(16) DEFAULT 'unknown' NOT NULL,
 	`reason` text(32) NOT NULL,
-	`orderId` integer,
 	`note` text(256),
 	`createdAt` integer DEFAULT (unixepoch()) NOT NULL,
-	PRIMARY KEY(`tillId`, `transferId`),
 	FOREIGN KEY (`tillId`) REFERENCES `tills`(`tillId`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE `orders` (
+CREATE TABLE IF NOT EXISTS `orders` (
 	`orderid` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`tillid` integer NOT NULL,
 	`items` text NOT NULL,
@@ -63,7 +75,7 @@ CREATE TABLE `orders` (
 	`note` text(256),
 	`createdAt` integer DEFAULT (unixepoch()) NOT NULL,
 	`customerId` integer,
-	`transactionId` integer,
+	`transactionId` integer DEFAULT 'null',
 	FOREIGN KEY (`tillid`) REFERENCES `tills`(`tillId`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`transactionId`) REFERENCES `money_transfers`(`transferId`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`transactionId`) REFERENCES `money_transfers`(`transactionId`) ON UPDATE no action ON DELETE no action
 );

@@ -10,6 +10,7 @@
     import { CurrencyManager } from '$lib/shared/prices/currency-manager';
     import { formatSum } from '$lib/shared/utils/money-sum-utils';
     import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
+    import type { TransactionReason, TransactionType } from '$lib/shared/interfaces/transaction';
 
 
 	export let data: PageData;
@@ -34,19 +35,21 @@
     };
 
     const transactionModalData: {
-        type: 'deposit' | 'withdraw',
+        reason: TransactionReason,
+        type: TransactionType,
         tillId: number,
         show: boolean
     
     } = {
-        type: 'deposit',
+        reason: 'deposit',
+        type: "cash",
         tillId: -1,
         show: false
     }
 
     function openTransactionModal(tillId: number, type: 'deposit' | 'withdraw') {
         transactionModalData.tillId = tillId;
-        transactionModalData.type = type;
+        transactionModalData.reason = type;
         transactionModalData.show = true;
     }
 
@@ -75,7 +78,8 @@
 </Modal>
 
 <TransactionModal 
-    type={transactionModalData.type} 
+    reason={transactionModalData.reason} 
+    type={transactionModalData.type}
     bind:showModal={transactionModalData.show}
     tillId={transactionModalData.tillId} 
 />

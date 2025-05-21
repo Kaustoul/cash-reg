@@ -28,12 +28,4 @@ export interface TillsDataHandler {
     //saveTills(db: Databases | Transactions, tills: ITill[]): Promise<void>;
     changeStatus(db: Databases | Transactions, tillId: number, status: TillStatus): Promise<void>;
     updateBalance(db: Databases | Transactions, tillId: number, balance: IMoneySum): Promise<void>;
-    recordBalanceUpdate(
-        db: Databases | Transactions, 
-        tillId: number, 
-        balance: IMoneySum, 
-        reason: 'cash-payment' | 'withdraw' | 'deposit' | 'payment', 
-        orderId?: number,
-        note?: string
-    ): Promise<void>;
 }

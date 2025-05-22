@@ -4,8 +4,20 @@
     import { formatDecimal } from "$lib/shared/utils";
     import { shoppingCartStore } from "$lib/shared/stores/shoppingCartStore";
 
+    export let amount: Decimal | undefined = undefined;
+    export let onCancel: () => void;
+    export let onConfirm: () => void;
+
     $: ({ carts, selectedCart } = $shoppingCartStore);
     $: ({ sum, payed, returnAmount } = (() => {
+        if (amount) {
+            return {
+                sum: amount,
+                payed: new Decimal(0),
+                returnAmount: new Decimal(0)
+            };
+        }
+
         const cart = carts[selectedCart];
         if (!cart) {
             return {
@@ -24,7 +36,7 @@
     })());
 </script>
 
-<FullscreenModal showModal={true} onCancel={shoppingCartStore.cancelPayment} onConfirm={shoppingCartStore.finalizeCart}>
+<FullscreenModal showModal={true} onCancel={onCancel} onConfirm={onConfirm}>
     <div class="cash-payment">
     <span class="title">Platba v hotovosti</span>
             <div class="content">

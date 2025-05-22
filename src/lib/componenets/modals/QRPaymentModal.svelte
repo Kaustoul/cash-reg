@@ -5,14 +5,20 @@
     import { formatDecimal } from "$lib/shared/utils";
     import type { ISettings } from "$lib/shared/interfaces/settings";
     import { shoppingCartStore } from "$lib/shared/stores/shoppingCartStore";
+    import { formatSum } from "$lib/shared/utils/money-sum-utils";
+    import type { IMoneySum } from "$lib/shared/interfaces/money-sum";
 
     export let appSettings: ISettings;
+    export let amount: Decimal | undefined = undefined;
+
+    export let onCancel: () => void;
+    export let onConfirm: () => void;
 
     $: ({ carts, selectedCart } = $shoppingCartStore);
     $: cart = carts[selectedCart];
 </script>
 
-<FullscreenModal showModal={true} onCancel={shoppingCartStore.cancelPayment} onConfirm={shoppingCartStore.finalizeCart}>
+<FullscreenModal showModal={true} onCancel={onCancel} onConfirm={onConfirm}>
     <div class="qr-payment">
         <div class="left">
             <div class="header">
@@ -22,14 +28,22 @@
             <div>
                 <div class="sum">
                     <span class="sum-title">Částka: </span>
-                    <span class="sum-value">{formatDecimal(new Decimal(cart.total["CZK"].value))} Kč</span>
+                    {#if amount}
+                    <span class="sum-value">{formatDecimal(amount) + "Kč"}</span>
+                    {:else}
+                        {#if cart}
+                            <span class="sum-value">{formatSum(cart.total["CZK"])}</span>
+                        {:else}
+                            <span class="sum-value">{formatDecimal(new Decimal(0))} Kč</span>
+                        {/if}
+                    {/if}
                 </div>
                 <hr>
             </div>
             <div class="spacer" />
         </div>
         <QrCode 
-            sum={formatDecimal(new Decimal(cart.total["CZK"].value))}
+            sum={formatDecimal(amount ? amount : new Decimal(cart.total["CZK"].value))}
             sepa={appSettings.sepaSettings}
         />
 

@@ -9,6 +9,7 @@ import Decimal from "decimal.js";
 import { sqliteCustomers } from "./sqlite-customers-data-handler";
 import { sqliteTransactions } from "./sqlite-transactions-data-handler";
 import type { PaymentType, TransactionType } from "$lib/shared/interfaces/transaction";
+import { sqliteTills } from "./sqlite-tills-data-handler";
 
 export const sqliteCustomerPayments = {
     async fetchPaymentsForCustomer(db: BetterSQLite3Database | SQLiteTx, customerId: number): Promise<ICustomerPayment[]> {
@@ -41,7 +42,11 @@ export const sqliteCustomerPayments = {
         // Fetch unpaid orders
         const customer = await sqliteCustomers.fetchCustomer(db, customerId);
         const unpaidOrders = await sqliteOrders.fetchUnpaidOrdersForCustomer(db, customerId);
-        let remaining = new Decimal(amount.value);
+        let remaining = new Decimal(amount.value)
+
+        if (customer && customer.balance && customer.balance.length > 0) {
+            remaining = remaining.add(new Decimal(customer.balance[0].value));
+        }
         
         await db.transaction( async (tx) => {
             
@@ -52,16 +57,14 @@ export const sqliteCustomerPayments = {
                 reason: 'customer-deposit',
                 type: paymentType,
             });
-                
 
             for (const order of unpaidOrders) {
+
                 const orderAmount = new Decimal(order.total.value);
                 if (remaining.lte(0)) break;
                 if (orderAmount.gt(remaining)) continue;
             
-                remaining = remaining.minus(orderAmount);
                 // Log payment for this order
-
                 await sqliteCustomerPayments.newCustomerPayment(tx, {
                     customerId,
                     transactionId,
@@ -76,20 +79,27 @@ export const sqliteCustomerPayments = {
             }    
             
             // If any remainder, add to customer balance and log as 'remainder'
-            if (remaining.gt(0)) {
-                // Update customer balance (implement this in your customer handler)
-                await sqliteCustomers.updateBalance(tx, customer, {
-                    value: remaining.toString(),
-                    currency: amount.currency,
-                });
+            // Update customer balance (implement this in your customer handler)
+            await sqliteCustomers.updateBalance(tx, customer, {
+                value: remaining.toString(),
+                currency: amount.currency,
+            });
 
-                await sqliteCustomerPayments.newCustomerPayment(tx, {
-                    customerId,
-                    transactionId,
-                    orderId: null,
-                    amount: { value: remaining.toString(), currency: amount.currency },
-                    destination: 'balance',
-                });
+            await sqliteCustomerPayments.newCustomerPayment(tx, {
+                customerId,
+                transactionId,
+                orderId: null,
+                amount: { value: remaining.toString(), currency: amount.currency },
+                destination: 'balance',
+            });
+
+            // Finally update the till balance for cash payments
+            if (paymentType === 'cash') {
+                await sqliteTills.updateBalance(
+                    tx,
+                    1,
+                    amount
+                );
             }
         });
     }

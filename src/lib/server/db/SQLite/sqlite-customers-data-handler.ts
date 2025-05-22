@@ -81,18 +81,19 @@ export const sqliteCustomers = {
                 .where(eq(customersTable.customerId, customer.customerId))
                 .execute();
         } else {
-            customer.balance.forEach((b) => {
-                if (b.currency === newBalance.currency) {
-                    console.log("Updating balance for customer:", customer.customerId);
-                    console.log("Old balance:", b);
-                    console.log("New balance:", newBalance);
-                    b = newBalance;
+
+            let newBalances = []
+            for (let balance of customer.balance) {
+                if (balance.currency === newBalance.currency) {
+                    balance.value = newBalance.value;
                 }
-            });
+
+                newBalances.push(balance);
+            }
 
             await db
                 .update(customersTable)
-                .set({ balance: customer.balance })
+                .set({ balance: newBalances })
                 .where(eq(customersTable.customerId, customer.customerId))
                 .execute();
         }

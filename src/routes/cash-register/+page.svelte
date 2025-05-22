@@ -96,9 +96,9 @@
 </script>
 
 {#if carts[selectedCart].state === 'qr-payment'}
-    <QrPaymentModal appSettings={data.settings}/>
+    <QrPaymentModal onCancel={shoppingCartStore.cancelPayment} onConfirm={shoppingCartStore.finalizeCart} appSettings={data.settings}/>
 {:else if carts[selectedCart].state === 'cash-payment'}
-    <CashPaymentModal/>
+    <CashPaymentModal onCancel={shoppingCartStore.cancelPayment} onConfirm={shoppingCartStore.finalizeCart}/>
 {:else if carts[selectedCart].state === 'account-payment'}
     <AccountPaymentModal/>
 {/if}

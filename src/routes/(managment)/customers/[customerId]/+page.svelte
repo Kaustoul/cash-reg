@@ -4,13 +4,65 @@
     import ViewTitle from '$lib/ViewTitle.svelte';
     import Decimal from 'decimal.js';
     import type { PageData } from './$types';
+    import CashPaymentModal from '$lib/componenets/modals/CashPaymentModal.svelte';
+    import QRPaymentModal from '$lib/componenets/modals/QRPaymentModal.svelte';
+    import { goto } from '$app/navigation';
 
     export let data: PageData;
-    const customer = data.customer;
-    let totalBalance = customerStore.calculateTotalBalance(customer)[0];
+    let customer = data.customer;
 
     // Helper for unpaid orders count
-    const unpaidOrdersCount = customer.unpaidOrders?.length ?? 0;
+    let unpaidOrdersCount = customer.unpaidOrders?.length ?? 0;
+    let totalBalance = customerStore.calculateTotalBalance(customer)[0];
+    let totalNegativeBalance = { value: totalBalance.value.replace('-', ''), currency: totalBalance.currency };
+
+    let paymentValue = '';
+    let showCashModal = false;
+    let showQRModal = false;
+
+    function setAmountFromCustomer() {
+        if (paymentValue === '') {
+
+            paymentValue =  totalNegativeBalance.value;
+        }
+    }
+
+    function openCashModal() {
+        setAmountFromCustomer();
+        showCashModal = true;
+    }
+
+    function openQRModal() {
+        setAmountFromCustomer();
+        showQRModal = true;
+    }
+
+    async function onConfirmDeposit(type: 'cash' | 'qr') {
+        const res = await fetch(`/api/customers/${customer.customerId}/topUp`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount: paymentValue,
+                type
+            })
+        });
+
+        if (res.ok) {
+            showCashModal = false;
+            showQRModal = false;
+            paymentValue = '';
+            window.location.replace(window.location.pathname + window.location.search + window.location.hash);
+        } else {
+            alert('Platba se nezdařila.');
+        }
+    }
+
+    function inputPlaceholder() {
+        if (customer.unpaidAmount && customer.unpaidAmount.length > 0)
+            return formatSum(totalNegativeBalance);
+        
+        return '0 Kč';
+    }
 </script>
 
 <ViewTitle title={customer.name + ' ' + customer.surname} showBackArrow={true} />
@@ -38,8 +90,8 @@
             <hr class="section-divider" />
             <div class="balance-row total">
                 <span class="balance-label">Celkem:</span>
-                <span class="mono balance-value {new Decimal(totalBalance?.value ?? 0).lt(0) ? 'red' : 'green'}">
-                    {formatSum(totalBalance ?? { value: '0', currency: 'CZK' })}
+                <span class="mono balance-value {new Decimal(totalBalance.value ?? 0).lt(0) ? 'red' : 'green'}">
+                    {formatSum(totalBalance)}
                 </span>
             </div>
         </div>
@@ -49,7 +101,19 @@
             <span class="unpaid-orders {unpaidOrdersCount > 0 ? 'red' : 'green'}">{unpaidOrdersCount}</span>
         </div>
         <div class="payment-section">
-            
+            <label class="payment-label" for="payment-input">Vložit na účet</label>
+            <input
+                id="payment-input"
+                class="payment-input mono"
+                type="number"
+                min="0"
+                bind:value={paymentValue}
+                placeholder={inputPlaceholder()}
+            />
+            <div class="payment-buttons">
+                <button class="btn btn-green" type="button" on:click={openCashModal}>Hotově</button>
+                <button class="btn btn-blue" type="button" on:click={openQRModal}>QR kód</button>
+            </div>
         </div>
     </div>
     
@@ -58,6 +122,22 @@
         <span class="discount-value">{customer.discount?.value ?? 0}{customer.discount?.type === 'PRC' ? '%' : customer.discount?.type === 'FLAT' ? ' Kč' : ''}</span>
     </div>
 </div>
+
+{#if showCashModal}
+    <CashPaymentModal
+        amount={new Decimal(paymentValue)}
+        onCancel={() => {showCashModal = false; paymentValue=''}}
+        onConfirm={() => onConfirmDeposit("cash")}
+    />
+{/if}
+{#if showQRModal}
+    <QRPaymentModal
+        amount={new Decimal(paymentValue)}
+        appSettings={data.settings}
+        onCancel={() => {showQRModal = false; paymentValue=''}}
+        onConfirm={() => onConfirmDeposit("qr")}
+    />
+{/if}
 
 <style lang="scss">
     @use '$lib/styles/vars' as vars;
@@ -79,18 +159,47 @@
     .payment-section {
         display: flex;
         flex-direction: column;
-        flex-basis: 20%;
+        justify-content: space-evenly;
+        flex: 1 0 25%;
+        gap: .6rem;
 
         background-color: vars.$content-bg-color;
         border-radius: vars.$medium-radius;
-        padding: 1rem 1.5rem 1.5rem 1.5rem;
-        gap: .5rem;
+        padding: 1.5rem;
+    }
+    .payment-label {
+        font-size: vars.$large;
+        font-weight: bold;
+        margin-bottom: .5rem;
+        text-align: center
+    }
+    .payment-input {
+        @include text_styles.mono-font;
+        @include inputs.number;
+        font-size: vars.$larger;
+        margin: .4rem 0 1rem 0;
+        text-align: center;
+    }
+    .payment-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: stretch;
+    }
+    .btn-green {
+        @include buttons.btn($btn-color: vars.$green, $btn-height: 3.5rem);
+        font-weight: bold;
+
+    }
+    .btn-blue {
+        @include buttons.btn($btn-color: vars.$blue, $btn-height: 3.5rem);
+        font-weight: bold;
+
     }
 
     .unpaid-orders-section {
         display: flex;
         flex-direction: column;
-        flex-basis: 20%;
+        flex: 0 0 15%;
         justify-content: center;
 
         background-color: vars.$content-bg-color;
@@ -106,7 +215,7 @@
         display: flex;
         flex-direction: column;
         gap: .5rem;
-        flex-basis: 50%;
+        flex: 1 1 50%;
 
         background-color: vars.$content-bg-color;
         border-radius: vars.$medium-radius;

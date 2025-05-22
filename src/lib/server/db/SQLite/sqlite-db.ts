@@ -230,4 +230,14 @@ export class SQLiteDB implements DB {
     async newCustomerPayment(payment: Omit<ICustomerPayment, "customerPaymentId" | "createdAt">) {
         return await this._customerPayments.newCustomerPayment(this.db, payment);
     }
+
+    async processCustomerDeposit(
+        customerId: number,
+        amount: IMoneySum,
+        paymentType: TransactionType
+    ): Promise<void> {
+        await this.db.transaction(async (tx) => {
+            await this._customerPayments.processCustomerDeposit(tx, customerId, amount, paymentType);
+        });
+    }
 }

@@ -11,6 +11,10 @@ import { transactionsTable } from '../schema/money-transfer-model'; // Make sure
 import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
 import { sqliteTransactions } from './sqlite-transactions-data-handler';
 import { sqliteTills } from './sqlite-tills-data-handler';
+import { sumMoneySums } from '$lib/shared/utils/money-sum-utils';
+import { sqliteCustomers } from './sqlite-customers-data-handler';
+import Decimal from 'decimal.js';
+import { customerPaymentsTable } from '../schema/customer-payment-model';
 
 export const sqliteOrders = {
     async fetchOrder(
@@ -95,7 +99,7 @@ export const sqliteOrders = {
 
     async newOrder(
         db: BetterSQLite3Database | SQLiteTx, 
-        order: INewOrder
+        order: INewOrder,
     ): Promise<number> {
         // Start a SQL transaction
         return await db.transaction(async (tx) => {
@@ -112,6 +116,35 @@ export const sqliteOrders = {
 
                 if (order.paymentType === "cash") {
                     await sqliteTills.updateBalance(tx, order.tillId, order.total)
+                }
+            } else {
+                // Check if customer has enough balance
+                const customerId = order.customerId;
+                if (!customerId) {
+                    throw new Error('Customer ID is required for account payment');
+                }
+                const customer = await sqliteCustomers.fetchCustomer(tx, customerId);
+
+                // Pay from customer balance if customer has enough balance
+                if (new Decimal(order.total.value).lte(new Decimal(customer.balance[0].value))) {
+                    const lastPayment = await tx
+                        .select()
+                        .from(customerPaymentsTable)
+                        .where(
+                            and(
+                                eq(customerPaymentsTable.customerId, customerId),
+                                eq(customerPaymentsTable.destination, 'balance')
+                            )
+                        )
+
+                        .orderBy(desc(customerPaymentsTable.createdAt))
+                        .limit(1)
+                    ;
+
+                    transactionId = lastPayment.length > 0 ? lastPayment[0].transactionId : null;
+
+                    const newBalance = sumMoneySums([customer.balance, [{value: "-" + order.total.value, currency: order.total.currency}]])[0];
+                    await sqliteCustomers.updateBalance(tx, customer, newBalance);
                 }
             }
 

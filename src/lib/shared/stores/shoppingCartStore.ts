@@ -158,7 +158,9 @@ function createShoppingCartStore() {
             }
 
             // Recalculate cart total after changing discounts
-            calculateCartTotal(cart);
+            if( cart.items.length > 0) {
+                calculateCartTotal(cart);
+            }
 
             return store;
         }),

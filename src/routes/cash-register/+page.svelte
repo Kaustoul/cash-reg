@@ -177,11 +177,11 @@
                     },
                     callback: (value) => {},
                 }} 
-                onClose={() => carts[selectedCart].state = 'items'}
+                onClose={() => shoppingCartStore.setState("items")}
                 bind:cart={carts[selectedCart]}
             />
         {:else if numpadData !== null}
-            <Numpad bind:data={numpadData} onClose={() => numpadData=null}/>
+            <Numpad bind:data={numpadData} onClose={() => { numpadData=null; shoppingCartStore.setState("items") }}/>
         {:else}
             <CatalogView products={data.products} onItemClicked={addItemCart}/>
         {/if}

@@ -11,6 +11,8 @@ import { join } from 'path';
 import type { CustomersDataHandler } from './customers-data-handler';
 import type { CustomerPaymentDataHandler } from './customer-payment-data-handler';
 import type { TransactionsDataHandler } from './transaction-data-handler';
+import type { TillSessionsDataHandler } from './till-sessions-data-handler';
+import type { TillChecksDataHandler } from './till-checks-data-handler';
 
 export type SQLiteTx = SQLiteTransaction<
     "sync",
@@ -31,6 +33,8 @@ export interface DB {
     readonly _customers: CustomersDataHandler;
     readonly _customerPayments: CustomerPaymentDataHandler;
     readonly _transactions: TransactionsDataHandler;
+    readonly _tillSessions: TillSessionsDataHandler;
+    readonly _tillChecks: TillChecksDataHandler;
 
     defaultSchema(): void;
 

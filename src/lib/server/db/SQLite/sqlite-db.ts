@@ -27,6 +27,12 @@ import type { ICustomerPayment } from '$lib/shared/interfaces/customer-payment';
 import type { TransactionsDataHandler } from '../transaction-data-handler';
 import { sqliteTransactions } from './sqlite-transactions-data-handler';
 import type { TransactionReason, TransactionType } from '$lib/shared/interfaces/transaction';
+import { sqliteTillSessions } from './sqlite-till-sessions-data-handler';
+import { sqliteTillChecks } from './sqlite-till-checks-data-handler';
+import type { TillSessionsDataHandler } from '../till-sessions-data-handler';
+import type { TillChecksDataHandler } from '../till-checks-data-handler';
+import type { INewTillCheck } from '$lib/shared/interfaces/till-check';
+import type { INewTillSession } from '$lib/shared/interfaces/till-session';
 
 export class SQLiteDB implements DB {
     readonly db: BetterSQLite3Database;
@@ -37,6 +43,8 @@ export class SQLiteDB implements DB {
     readonly _customers: CustomersDataHandler;
     readonly _customerPayments: CustomerPaymentDataHandler;
     readonly _transactions: TransactionsDataHandler;
+    readonly _tillSessions: TillSessionsDataHandler;
+    readonly _tillChecks: TillChecksDataHandler;
 
     constructor(dbFilePath: string) {
         const sqlite = new Database(dbFilePath);
@@ -50,6 +58,8 @@ export class SQLiteDB implements DB {
         this._customers = sqliteCustomers;
         this._customerPayments = sqliteCustomerPayments;
         this._transactions = sqliteTransactions;
+        this._tillSessions = sqliteTillSessions;
+        this._tillChecks = sqliteTillChecks;
     }
 
     defaultSchema(): void {
@@ -166,6 +176,42 @@ export class SQLiteDB implements DB {
                 amount,
             });
         });
+    }
+
+    //---------------------\\
+    // -- TILL SESSIONS -- \\
+    //---------------------\\
+
+    async fetchTillSession(id: number) {
+        return await this._tillSessions.fetchSession(this.db, id);
+    }
+
+    async fetchTillSessionsForTill(tillId: number) {
+        return await this._tillSessions.fetchSessionsForTill(this.db, tillId);
+    }
+
+    async newTillSession(session: INewTillSession) {
+        return await this._tillSessions.newSession(this.db, session);
+    }
+
+    //-------------------\\
+    // -- TILL CHECKS -- \\
+    //-------------------\\
+
+    async fetchTillCheck(id: number) {
+        return await this._tillChecks.fetchCheck(this.db, id);
+    }
+
+    async fetchTillSessionChecks(tillSessionId: number) {
+        return await this._tillChecks.fetchChecksForSession(this.db, tillSessionId);
+    }
+
+    async fetchTillChecks(tillId: number, date?: Date) {
+        return await this._tillChecks.fetchChecksForTill(this.db, tillId, date);
+    }
+
+    async newTillCheck(check: INewTillCheck) {
+        return await this._tillChecks.newCheck(this.db, check);
     }
 
     //---------------\\

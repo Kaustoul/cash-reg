@@ -28,26 +28,40 @@
 
 <div class={`card-status`}>
     <div class="status-icon">
-        <CashRegisterIcon size="4rem" />
+        <CashRegisterIcon size="6rem" />
         <div class="status-subicon">
             {#if status === 'closed'}
-                <CloseIcon size="2rem" />
+                <CloseIcon size="3rem" />
             {:else if status === 'open'}
-                <CheckIcon size="2rem" />
+                <CheckIcon size="3rem" />
             {:else if status === 'active'}
-                <WorkingIcon size="2rem" />
+                <WorkingIcon size="3rem" />
             {:else if status === 'paused'}
-                <PauseIcon size="2rem" />
+                <PauseIcon size="3rem" />
             {/if}
         </div>
     </div>
-    Zavřená
+    <div class="status-text-area">
+        {#if status === 'closed'}
+            <span class="status-text">Zavřená</span>
+        {:else if status === 'open'}
+            <span class="status-text">Otevřená</span>
+        {:else if status === 'active'}
+            <span class="status-text">Otevřená</span>
+        {:else if status === 'paused'}
+            <span class="status-text">Pauza</span>
+        {/if}
+
+        <span class="cashier">
+            Pokladní 00
+        </span>
+    </div>
 </div>
 
 <style lang="scss">
     @use "$lib/styles/vars" as vars;
     
-    $subicon-size: 2rem;
+    $subicon-size: 3rem;
     .status-icon {
         display: flex;
         align-items: flex-end;
@@ -62,7 +76,7 @@
 
     .status-subicon {
         width: $subicon-size;
-        border-radius: 50%;
+        border-radius: 100%;
         aspect-ratio: 1;
         background-color: vars.$bg-color;
         transform: translateX(- $subicon-size);
@@ -72,17 +86,30 @@
     }
 
     .card-status {
-        background-color: vars.$bg-color;
-        border-radius: vars.$large-radius;
-        width: 10rem;
-        
-        font-size: x-large;
+        background-color: vars.$content-bg-color;
+        border-radius: vars.$medium-radius;
+        height: 100%;
+        width: 100%;
+        font-size: vars.$large;
 
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: space-evenly;
         align-items: center;
         padding: 1rem;
+    }
+
+    .status-text-area {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+
+        .cashier {
+            font-size: vars.$larger;
+            color: vars.$text2-color;
+        }
     }
 
     .red {

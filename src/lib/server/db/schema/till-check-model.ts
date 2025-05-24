@@ -1,7 +1,7 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { tillSessionsTable } from "./till-session-model";
-import type { IMoneySum } from "$lib/shared/interfaces/money-sum";
 import { sql } from "drizzle-orm";
+import type { ITillCheck } from "$lib/shared/interfaces/till-check";
 
 export const tillChecksTable = sqliteTable('till_checks', {
     id: integer('id')
@@ -13,19 +13,24 @@ export const tillChecksTable = sqliteTable('till_checks', {
         .references(() => tillSessionsTable.id)
     ,
 
+    type: text('type', { length: 16 })
+        .notNull()
+        .$type<ITillCheck['type']>()
+    ,
+
     actualBalance: text('actualBalance', { mode: 'json' })
         .notNull()
-        .$type<IMoneySum[]>()
+        .$type<ITillCheck['actualBalance']>()
     ,
 
     expectedBalance: text('expectedBalance', { mode: 'json' })
         .notNull()
-        .$type<IMoneySum[]>()
+        .$type<ITillCheck['expectedBalance']>()
     ,
 
     difference: text('difference', { mode: 'json' })
         .notNull()
-        .$type<IMoneySum[]>()
+        .$type<ITillCheck['difference']>()
     ,
 
     approvedBy: integer('approvedBy') // nullable
@@ -35,6 +40,6 @@ export const tillChecksTable = sqliteTable('till_checks', {
         .notNull()
         .default(sql`(unixepoch())`)
     ,
-    
+
     note: text('note', { length: 256 }),
 });

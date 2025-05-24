@@ -6,6 +6,7 @@
     import CustomersIcon from 'svelte-material-icons/AccountGroup.svelte';
     import MoneyIcon from 'svelte-material-icons/CashMultiple.svelte';
     import ReceiptIcon from 'svelte-material-icons/ReceiptText.svelte';
+    import WorkerIcon from 'svelte-material-icons/Account.svelte';
 
     let viewTitle: string = "";
     
@@ -39,6 +40,17 @@
 <div class="grid-container">
     <header>
         <img src="/logo.svg" alt="Logo" style="filter: invert(100%)" height="75"/>
+        <div class="user-area">
+            <WorkerIcon size="3rem" />
+            <div class="user">
+                <span class="cashierId-title"> Pokladní 
+                    <span class="cashierId">
+                        00
+                    </span>
+                </span>
+                <span class="till">Bez Pokladny</span>
+            </div>
+        </div>
     </header>
     <Sidebar {tabs}/>
     <main class="main">
@@ -75,5 +87,26 @@
         overflow-y: hidden;
     }
 
+    .user-area {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-right: 2rem;
+
+        .user {
+            display: flex;
+            flex-direction: column;
+            font-size: vars.$normal;
+            color: vars.$text-color;
+
+            .cashierId {
+                font-weight: bold;
+            }
+
+            .till {
+                color: vars.$text2-color;
+            }
+        }
+    }
 
 </style>

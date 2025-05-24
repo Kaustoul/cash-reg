@@ -61,6 +61,23 @@
 
         return formatSum(balanceModalData.balance[0] ?? zeroSum);
     }
+
+    async function handleMoneyTransfer(tillId: number, amount: number, type: 'deposit' | 'withdraw') {
+        const res = await fetch('?/moneyTransfer', {
+            method: "POST",
+            body: new URLSearchParams({
+                tillId: tillId.toString(),
+                amount: amount.toString(),
+                reason: type,
+                type: "cash"
+            })
+        });
+        if (res.ok) {
+            location.reload(); // Or refresh data in a more Svelte way
+        } else {
+            alert(type === "deposit" ? "Vklad se nezdařil." : "Výběr se nezdařil.");
+        }
+    }
 </script>
 
 <Modal bind:showModal={balanceModalData.show}>
@@ -90,8 +107,9 @@
 
 {#each data.tills as till}
     <TillCard 
-        {till} 
-        onOpenTransaction={openTransactionModal} 
+        {till}
+        onDeposit={(tillId, amount) => handleMoneyTransfer(tillId, amount, 'deposit')}
+        onWithdraw={(tillId, amount) => handleMoneyTransfer(tillId, amount, 'withdraw')}
         onOpenBalance={() => balanceModalData = {
             tillId: till.id,
             balance: till.balance,

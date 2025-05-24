@@ -10,6 +10,7 @@
     import type { IDiscount } from '$lib/shared/interfaces/discount';
     import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
     import { customerStore } from '$lib/shared/stores/customerStore';
+    import { formatSum } from '$lib/shared/utils/money-sum-utils';
 
     export let data: PageData;
     let customers: ICustomer[] = data.customers;
@@ -38,7 +39,7 @@
     }
     function renderBalance(b: IMoneySum[] | null) {
         if (!b) return "-";
-        return formatDecimal(new Decimal(b[0].value)) + " " + b[0].currency;
+        return formatSum(b[0]);
     }
 
     // Add totalBalance to each customer for the list view

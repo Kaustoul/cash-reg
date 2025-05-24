@@ -67,7 +67,7 @@
                     <span class="item-discount">
                         Sleva
                         {#if discount.type === "PRC"}
-                            {formatDecimal(new Decimal(discount.value))}%
+                            {formatDecimal(new Decimal(discount.value), true)}%
                         {/if}
                     </span>
                 {/each}
@@ -86,16 +86,16 @@
             <span class="single-price">{formatPrice(item.prices[item.priceIdx])}</span>
         {/if}
         {#if item.discounts !== undefined}
-            <span class="subtotal-price">{formatDecimal(item.subtotal)}</span>
+            <span class="subtotal-price">{formatDecimal(item.subtotal, true)}</span>
             {#each item.discounts as discount}
                 <span class="item-discount-value">
                     { #if discount.subtotal !== undefined } 
-                        -{formatDecimal(discount.subtotal)}
+                        -{formatDecimal(discount.subtotal, true)}
                     {/if}
                 </span>
             {/each}
         {/if}
-        <span class="total-price">{formatDecimal(item.total)}</span>
+        <span class="total-price">{formatDecimal(item.total, true)}</span>
         
     </button>
 </div>

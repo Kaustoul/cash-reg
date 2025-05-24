@@ -76,7 +76,7 @@
                 <hr class="section-divider">
                 <div class="sum-line">
                     <span class="sum-title">Nový stav účtu: </span>
-                    <span class="sum-value mono {new Decimal(totalBalance[0].value).lt(0) ? 'red' : 'green'}">
+                    <span class="sum-value mono {new Decimal(newBalance[0].value).lt(0) ? 'red' : 'green'}">
                         {formatSum(newBalance[0])}
                     </span>
                 </div>

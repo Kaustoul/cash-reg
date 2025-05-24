@@ -9,6 +9,7 @@
     import type { ISettings } from '$lib/shared/interfaces/settings';
     import type { IDiscount } from '$lib/shared/interfaces/discount';
     import { shoppingCartStore } from '$lib/shared/stores/shoppingCartStore';
+    import { formatSum } from '$lib/shared/utils/money-sum-utils';
 
 
     export let appSettings: ISettings;
@@ -19,7 +20,6 @@
     )=> void;
     export let onNote: () => void;
     let selectedItem: IShoppingCartItem | null = null;
-
     let time: string = "";
     let showDate: boolean = true; 
 
@@ -92,20 +92,20 @@
                 <div class="total-value">
                         {#if cart.state === "checkout"}
                             {#if cart.discounts !== undefined && cart.discounts.length > 0 }
-                                <span class="total-subtotal">{formatDecimal(new Decimal(cart.subtotal[CurrencyManager.getDefaultCurrency().getCode()].value))}</span>
+                                <span class="total-subtotal">{formatSum(cart.subtotal[CurrencyManager.getDefaultCurrency().getCode()], true, false)}</span>
                             {/if}
                             {#if cart.discounts !== undefined}
                                 {#each cart.discounts as discount}
                                     <span class="total-discount-value">
                                         {#if discount.subtotal !== undefined}
-                                            -{formatDecimal(discount.subtotal)}
+                                            -{formatDecimal(discount.subtotal, true)}
                                         {/if}
                                     </span>
                                 {/each}
-                                <span class="total-total">{formatDecimal(new Decimal(cart.total[CurrencyManager.getDefaultCurrency().getCode()].value))}</span>
+                                <span class="total-total">{formatSum(cart.total[CurrencyManager.getDefaultCurrency().getCode()], true, false)}</span>
                             {/if}
                         {:else}
-                            <span class="total-total">{formatDecimal(new Decimal(cart.subtotal[CurrencyManager.getDefaultCurrency().getCode()].value))}</span>
+                            <span class="total-total">{formatSum(cart.subtotal[CurrencyManager.getDefaultCurrency().getCode()], true, false)}</span>
                         {/if}
                 </div>
             </div>
@@ -129,10 +129,10 @@
         <div class="buttons">
             {#if selectedItem !== null}
                 <div class="on-selected-buttons">
-                    <button type="button" class="btn"
+                    <button type="button" class="btn disabled"
                         on:click={() => { if (!selectedItem) return; onDiscountPressed("PRC", "item", selectedItem)}}
                     >Sleva %</button>
-                    <button type="button" class="btn"
+                    <button type="button" class="btn disabled"
                         on:click={() => { if (!selectedItem) return; onDiscountPressed("CZK", "item", selectedItem)}}
                     >
                         Sleva {CurrencyManager.getDefaultCurrency().getSymbol()}

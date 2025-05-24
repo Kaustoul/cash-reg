@@ -51,10 +51,17 @@
                         <span class="sum-value">{formatDecimal(payed)} Kč</span>
                     </div>
                     <hr>
-                    <div class="return">
-                        <span class="sum-title">Vrátit: </span>
-                        <span class="sum-value">{formatDecimal(returnAmount)} Kč</span>
-                    </div>
+                    {#if returnAmount.gt(0)}
+                        <div class="return">
+                            <span class="sum-title">Vrátit: </span>
+                            <span class="sum-value">{formatDecimal(returnAmount)} Kč</span>
+                        </div>
+                    {:else}
+                        <div class="pay">
+                            <span class="sum-title">Doplatit: </span>
+                            <span class="sum-value">{formatDecimal(returnAmount.neg())} Kč</span>
+                        </div>
+                    {/if}
                     <hr>
                 {/if}
             </div>
@@ -86,17 +93,24 @@
         font-weight: bold;
     }
 
-    .sum, .payed, .return {
+    .sum, .payed, .return, .pay {
         display: flex;
         justify-content: space-between;
         align-items: baseline;
         font-size: xx-large;
     }
 
-    .return {
-        color: vars.$accent-color;
+    .return, .pay {
         font-size: 3rem;
         font-weight: bold;
+    }
+
+    .pay {
+        color: vars.$red;
+    }
+
+    .return {
+        color: vars.$green;
     }
 
     .sum-title {

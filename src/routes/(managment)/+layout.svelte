@@ -41,7 +41,7 @@
         <img src="/logo.svg" alt="Logo" style="filter: invert(100%)" height="75"/>
     </header>
     <Sidebar {tabs}/>
-    <main>
+    <main class="main">
         <slot></slot>
     </main>
 </div>
@@ -68,9 +68,10 @@
         display: flex;
         flex-direction: column;
 
-        height: 100%;
+        height: calc(100% - 5rem);
         background-color: vars.$content-bg-color;
-        padding: 2.5rem 2.5rem 0 2.5rem;
+        // padding: 2.5rem 2.5rem 0 2.5rem;
+        padding: 2.5rem;
         overflow-y: hidden;
     }
 

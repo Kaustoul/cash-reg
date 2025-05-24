@@ -3,6 +3,7 @@ import { tillsTable } from "./till-model";
 import { sql } from "drizzle-orm";
 import type { IOrder, IOrderItem } from "$lib/shared/interfaces/order";
 import { transactionsTable } from "./money-transfer-model";
+import { customersTable } from "./customer-model";
 
 export const ORDERS_TABLE_NAME = 'orders';
 export const ordersTable = sqliteTable(ORDERS_TABLE_NAME, {
@@ -25,6 +26,11 @@ export const ordersTable = sqliteTable(ORDERS_TABLE_NAME, {
         .$type<IOrder['discounts']>()
     ,
 
+    subtotal: text('subtotal', { mode: 'json' })
+        .notNull()
+        .$type<IOrder["subtotal"]>()
+    ,
+
     total: text('total', { mode: 'json' })
         .notNull()
         .$type<IOrder["total"]>()
@@ -44,6 +50,11 @@ export const ordersTable = sqliteTable(ORDERS_TABLE_NAME, {
     ,
         
     customerId: integer('customerId', { mode: 'number' })
+        .references(() => customersTable.customerId)
+    ,
+
+    cashierId: integer('cashierId', { mode: 'number' })
+        .notNull()
     ,
 
     transactionId: integer('transactionId', { mode: 'number' })

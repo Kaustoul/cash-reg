@@ -4,8 +4,12 @@ import Decimal from "decimal.js";
 import type { IPrice } from "../interfaces/price";
 import { formatDecimal } from "../utils";
 
-export const formatSum = (moneySum: IMoneySum): string => {
-    return `${formatDecimal(new Decimal(moneySum.value))} ${CurrencyManager.getCurrency(moneySum.currency).getSymbol()}`;
+export const formatSum = (moneySum: IMoneySum, alwaysDecimal: boolean = false, includeCurrency: boolean = true): string => {
+    if (!includeCurrency) {
+        return formatDecimal(new Decimal(moneySum.value), alwaysDecimal);
+    }
+    
+    return `${formatDecimal(new Decimal(moneySum.value,), alwaysDecimal)} ${CurrencyManager.getCurrency(moneySum.currency).getSymbol()}`;
 }
 
 export const formatSumsArray = (moneySums: IMoneySum[]): string => {

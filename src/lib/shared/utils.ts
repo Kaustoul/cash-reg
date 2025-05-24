@@ -1,6 +1,7 @@
 import Decimal from "decimal.js";
 import type { IPrice } from "./interfaces/price";
 import { CurrencyManager } from "./prices/currency-manager";
+import type { DecimalStr } from "./interfaces/money-sum";
 
 export function ensureArray<T>(value: Array<T> | T | undefined): Array<T>{
     if (value === undefined) {
@@ -47,9 +48,13 @@ export function productIdFromFullId(fullItemId: number): number {
     return Math.floor(fullItemId / 1000);
 }
 
-export function formatDecimal(value: Decimal, roundToWhole: boolean = false): string {
+export function formatDecimal(value: Decimal | DecimalStr, alwaysDecimal: boolean = false, roundToWhole: boolean = false): string {
+    if (!(value instanceof Decimal)) {
+        value = new Decimal(value);
+    }
+    
     if (value.isNaN()) {
-        return '0.00';
+        return 'NaN';
     }
 
     if (roundToWhole) {
@@ -61,8 +66,11 @@ export function formatDecimal(value: Decimal, roundToWhole: boolean = false): st
     // Add thousand separators to the integer part
     integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-    // Combine the integer part and the decimal part
-    return decimalPart ? `${integerPart}.${decimalPart}` : `${integerPart}.00`;
+    if (alwaysDecimal) {
+        return decimalPart ? `${integerPart}.${decimalPart}` : `${integerPart}.00`;
+    }
+
+    return decimalPart && decimalPart !== '00' ? `${integerPart}.${decimalPart}` : `${integerPart}`;
 }
 
 export function formatPrice(price: IPrice, includeCurrency: boolean = false): string {
@@ -73,4 +81,28 @@ export function formatPrice(price: IPrice, includeCurrency: boolean = false): st
     }
 
     return res;
+}
+
+export function formatDate(date: Date | number, includeDate: boolean = true, includeTime: boolean = true): string {
+    // Accepts Date or timestamp
+    if (!includeDate && !includeTime) {
+        return '';
+    }
+
+    const d = typeof date === "number" ? new Date(date * 1000) : new Date(date);
+    const day = d.getDate(); // no pad
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    const hours = d.getHours(); // no pad
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+
+    if (!includeDate && includeTime) {
+        return `${hours}:${minutes}`;
+    }
+    
+    if (includeDate && !includeTime) {
+        return `${day}.${month}.${year}`;
+    }
+
+    return `${day}.${month}.${year} ${hours}:${minutes}`;
 }

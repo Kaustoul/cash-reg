@@ -25,16 +25,21 @@ export const actions = {
                 quantity: item.quantity.toString(),
                 price: item.prices[item.priceIdx],
                 discounts: item.discounts,
+                subtotal: item.subtotal.toString(),
+                total: item.total.toString(),
+                name: item.name
             }
         });
 
         await database.newOrder({
             tillId: cart.tillId,
             items: items,
+            subtotal: cart.subtotal["CZK"],
             total: cart.total["CZK"],
             discounts: cart.discounts ?? null,
             paymentType: cart.state.split("-")[0] as PaymentType,
             note: cart.note ?? null,
+            cashierId: 0,
             customerId: cart.customerId ?? null
         });
 

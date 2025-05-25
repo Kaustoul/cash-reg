@@ -4,13 +4,13 @@ import { sql } from "drizzle-orm";
 import type { ITillCheck } from "$lib/shared/interfaces/till-check";
 
 export const tillChecksTable = sqliteTable('till_checks', {
-    id: integer('id')
+    tillCheckId: integer('tillCheckId')
         .primaryKey({ autoIncrement: true })
     ,
 
     tillSessionId: integer('tillSessionId')
         .notNull()
-        .references(() => tillSessionsTable.id)
+        .references(() => tillSessionsTable.tillSessionId)
     ,
 
     type: text('type', { length: 16 })

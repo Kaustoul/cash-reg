@@ -15,6 +15,7 @@ import { sumMoneySums } from '$lib/shared/utils/money-sum-utils';
 import { sqliteCustomers } from './sqlite-customers-data-handler';
 import Decimal from 'decimal.js';
 import { customerPaymentsTable } from '../schema/customer-payment-model';
+import { tillSessionsTable } from '../schema/till-session-model';
 
 function matchDateString(column: Column, date: Date): SQL {
     const targetYear = date.getFullYear();
@@ -32,8 +33,25 @@ export const sqliteOrders = {
         orderId: number
     ): Promise<IOrder> {
         const res = await db
-            .select()
+            .select({
+                orderId: ordersTable.orderId,
+                customerId: ordersTable.customerId,
+                subtotal: ordersTable.subtotal,
+                discounts: ordersTable.discounts,
+                total: ordersTable.total,
+                paymentType: ordersTable.paymentType,
+                transactionId: ordersTable.transactionId,
+                createdAt: ordersTable.createdAt,
+                items: ordersTable.items,
+                note: ordersTable.note,
+                tillId: tillSessionsTable.tillId,
+                cashierId: tillSessionsTable.cashierId
+            })
             .from(ordersTable)
+            .innerJoin(
+                tillSessionsTable,
+                eq(ordersTable.tillSessionId, tillSessionsTable.tillSessionId)
+            )
             .where(eq(ordersTable.orderId, orderId))
             .limit(1)
         ;
@@ -49,13 +67,30 @@ export const sqliteOrders = {
         db: BetterSQLite3Database | SQLiteTx, 
         date: Date = new Date()
     ): Promise<IOrder[]> {
-        console.log('Fetching orders for date:', date);
         const res = await db
-            .select()
+            .select({
+                orderId: ordersTable.orderId,
+                customerId: ordersTable.customerId,
+                subtotal: ordersTable.subtotal,
+                discounts: ordersTable.discounts,
+                total: ordersTable.total,
+                paymentType: ordersTable.paymentType,
+                transactionId: ordersTable.transactionId,
+                createdAt: ordersTable.createdAt,
+                items: ordersTable.items,
+                note: ordersTable.note,
+                tillSessionId: ordersTable.tillSessionId,
+                tillId: tillSessionsTable.tillId,
+                cashierId: tillSessionsTable.cashierId
+            })
             .from(ordersTable)
+            .innerJoin(
+                tillSessionsTable,
+                eq(ordersTable.tillSessionId, tillSessionsTable.tillSessionId)
+            )
             .where(sql`${matchDateString(ordersTable.createdAt, date)}`)
             .orderBy(desc(ordersTable.createdAt))
-        ;
+            .execute();
 
         for (const order of res) {
             const productIds = []
@@ -97,12 +132,35 @@ export const sqliteOrders = {
         tillId: number,
         date: Date = new Date()
     ): Promise<IOrder[]> {
-
         const res = await db
-            .select()
+            .select({
+                orderId: ordersTable.orderId,
+                customerId: ordersTable.customerId,
+                subtotal: ordersTable.subtotal,
+                discounts: ordersTable.discounts,
+                total: ordersTable.total,
+                paymentType: ordersTable.paymentType,
+                transactionId: ordersTable.transactionId,
+                createdAt: ordersTable.createdAt,
+                items: ordersTable.items,
+                note: ordersTable.note,
+                tillSessionId: ordersTable.tillSessionId,
+                tillId: tillSessionsTable.tillId,
+                cashierId: tillSessionsTable.cashierId
+            })
             .from(ordersTable)
-            .where(and(eq(ordersTable.tillId, tillId), sql`${matchDateString('', date)}`))
-        ;
+            .innerJoin(
+                tillSessionsTable,
+                eq(ordersTable.tillSessionId, tillSessionsTable.tillSessionId)
+            )
+            .where(
+                and(
+                    eq(tillSessionsTable.tillId, tillId),
+                    sql`${matchDateString(ordersTable.createdAt, date)}`
+                )
+            )
+            .orderBy(desc(ordersTable.createdAt))
+            .execute();
 
         return res;
     },
@@ -210,8 +268,26 @@ export const sqliteOrders = {
         transactionId: number
     ): Promise<IOrder | null> {
         const res = await db
-            .select()
+            .select({
+                orderId: ordersTable.orderId,
+                customerId: ordersTable.customerId,
+                subtotal: ordersTable.subtotal,
+                discounts: ordersTable.discounts,
+                total: ordersTable.total,
+                paymentType: ordersTable.paymentType,
+                transactionId: ordersTable.transactionId,
+                createdAt: ordersTable.createdAt,
+                items: ordersTable.items,
+                note: ordersTable.note,
+                tillSessionId: ordersTable.tillSessionId,
+                tillId: tillSessionsTable.tillId,
+                cashierId: tillSessionsTable.cashierId
+            })
             .from(ordersTable)
+            .innerJoin(
+                tillSessionsTable,
+                eq(ordersTable.tillSessionId, tillSessionsTable.tillSessionId)
+            )
             .where(eq(ordersTable.transactionId, transactionId))
             .limit(1)
             .execute();

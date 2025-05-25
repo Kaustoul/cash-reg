@@ -13,6 +13,9 @@ import type { CustomerPaymentDataHandler } from './customer-payment-data-handler
 import type { TransactionsDataHandler } from './transaction-data-handler';
 import type { TillSessionsDataHandler } from './till-sessions-data-handler';
 import type { TillChecksDataHandler } from './till-checks-data-handler';
+import type { PermissionsDataHandler } from './permissions-data-handler';
+import type { UserDataHandler } from './users-data-handler';
+import type { GroupsDataHandler } from './groups-data-handler';
 
 export type SQLiteTx = SQLiteTransaction<
     "sync",
@@ -35,6 +38,9 @@ export interface DB {
     readonly _transactions: TransactionsDataHandler;
     readonly _tillSessions: TillSessionsDataHandler;
     readonly _tillChecks: TillChecksDataHandler;
+    readonly _permissions: PermissionsDataHandler;
+    readonly _users: UserDataHandler;
+    readonly _groups: GroupsDataHandler;
 
     defaultSchema(): void;
 

@@ -33,6 +33,14 @@ import type { TillSessionsDataHandler } from '../till-sessions-data-handler';
 import type { TillChecksDataHandler } from '../till-checks-data-handler';
 import type { INewTillCheck } from '$lib/shared/interfaces/till-check';
 import type { INewTillSession } from '$lib/shared/interfaces/till-session';
+import type { PermissionsDataHandler } from '../permissions-data-handler';
+import { sqlitePermissions } from './sqlite-permissions-data-handler';
+import type { PermissionLeaf } from '$lib/shared/permissions';
+import { sqliteUsers } from './sqlite-users-data-handler';
+import type { UserDataHandler } from '../users-data-handler';
+import type { INewGroup, INewUser } from '$lib/shared/interfaces/user';
+import { sqliteGroups } from './sqlite-groups-data-handler';
+import type { GroupsDataHandler } from '../groups-data-handler';
 
 export class SQLiteDB implements DB {
     readonly db: BetterSQLite3Database;
@@ -45,6 +53,10 @@ export class SQLiteDB implements DB {
     readonly _transactions: TransactionsDataHandler;
     readonly _tillSessions: TillSessionsDataHandler;
     readonly _tillChecks: TillChecksDataHandler;
+    readonly _permissions: PermissionsDataHandler;
+    readonly _users: UserDataHandler;
+    readonly _groups: GroupsDataHandler;
+
 
     constructor(dbFilePath: string) {
         const sqlite = new Database(dbFilePath);
@@ -60,6 +72,9 @@ export class SQLiteDB implements DB {
         this._transactions = sqliteTransactions;
         this._tillSessions = sqliteTillSessions;
         this._tillChecks = sqliteTillChecks;
+        this._permissions = sqlitePermissions; // sqlitePermissions; // Not implemented yet
+        this._users = sqliteUsers;
+        this._groups = sqliteGroups;
     }
 
     defaultSchema(): void {
@@ -297,5 +312,64 @@ export class SQLiteDB implements DB {
     
     async fetchTillTransactions(tillId: number) {
         return await this._transactions.fetchTillTransactions(this.db, tillId);
+    }
+
+    //-------------\\
+    // -- USERS -- \\
+    //-------------\\
+
+    async fetchUserById(userId: number) {
+        return await this._users.fetchUserById(this.db, userId);
+    }
+
+    async newUser(user: INewUser) {
+        return await this._users.newUser(this.db, user);
+    }
+
+    async updateUserGroup(userId: number, groupId: number) {
+        return await this._users.updateUserGroup(this.db, userId, groupId);
+    }
+
+    async updateUserPassword(userId: number, passwordHash: string) {
+        return await this._users.updateUserPassword(this.db, userId, passwordHash);
+    }
+
+    //--------------\\
+    // -- GROUPS -- \\
+    //--------------\\
+
+    async fetchGroupById(groupId: number) {
+        return await this._groups.fetchGroupById(this.db, groupId);
+    }
+    async fetchGroups() {
+        return await this._groups.fetchGroups(this.db);
+    }
+    async newGroup(group: INewGroup) {
+        return await this._groups.newGroup(this.db, group);
+    }
+    async updateGroup(groupId: number, group: Partial<INewGroup>) {
+        return await this._groups.updateGroup(this.db, groupId, group);
+    }
+    async setGroupPermission(groupId: number, permissionId: string, enabled: boolean) {
+        return await this._groups.setGroupPermission(this.db, groupId, permissionId, enabled);
+    }
+    async fetchGroupPermissions(groupId: number) {
+        return await this._groups.fetchGroupPermissions(this.db, groupId);
+    }
+
+    //-------------------\\
+    // -- PERMISSIONS -- \\
+    //-------------------\\
+
+    async fetchPermissions() {
+        return await this._permissions.fetchAllPermissions(this.db);
+    }
+
+    async fetchPermission(permissionKey: string) {
+        return await this._permissions.fetchPermissionById(this.db, permissionKey);
+    }
+
+    async newPermission(permissionKey: string, data: PermissionLeaf) {
+        return await this._permissions.newPermission(this.db, permissionKey, data);
     }
 }

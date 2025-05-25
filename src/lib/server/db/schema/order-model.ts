@@ -1,9 +1,9 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { tillsTable } from "./till-model";
 import { sql } from "drizzle-orm";
 import type { IOrder, IOrderItem } from "$lib/shared/interfaces/order";
 import { transactionsTable } from "./money-transfer-model";
 import { customersTable } from "./customer-model";
+import { tillSessionsTable } from "./till-session-model";
 
 export const ORDERS_TABLE_NAME = 'orders';
 export const ordersTable = sqliteTable(ORDERS_TABLE_NAME, {
@@ -12,9 +12,9 @@ export const ordersTable = sqliteTable(ORDERS_TABLE_NAME, {
        .primaryKey({ autoIncrement: true })
     ,
 
-    tillId: integer('tillid', { mode: 'number' })
+    tillSessionId: integer('tillSessionId', { mode: 'number' })
         .notNull()
-        .references(() => tillsTable.id)
+        .references(() => tillSessionsTable.tillSessionId, { onDelete: 'no action' })
     ,
     
     items: text('items', { mode: 'json' })
@@ -51,10 +51,6 @@ export const ordersTable = sqliteTable(ORDERS_TABLE_NAME, {
         
     customerId: integer('customerId', { mode: 'number' })
         .references(() => customersTable.customerId)
-    ,
-
-    cashierId: integer('cashierId', { mode: 'number' })
-        .notNull()
     ,
 
     transactionId: integer('transactionId', { mode: 'number' })

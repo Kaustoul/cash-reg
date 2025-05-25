@@ -16,6 +16,16 @@ import { sqliteCustomers } from './sqlite-customers-data-handler';
 import Decimal from 'decimal.js';
 import { customerPaymentsTable } from '../schema/customer-payment-model';
 
+function matchDateString(column: Column, date: Date): SQL {
+    const targetYear = date.getFullYear();
+    const targetMonth = date.getMonth() + 1;  // Months are zero-based in JavaScript, not in SQL
+    const targetDay = date.getDate();
+
+    return sql`strftime('%Y', ${column}, 'unixepoch') = ${String(targetYear)}
+        AND strftime('%m', ${column}, 'unixepoch') = ${String(targetMonth).padStart(2, '0')}
+        AND strftime('%d', ${column}, 'unixepoch') = ${String(targetDay).padStart(2, '0')}`
+}
+
 export const sqliteOrders = {
     async fetchOrder(
         db: BetterSQLite3Database | SQLiteTx, 
@@ -194,15 +204,18 @@ export const sqliteOrders = {
             .where(eq(ordersTable.orderId, orderId))
             .execute();
     },
+
+    async fetchOrderByTransactionId(
+        db: BetterSQLite3Database | SQLiteTx,
+        transactionId: number
+    ): Promise<IOrder | null> {
+        const res = await db
+            .select()
+            .from(ordersTable)
+            .where(eq(ordersTable.transactionId, transactionId))
+            .limit(1)
+            .execute();
+
+        return res.length > 0 ? res[0] : null;
+    },
 } satisfies OrdersDataHandler;
-
-
-function matchDateString(column: Column, date: Date): SQL {
-    const targetYear = date.getFullYear();
-    const targetMonth = date.getMonth() + 1;  // Months are zero-based in JavaScript, not in SQL
-    const targetDay = date.getDate();
-
-    return sql`strftime('%Y', ${column}, 'unixepoch') = ${String(targetYear)}
-        AND strftime('%m', ${column}, 'unixepoch') = ${String(targetMonth).padStart(2, '0')}
-        AND strftime('%d', ${column}, 'unixepoch') = ${String(targetDay).padStart(2, '0')}`
-}

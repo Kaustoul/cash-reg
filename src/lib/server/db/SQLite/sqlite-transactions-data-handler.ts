@@ -15,14 +15,6 @@ export const sqliteTransactions = {
         return res.length > 0 ? res[0] : null;
     },
 
-    async fetchTransactionsForTill(db: BetterSQLite3Database | SQLiteTx, tillId: number): Promise<ITransaction[]> {
-        return await db
-            .select()
-            .from(transactionsTable)
-            .where(eq(transactionsTable.tillId, tillId))
-            .execute();
-    },
-
     async newTransaction(db: BetterSQLite3Database | SQLiteTx, transaction: Omit<ITransaction, "transactionId" | "createdAt">): Promise<number> {
         const res = await db
             .insert(transactionsTable)
@@ -30,5 +22,13 @@ export const sqliteTransactions = {
             .returning({ transactionId: transactionsTable.transactionId })
             .execute();
         return res[0].transactionId;
+    },
+
+    async fetchTillTransactions(db: BetterSQLite3Database | SQLiteTx, tillId: number): Promise<ITransaction[]> {
+        return await db
+            .select()
+            .from(transactionsTable)
+            .where(eq(transactionsTable.tillId, tillId))
+            .execute();
     }
 };

@@ -2,13 +2,16 @@
     import type { PageData } from './$types';
     import ViewTitle from '$lib/ViewTitle.svelte';
     import { DatePicker } from '@svelte-plugins/datepicker';
-    import { format } from 'date-fns';
+    import { format, parse } from 'date-fns';
     import { applyAction, deserialize } from '$app/forms';
     import type { ActionResult } from '@sveltejs/kit';
     import OrderItem from '$lib/componenets/OrderItem.svelte';
+    import { onMount } from 'svelte';
+    import { page } from '$app/stores';
+    import { goto } from '$app/navigation';
 
     export let data: PageData;
-    let startDate = new Date();
+    let startDate: Date;
     let dateFormat = 'd.M.yyyy';
     let isDatePickerOpen = false;
 
@@ -20,15 +23,21 @@
         return date && format(new Date(date), dateFormat) || '';
     };
 
-    let formattedStartDate = formatDate(startDate);
+    let formattedStartDate: string;
 
     const onChange = async () => {
+        // Format the date as 'd.M.yyyy'
+        const formatted = format(startDate, 'd.M.yyyy');
+        // Update the URL to only have the date param
+        goto(`?date=${encodeURIComponent(formatted)}`, { replaceState: true, keepfocus: true, noscroll: true });
+
+        // Fetch orders for the new date
         const formData = new FormData();
-        formData.set('date', startDate.toString());
+        formData.set('date', formatted);
         const res = await fetch('?/fetchOrders', {
             method: 'POST',
             body: formData
-        })
+        });
 
         const result: ActionResult = deserialize(await res.text());
         if (result.type !== 'success' || !result.data || !result.data.orders) {
@@ -40,9 +49,30 @@
     };
 
     $: formattedStartDate = formatDate(startDate);
+
+    let selectedOrderId: number | null = null;
+    let initialDate: string | null = null;
+    let showBackArrow = false;
+
+    $: orderIdParam = $page.url.searchParams.get('orderId');
+    $: dateParam = $page.url.searchParams.get('date');
+    $: backArrowParam = $page.url.searchParams.get('backArrow');
+
+    onMount(() => {
+        if (orderIdParam) {
+            selectedOrderId = Number(orderIdParam);
+        }
+        if (dateParam) {
+            startDate = parse(dateParam, 'd.M.yyyy H:mm', new Date());
+        } else {
+            startDate = new Date();
+        }
+        formattedStartDate = formatDate(startDate)
+        showBackArrow = backArrowParam === "1";
+    });
 </script>
 
-<ViewTitle title="Prodeje" />
+<ViewTitle title="Prodeje" showBackArrow={showBackArrow} />
 <div class="controls">
     <DatePicker bind:isOpen={isDatePickerOpen} bind:startDate onDayClick={onChange} align={"right"}>
         <label for="date">Datum:
@@ -72,7 +102,7 @@
     </div>
     {#if orders && orders.length > 0}
         {#each orders as order}
-            <OrderItem {order} />
+            <OrderItem {order} isOpen={order.orderId === selectedOrderId} orderIdParam={Number(orderIdParam)}/>
         {/each}
     {:else}
         <p>Žádné objednávky pro tento den.</p>

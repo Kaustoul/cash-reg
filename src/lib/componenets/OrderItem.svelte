@@ -13,7 +13,8 @@
     import { formatPrice, formatDate, formatDecimal } from "$lib/shared/utils";
 
     export let order: IOrder;
-    let isOpen: boolean = false;
+    export let isOpen: boolean = false;
+    export let orderIdParam: number = -1;
     console.log(order);
 
     // function formatTime(date: Date): string {
@@ -21,9 +22,21 @@
     //     const minutes = date.getMinutes().toString().padStart(2, '0'); 
     //     return `${hours}:${minutes}`;
     // }
+
+    function scrollIntoView(node, shouldScroll) {
+        if (shouldScroll) {
+            setTimeout(() => {
+                node.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center',
+                    inline: 'nearest'
+                });
+            }, 100); // Delay to ensure the DOM is updated
+        }
+    }
 </script>
 
-<div class="order">
+<div class="order {"order-" + order.orderId}" use:scrollIntoView={order.orderId === orderIdParam}>
     <div class={`${isOpen ? 'open ' : ''}order-header`}>
         <span class="orderId">{order.orderId}</span>
         <span class="tillId">{order.tillId}/{order.cashierId}</span>

@@ -238,6 +238,10 @@ export class SQLiteDB implements DB {
         return await this._orders.markOrderAsPaid(this.db, orderId, transactionId);
     }
 
+    async fetchOrderByTransactionId(transactionId: number) {
+        return await this._orders.fetchOrderByTransactionId(this.db, transactionId);
+    }
+
     //---------------\\
     // -- CUSTOMERS -\\
     //---------------\\
@@ -285,5 +289,13 @@ export class SQLiteDB implements DB {
         await this.db.transaction(async (tx) => {
             await this._customerPayments.processCustomerDeposit(tx, customerId, amount, paymentType);
         });
+    }
+
+    //--------------------\\
+    // -- TRANSACTIONS -- \\
+    //--------------------\\
+    
+    async fetchTillTransactions(tillId: number) {
+        return await this._transactions.fetchTillTransactions(this.db, tillId);
     }
 }

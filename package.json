@@ -65,6 +65,7 @@
 	"dependencies": {
 		"@palsch/svelte-sortablejs": "^1.2.1",
 		"@svelte-plugins/datepicker": "^1.0.9",
+		"bcryptjs": "^3.0.2",
 		"better-sqlite3": "^11.1.2",
 		"decimal.js": "^10.4.3",
 		"drizzle-orm": "^0.30.10",

@@ -41,6 +41,7 @@ import type { UserDataHandler } from '../users-data-handler';
 import type { INewGroup, INewUser } from '$lib/shared/interfaces/user';
 import { sqliteGroups } from './sqlite-groups-data-handler';
 import type { GroupsDataHandler } from '../groups-data-handler';
+import { setupDefaultAdminUser, setupDefaultGroups, setupDefaultPermissions } from './sqlite-prepopulate';
 
 export class SQLiteDB implements DB {
     readonly db: BetterSQLite3Database;
@@ -57,6 +58,13 @@ export class SQLiteDB implements DB {
     readonly _users: UserDataHandler;
     readonly _groups: GroupsDataHandler;
 
+    static async create(dbFilePath: string): Promise<SQLiteDB> {
+        console.log(`Creating SQLiteDB instance with file: ${dbFilePath}`);
+        const instance = new SQLiteDB(dbFilePath);
+        await instance.init(instance.db);
+        console.log('SQLiteDB instance created and initialized');
+        return instance;
+    }
 
     constructor(dbFilePath: string) {
         const sqlite = new Database(dbFilePath);
@@ -80,6 +88,16 @@ export class SQLiteDB implements DB {
     defaultSchema(): void {
         console.log('Creating default schema');
         // migrate(this.db, { migrationsFolder: getMigrationsPath() });
+    }
+
+    async init(db: BetterSQLite3Database): Promise<void> {
+        // Ensure the database is ready
+        // await migrate(this.db, { migrationsFolder: getMigrationsPath() });
+
+        // Setup default groups, users, and permissions
+        await setupDefaultGroups(db);
+        await setupDefaultPermissions(db);
+        await setupDefaultAdminUser(db);
     }
 
     //---------------\\
@@ -332,6 +350,10 @@ export class SQLiteDB implements DB {
 
     async updateUserPassword(userId: number, passwordHash: string) {
         return await this._users.updateUserPassword(this.db, userId, passwordHash);
+    }
+
+    async fetchAllUsers() {
+        return await this._users.fetchAllUsers(this.db);
     }
 
     //--------------\\

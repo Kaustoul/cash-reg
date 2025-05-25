@@ -24,6 +24,13 @@ export const sqliteUsers = {
         return res.length ? res[0] : null;
     },
 
+    async fetchAllUsers(db: BetterSQLite3Database | SQLiteTx): Promise<IUser[]> {
+        return await db
+            .select()
+            .from(usersTable)
+            .execute();
+    },
+
     async updateUserGroup(db: BetterSQLite3Database | SQLiteTx, userId: number, groupId: number): Promise<void> {
         await db
             .update(usersTable)

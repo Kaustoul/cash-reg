@@ -6,7 +6,7 @@
     import CustomersIcon from 'svelte-material-icons/AccountGroup.svelte';
     import MoneyIcon from 'svelte-material-icons/CashMultiple.svelte';
     import ReceiptIcon from 'svelte-material-icons/ReceiptText.svelte';
-    import WorkerIcon from 'svelte-material-icons/Account.svelte';
+    import WorkerIcon from 'svelte-material-icons/AccountTie.svelte';
 
     let viewTitle: string = "";
     
@@ -33,6 +33,11 @@
         "Zákazníci": {
             icon: CustomersIcon,
             url: "/customers",
+        },
+
+        "Zaměstnanci": {
+            icon: WorkerIcon,
+            url: "/workers"
         }
     }
 </script>

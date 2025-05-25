@@ -1,14 +1,28 @@
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import type { SQLiteTx } from "../db";
 import { transactionsTable } from "../schema/money-transfer-model";
+import { tillSessionsTable } from "../schema/till-session-model";
 import type { ITransaction } from "$lib/shared/interfaces/transaction";
 import { eq } from "drizzle-orm";
 
 export const sqliteTransactions = {
     async fetchTransaction(db: BetterSQLite3Database | SQLiteTx, transactionId: number): Promise<ITransaction | null> {
         const res = await db
-            .select()
+            .select({
+                transactionId: transactionsTable.transactionId,
+                tillId: tillSessionsTable.tillId,
+                cashierId: tillSessionsTable.cashierId,
+                amount: transactionsTable.amount,
+                type: transactionsTable.type,
+                reason: transactionsTable.reason,
+                note: transactionsTable.note,
+                createdAt: transactionsTable.createdAt,
+            })
             .from(transactionsTable)
+            .innerJoin(
+                tillSessionsTable,
+                eq(transactionsTable.tillSessionId, tillSessionsTable.tillSessionId)
+            )
             .where(eq(transactionsTable.transactionId, transactionId))
             .limit(1)
             .execute();
@@ -26,9 +40,22 @@ export const sqliteTransactions = {
 
     async fetchTillTransactions(db: BetterSQLite3Database | SQLiteTx, tillId: number): Promise<ITransaction[]> {
         return await db
-            .select()
+            .select({
+                transactionId: transactionsTable.transactionId,
+                tillId: tillSessionsTable.tillId,
+                cashierId: tillSessionsTable.cashierId,
+                amount: transactionsTable.amount,
+                type: transactionsTable.type,
+                reason: transactionsTable.reason,
+                note: transactionsTable.note,
+                createdAt: transactionsTable.createdAt,
+            })
             .from(transactionsTable)
-            .where(eq(transactionsTable.tillId, tillId))
+            .innerJoin(
+                tillSessionsTable,
+                eq(transactionsTable.tillSessionId, tillSessionsTable.tillSessionId)
+            )
+            .where(eq(tillSessionsTable.tillId, tillId))
             .execute();
     }
 };

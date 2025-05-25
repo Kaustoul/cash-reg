@@ -43,6 +43,7 @@ export interface DB {
     readonly _groups: GroupsDataHandler;
 
     defaultSchema(): void;
+    init(db: Databases): Promise<void>;
 
     markOrderAsPaid(orderId: number, transactionId: number): Promise<void>;
 }
@@ -58,6 +59,7 @@ export function getMigrationsPath() {
 }
 
 export const database = new SQLiteDB('.db');
+// export const database = await SQLiteDB.create('.db');
 export const db = database.db;
 
 

@@ -52,6 +52,11 @@ export function formatDecimal(value: Decimal | DecimalStr, alwaysDecimal: boolea
     if (!(value instanceof Decimal)) {
         value = new Decimal(value);
     }
+
+    let isNegative = value.isNegative();
+    if (isNegative) {
+        value = value.abs();
+    }
     
     if (value.isNaN()) {
         return 'NaN';
@@ -67,10 +72,10 @@ export function formatDecimal(value: Decimal | DecimalStr, alwaysDecimal: boolea
     integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
     if (alwaysDecimal) {
-        return decimalPart ? `${integerPart}.${decimalPart}` : `${integerPart}.00`;
+        return decimalPart ? `${isNegative ? "- " : ""}${integerPart}.${decimalPart}` : `${isNegative ? "- " : ""}${integerPart}.00`;
     }
 
-    return decimalPart && decimalPart !== '00' ? `${integerPart}.${decimalPart}` : `${integerPart}`;
+    return decimalPart && decimalPart !== '00' ? `${isNegative ? "- " : ""}${integerPart}.${decimalPart}` : `${isNegative ? "- " : ""}${integerPart}`;
 }
 
 export function formatPrice(price: IPrice, includeCurrency: boolean = false): string {

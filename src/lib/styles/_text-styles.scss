@@ -10,6 +10,16 @@
     color: vars.$text2-color;
 }
 
+@mixin link-text {
+    color: vars.$second-accent-color;
+    text-decoration: underline;
+    cursor: pointer;
+    &:hover {
+        color: vars.$accent-color;
+        text-decoration: underline;
+    }
+}
+
 @mixin mono-font {
     font-family: 'Roboto Mono', monospace;
 }

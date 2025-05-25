@@ -25,6 +25,8 @@
     }} = {}; 
     export let selected: (string | number)[] = [];
     export let customSearchKeys: string[] | null = null;
+    export let selectors: boolean = true;
+    export let customRenderer: { [fieldName: string]: (row: any, column: any) => any } = {};
     let search = '';
 
     let filteredData = data;
@@ -82,17 +84,17 @@
         </button>
     {/each}
 </div>
-<div class="list">
-    <SortedList data={filteredData} {schema} {clickableRows} {onRowClick} {idFieldName} bind:selected/>
+<div class="list-container">
+    <SortedList data={filteredData} {schema} {clickableRows} {onRowClick} {idFieldName} bind:selected {selectors} {customRenderer}/>
 </div>
 <style lang="scss">
     @use '$lib/styles/vars' as vars;
     @use '$lib/styles/buttons' as buttons;
     @use '$lib/styles/inputs' as inputs;
 
-    .list {
-        margin-bottom: 3.5rem;
+    .list-container {
         height: 100%;
+        margin-top: 0.1rem;
 
         @include inputs.scrollable;
     }

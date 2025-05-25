@@ -5,7 +5,7 @@
 
     export type Schema = {
         fieldName: string,
-        type: "string" | "number" | "unsortable" | "selector" | "json",
+        type: "string" | "number" | "unsortable" | "selector" | "json" | "link" | "sum" | "decimal",
         columnHeader: string,
         jsonToString?: (obj: any) => string,
         customData?: any,
@@ -13,13 +13,17 @@
         props?: {
             [key: string]: any
         }
+        url?: string,
+        urlParams?: string[],
+        class?: (row: any, column: any) => string
 
     }[];
 </script>
 
 <script lang="ts">
     import MultiSelector from './MultiSelector.svelte';
-    import { ensureArray } from '$lib/shared/utils';
+    import { ensureArray, formatDecimal } from '$lib/shared/utils';
+    import { formatSum } from '$lib/shared/utils/money-sum-utils';
 
     export let data: DataRows;
     export let schema: Schema;
@@ -28,6 +32,8 @@
     export let idFieldName: string = "idx";
     export let selected: (string | number)[] = [];
     export let defaultJsonToString: (obj: any) => string = (obj) => JSON.stringify(obj);
+    export let selectors: boolean = true;
+    export let customRenderer: { [fieldName: string]: (row: any, column: any) => any } = {};
 
     function toggleProductSelection(idx: number, id?: string | number) {
         const selection = idFieldName === "idx" ? idx : id!;
@@ -48,12 +54,28 @@
 
         return selected.includes(id!);
     }
+
+    function parseUrlWithParams(url: string | undefined, urlParams: string[] | undefined, row: any): string {
+        console.log("Parsing URL with params:", url, urlParams, row);
+        if (!row || !url) return '#';
+        if (!urlParams) return row.url;
+        let result = url;
+        if (urlParams && Array.isArray(urlParams)) {
+            for (const param of urlParams) {
+                console.log("Replacing param:", param, "with value:", row[param]);
+                result = result.replace("${" + param + "}", encodeURIComponent(row[param]));
+            }
+        }
+        return result;
+    }
 </script>
 
 <table>
     <thead>
         <tr>
-            <th></th>
+            {#if selectors}
+                <th></th>
+            {/if}
             {#each schema as column}
                 <th class="text">
                     <span>{column.columnHeader}</span>
@@ -64,36 +86,65 @@
     <tbody>
         {#each data as row, idx}
             <tr class={clickableRows ? "clickable" : ""}>
-                <td class="selector">
-                    <div class="selectorContainer">   
-                        <input 
-                            type="checkbox" 
-                            checked={isSelected(idx, row[idFieldName])}
-                            on:change={() => toggleProductSelection(idx, row[idFieldName])}
-                        />
-                    </div>
-                </td>
+                {#if selectors}
+                    <td class="selector">
+                        <div class="selectorContainer">   
+                            <input 
+                                type="checkbox" 
+                                checked={isSelected(idx, row[idFieldName])}
+                                on:change={() => toggleProductSelection(idx, row[idFieldName])}
+                            />
+                        </div>
+                    </td>
+                {/if}
                 {#each schema as column}
                     <td class="text" on:click={() => {onRowClick(Number(row[idFieldName]));} }>
-                        {#if column.customData}
-                            <span>{row[column.fieldName].customData}</span>
-                        {:else}
-                            {#if column.type === 'selector'}
-                                <MultiSelector 
-                                items={ensureArray(row[column.fieldName])} 
-                                maxItems={column.props ? column.props.maxSelectorItems : undefined}
-                                onAddPressed={column.props ? column.props.selectorOnAdd : () => {}}
-                                deleteEndpoint={column.props ? column.props.deleteEndpoint: undefined}
-                                props={{
-                                    id: column.props && column.props.selectorIdField 
-                                    ? row[column.props.selectorIdField] 
-                                    : Number(row[idFieldName])
-                                }}
-                                    />
-                            {:else if column.type === 'json'}
-                                <span>{column.jsonToString === undefined ? defaultJsonToString(row[column.fieldName]) : column.jsonToString(row[column.fieldName])}</span>
+                        {#if customRenderer && customRenderer[column.fieldName]}
+                            {#if customRenderer[column.fieldName](row, column).component}
+                                <svelte:component this={customRenderer[column.fieldName](row, column).component} {...customRenderer[column.fieldName](row, column).props} />
+                            {:else if customRenderer[column.fieldName](row, column).text}
+                                {customRenderer[column.fieldName](row, column).text}
                             {:else}
-                                <span>{row[column.fieldName]}</span>
+                                {@html customRenderer[column.fieldName](row, column)}
+                            {/if}
+                        {:else}
+                            {#if column.customData}
+                                <span>{row[column.fieldName].customData}</span>
+                            {:else}
+                                {#if column.type === 'selector'}
+                                    <MultiSelector 
+                                        items={ensureArray(row[column.fieldName])} 
+                                        maxItems={column.props ? column.props.maxSelectorItems : undefined}
+                                        onAddPressed={column.props ? column.props.selectorOnAdd : () => {}}
+                                        deleteEndpoint={column.props ? column.props.deleteEndpoint: undefined}
+                                        props={{
+                                            id: column.props && column.props.selectorIdField 
+                                            ? row[column.props.selectorIdField] 
+                                            : Number(row[idFieldName])
+                                        }}
+                                    />
+                                {:else if column.type === 'json'}
+                                    <span>{column.jsonToString === undefined ? defaultJsonToString(row[column.fieldName]) : column.jsonToString(row[column.fieldName])}</span>
+                                {:else if column.type === 'sum'}
+                                        <span class="mono {column.class ? column.class(row, column) : ""}">{formatSum(row[column.fieldName])}</span>
+                                {:else if column.type === 'decimal'}
+                                        <span class="mono {column.class ? column.class(row, column) : ""}">{formatDecimal(row[column.fieldName])}</span>
+                                {:else if column.type === 'number'}
+                                        <span class="mono {column.class ? column.class(row, column) : ""}">{row[column.fieldName]}</span>
+                                {:else if column.type === 'link'}
+                                    {#if row[column.fieldName] && column.url} 
+                                        <a
+                                            href={parseUrlWithParams(column.url, column.urlParams, row)}
+                                            rel="noopener noreferrer"
+                                        >
+                                            {row[column.fieldName]}
+                                        </a>
+                                    {:else}
+                                        <span class="second-accent">—</span>
+                                    {/if}
+                                {:else}
+                                    <span>{row[column.fieldName]}</span>
+                                {/if}
                             {/if}
                         {/if}
                     </td>
@@ -107,6 +158,7 @@
     @use 'sass:math';
     @use '$lib/styles/vars' as vars;
     @use '$lib/styles/buttons' as buttons;
+    @use '$lib/styles/text-styles' as textStyles;
 
     table {
         width: 100%;
@@ -194,5 +246,21 @@
         justify-content: center;
         align-items: center;
         height: 100%;
+    }
+
+    .second-accent {
+        color: vars.$second-accent-color;
+    }
+
+    .mono {
+        @include textStyles.mono-font;
+    }
+
+    .green {
+        color: vars.$green;
+    }
+    
+    .red {
+        color: vars.$red;
     }
 </style>

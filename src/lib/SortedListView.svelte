@@ -27,6 +27,8 @@
     export let customSearchKeys: string[] | null = null;
     export let selectors: boolean = true;
     export let customRenderer: { [fieldName: string]: (row: any, column: any) => any } = {};
+    export let emptyMessage: string = "Žádná data k zobrazení";
+
     let search = '';
 
     let filteredData = data;
@@ -85,7 +87,7 @@
     {/each}
 </div>
 <div class="list-container">
-    <SortedList data={filteredData} {schema} {clickableRows} {onRowClick} {idFieldName} bind:selected {selectors} {customRenderer}/>
+    <SortedList data={filteredData} {schema} {clickableRows} {onRowClick} {idFieldName} bind:selected {selectors} {customRenderer} {emptyMessage}/>
 </div>
 <style lang="scss">
     @use '$lib/styles/vars' as vars;

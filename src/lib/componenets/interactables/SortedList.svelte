@@ -34,6 +34,7 @@
     export let defaultJsonToString: (obj: any) => string = (obj) => JSON.stringify(obj);
     export let selectors: boolean = true;
     export let customRenderer: { [fieldName: string]: (row: any, column: any) => any } = {};
+    export let emptyMessage: string = "Žádná data k zobrazení";
 
     function toggleProductSelection(idx: number, id?: string | number) {
         const selection = idFieldName === "idx" ? idx : id!;
@@ -84,73 +85,81 @@
         </tr>
     </thead>
     <tbody>
-        {#each data as row, idx}
-            <tr class={clickableRows ? "clickable" : ""}>
-                {#if selectors}
-                    <td class="selector">
-                        <div class="selectorContainer">   
-                            <input 
-                                type="checkbox" 
-                                checked={isSelected(idx, row[idFieldName])}
-                                on:change={() => toggleProductSelection(idx, row[idFieldName])}
-                            />
-                        </div>
-                    </td>
-                {/if}
-                {#each schema as column}
-                    <td class="text" on:click={() => {onRowClick(Number(row[idFieldName]));} }>
-                        {#if customRenderer && customRenderer[column.fieldName]}
-                            {#if customRenderer[column.fieldName](row, column).component}
-                                <svelte:component this={customRenderer[column.fieldName](row, column).component} {...customRenderer[column.fieldName](row, column).props} />
-                            {:else if customRenderer[column.fieldName](row, column).text}
-                                {customRenderer[column.fieldName](row, column).text}
-                            {:else}
-                                {@html customRenderer[column.fieldName](row, column)}
-                            {/if}
-                        {:else}
-                            {#if column.customData}
-                                <span>{row[column.fieldName].customData}</span>
-                            {:else}
-                                {#if column.type === 'selector'}
-                                    <MultiSelector 
-                                        items={ensureArray(row[column.fieldName])} 
-                                        maxItems={column.props ? column.props.maxSelectorItems : undefined}
-                                        onAddPressed={column.props ? column.props.selectorOnAdd : () => {}}
-                                        deleteEndpoint={column.props ? column.props.deleteEndpoint: undefined}
-                                        props={{
-                                            id: column.props && column.props.selectorIdField 
-                                            ? row[column.props.selectorIdField] 
-                                            : Number(row[idFieldName])
-                                        }}
-                                    />
-                                {:else if column.type === 'json'}
-                                    <span>{column.jsonToString === undefined ? defaultJsonToString(row[column.fieldName]) : column.jsonToString(row[column.fieldName])}</span>
-                                {:else if column.type === 'sum'}
-                                        <span class="mono {column.class ? column.class(row, column) : ""}">{formatSum(row[column.fieldName])}</span>
-                                {:else if column.type === 'decimal'}
-                                        <span class="mono {column.class ? column.class(row, column) : ""}">{formatDecimal(row[column.fieldName])}</span>
-                                {:else if column.type === 'number'}
-                                        <span class="mono {column.class ? column.class(row, column) : ""}">{row[column.fieldName]}</span>
-                                {:else if column.type === 'link'}
-                                    {#if row[column.fieldName] && column.url} 
-                                        <a
-                                            href={parseUrlWithParams(column.url, column.urlParams, row)}
-                                            rel="noopener noreferrer"
-                                        >
-                                            {row[column.fieldName]}
-                                        </a>
-                                    {:else}
-                                        <span class="second-accent">—</span>
-                                    {/if}
+        {#if !data || data.length === 0}
+            <tr>
+                <td colspan={selectors ? schema.length + 1 : schema.length} class="text">
+                    <div class="empty">{emptyMessage}</div>
+                </td>
+            </tr>
+        {:else}
+            {#each data as row, idx}
+                <tr class={clickableRows ? "clickable" : ""}>
+                    {#if selectors}
+                        <td class="selector">
+                            <div class="selectorContainer">   
+                                <input 
+                                    type="checkbox" 
+                                    checked={isSelected(idx, row[idFieldName])}
+                                    on:change={() => toggleProductSelection(idx, row[idFieldName])}
+                                />
+                            </div>
+                        </td>
+                    {/if}
+                    {#each schema as column}
+                        <td class="text" on:click={() => {onRowClick(Number(row[idFieldName]));} }>
+                            {#if customRenderer && customRenderer[column.fieldName]}
+                                {#if customRenderer[column.fieldName](row, column).component}
+                                    <svelte:component this={customRenderer[column.fieldName](row, column).component} {...customRenderer[column.fieldName](row, column).props} />
+                                {:else if customRenderer[column.fieldName](row, column).text}
+                                    {customRenderer[column.fieldName](row, column).text}
                                 {:else}
-                                    <span>{row[column.fieldName]}</span>
+                                    {@html customRenderer[column.fieldName](row, column)}
+                                {/if}
+                            {:else}
+                                {#if column.customData}
+                                    <span>{row[column.fieldName].customData}</span>
+                                {:else}
+                                    {#if column.type === 'selector'}
+                                        <MultiSelector 
+                                            items={ensureArray(row[column.fieldName])} 
+                                            maxItems={column.props ? column.props.maxSelectorItems : undefined}
+                                            onAddPressed={column.props ? column.props.selectorOnAdd : () => {}}
+                                            deleteEndpoint={column.props ? column.props.deleteEndpoint: undefined}
+                                            props={{
+                                                id: column.props && column.props.selectorIdField 
+                                                ? row[column.props.selectorIdField] 
+                                                : Number(row[idFieldName])
+                                            }}
+                                        />
+                                    {:else if column.type === 'json'}
+                                        <span>{column.jsonToString === undefined ? defaultJsonToString(row[column.fieldName]) : column.jsonToString(row[column.fieldName])}</span>
+                                    {:else if column.type === 'sum'}
+                                            <span class="mono {column.class ? column.class(row, column) : ""}">{formatSum(row[column.fieldName])}</span>
+                                    {:else if column.type === 'decimal'}
+                                            <span class="mono {column.class ? column.class(row, column) : ""}">{formatDecimal(row[column.fieldName])}</span>
+                                    {:else if column.type === 'number'}
+                                            <span class="mono {column.class ? column.class(row, column) : ""}">{row[column.fieldName]}</span>
+                                    {:else if column.type === 'link'}
+                                        {#if row[column.fieldName] && column.url} 
+                                            <a
+                                                href={parseUrlWithParams(column.url, column.urlParams, row)}
+                                                rel="noopener noreferrer"
+                                            >
+                                                {row[column.fieldName]}
+                                            </a>
+                                        {:else}
+                                            <span class="second-accent">—</span>
+                                        {/if}
+                                    {:else}
+                                        <span>{row[column.fieldName]}</span>
+                                    {/if}
                                 {/if}
                             {/if}
-                        {/if}
-                    </td>
-                {/each}
-            </tr>
-        {/each}
+                        </td>
+                    {/each}
+                </tr>
+            {/each}
+        {/if}
     </tbody>
 </table>
 
@@ -262,5 +271,13 @@
     
     .red {
         color: vars.$red;
+    }
+
+    .empty {
+        margin: 2rem 0;
+        font-size: vars.$large;
+        color: vars.$text2-color;
+        text-align: center;
+
     }
 </style>

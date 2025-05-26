@@ -84,21 +84,11 @@
     {schema}
     selectors={false}
     customRenderer={customRenderer}
+    emptyMessage="Žádné transakce k zobrazení"
 />
-
-{#if data.transactions.length === 0}
-    <p>Žádné transakce pro tuto pokladnu.</p>
-{/if}
 
 <style lang="scss">
     @use '$lib/styles/vars' as vars;
     @use '$lib/styles/buttons' as buttons;
     @use '$lib/styles/inputs' as inputs;
-
-    p {
-        margin: 2rem 0;
-        font-size: vars.$large;
-        color: vars.$text2-color;
-        text-align: center;
-    }
 </style>

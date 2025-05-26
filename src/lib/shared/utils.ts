@@ -87,27 +87,3 @@ export function formatPrice(price: IPrice, includeCurrency: boolean = false): st
 
     return res;
 }
-
-export function formatDate(date: Date | number, includeDate: boolean = true, includeTime: boolean = true): string {
-    // Accepts Date or timestamp
-    if (!includeDate && !includeTime) {
-        return '';
-    }
-
-    const d = typeof date === "number" ? new Date(date * 1000) : new Date(date);
-    const day = d.getDate(); // no pad
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    const hours = d.getHours(); // no pad
-    const minutes = String(d.getMinutes()).padStart(2, '0');
-
-    if (!includeDate && includeTime) {
-        return `${hours}:${minutes}`;
-    }
-    
-    if (includeDate && !includeTime) {
-        return `${day}.${month}.${year}`;
-    }
-
-    return `${day}.${month}.${year} ${hours}:${minutes}`;
-}

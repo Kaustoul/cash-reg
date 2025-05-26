@@ -12,6 +12,7 @@
     import { goto } from '$app/navigation';
     import { userStore } from '$lib/shared/stores/sessionStore';
     import { hasPermission } from '$lib/shared/utils/permission-utils';
+    import ShiftIcon from 'svelte-material-icons/Briefcase.svelte';
     
     export let till: IFrontEndTill;
     export let onDeposit: (tillId: number, amount: number) => void;
@@ -97,6 +98,10 @@
             <button type="button" class="btn" on:click={() => goto(`/tills/${till.id}/transactions`)}>
                 <ListIcon size="1.5rem" />
                 Transakce
+            </button>
+            <button type="button" class="btn {hasPermission(user, "tabs.tills.admin") ? "" : "hidden"}" on:click={() => goto(`/tills/${till.id}/sessions`)}>
+                <ShiftIcon size="1.5rem" />
+                Směny    
             </button>
             <button type="button" class="btn {action !== "close" ? "hidden" : ""}" on:click={() => goto(`/tills/${till.id}/audit`)}>
                 <EyeIcon size="1.5rem" />
@@ -193,11 +198,17 @@
 
     .till-card-actions {
         display: flex;
+        flex-wrap: wrap;
         gap: 1.2rem;
-        flex: 0 0 50%;
         width: 100%;
-        max-height: fit-content;
-        justify-content: space-between;
+        max-width: 100%;
+        justify-content: center;
+    }
+
+    .till-card-actions > * {
+        flex: 0 0 31.7%; // 48% to account for gap
+        max-width: 48%;
+        box-sizing: border-box;
     }
 
     .btn {
@@ -222,10 +233,12 @@
     .till-card-deposit {
         background: vars.$content-bg-color;
         border-radius: vars.$medium-radius;
+        height: calc(100% - 3rem);
         padding: 1.5rem 2rem;
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: space-around;
         gap: .7rem;
         flex: 0 0 25%;
     }

@@ -6,11 +6,11 @@
     import AccountIcon from 'svelte-material-icons/Account.svelte';
     import CashIcon from 'svelte-material-icons/Cash.svelte';       
     import QrcodeIcon from 'svelte-material-icons/Qrcode.svelte';    
-    import ReceiptIcon from 'svelte-material-icons/Receipt.svelte';   
     import CreditCardIcon from 'svelte-material-icons/CreditCard.svelte';
     import type { IOrder } from '$lib/shared/interfaces/order';
     import { formatSum } from '$lib/shared/utils/money-sum-utils';
-    import { formatPrice, formatDate, formatDecimal } from "$lib/shared/utils";
+    import { formatPrice, formatDecimal } from "$lib/shared/utils";
+    import { formatDate } from "$lib/shared/utils/date-utils";
 
     export let order: IOrder;
     export let isOpen: boolean = false;
@@ -64,10 +64,10 @@
         </span>
         <div class="time">
             <span class="date-date">
-                {formatDate(order.createdAt, true, false)}
+                {formatDate(order.createdAt, {date: true})}
             </span>
             <span class="date-time">
-                {formatDate(order.createdAt, false)}
+                {formatDate(order.createdAt, {time: true})}
             </span>
         </div>
         <span class="note">

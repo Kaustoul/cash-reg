@@ -18,12 +18,6 @@ export const tillsTable = sqliteTable('tills', {
     note: text('note', { length: 256 })
     ,
 
-    status: text('status', { length: 16 })
-        .notNull()
-        .default('closed')
-        .$type<TillStatus>()
-    ,
-    
     createdAt: integer('createdAt', { mode: 'timestamp' })
         .notNull()
         .default(sql`(unixepoch())`)

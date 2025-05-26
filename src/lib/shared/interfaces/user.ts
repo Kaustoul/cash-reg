@@ -8,6 +8,17 @@ export interface IUser {
     createdAt: Date;
 }
 
+export interface IFrontEndUser {
+    userId: number;
+    name: string;
+    surname: string;
+    groupId: number;
+    permissions: string[];
+    isAdmin: boolean;
+}
+
+// export type FrontEndUser = Omit<IUser, 'passwordHash' | 'pinHash'>;
+
 export type INewUser = Omit<IUser, 'userId' | 'createdAt'>
 
 export interface IGroup {

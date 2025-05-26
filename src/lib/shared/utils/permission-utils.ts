@@ -1,3 +1,4 @@
+import type { IFrontEndUser } from "../interfaces/user";
 import type { PermissionLeaf, PermissionTree } from "../permissions";
 
 // Recursively flatten the permissions tree to dot-separated keys
@@ -18,4 +19,12 @@ export function flattenPermissions(tree: PermissionTree, prefix = ''): Record<st
 // Parse a flattened key back to an array of its parts
 export function parsePermissionKey(key: string): string[] {
     return key.split('.');
+}
+
+export function hasPermission(user: IFrontEndUser | null | undefined, key: string) {
+    if (!user) {
+        return false;
+    }
+
+    return user.isAdmin || user.permissions.includes(key);
 }

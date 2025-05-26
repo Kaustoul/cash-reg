@@ -4,23 +4,24 @@
     import CheckIcon  from 'svelte-material-icons/CheckCircleOutline.svelte';
     import PauseIcon  from 'svelte-material-icons/PauseCircleOutline.svelte';
     import WorkingIcon  from 'svelte-material-icons/AccountSupervisorCircleOutline.svelte';
-    import type { TillStatus } from '$lib/shared/interfaces/till';
+    import type { TillSessionType } from '$lib/shared/interfaces/till-session';
 
-    export let status: TillStatus;
+    export let state: TillSessionType;
+    export let cashierId: number | null;
 
     let colorClass: string = '';
 
-    switch (status) {
-        case 'closed':
+    switch (state) {
+        case 'CLOSED':
             colorClass = 'red';
             break;
-        case 'open':
+        case 'OPEN':
             colorClass = 'green';
             break;
-        case 'active':
+        case 'INACTIVE':
             colorClass = 'accent';
             break;
-        case 'paused':
+        case 'PAUSED':
             colorClass = 'yellow';
             break;
     }
@@ -30,31 +31,33 @@
     <div class="status-icon">
         <CashRegisterIcon size="6rem" />
         <div class="status-subicon">
-            {#if status === 'closed'}
+            {#if state === 'CLOSED'}
                 <CloseIcon size="3rem" />
-            {:else if status === 'open'}
+            {:else if state === 'OPEN'}
                 <CheckIcon size="3rem" />
-            {:else if status === 'active'}
+            {:else if state === 'INACTIVE'}
                 <WorkingIcon size="3rem" />
-            {:else if status === 'paused'}
+            {:else if state === 'PAUSED'}
                 <PauseIcon size="3rem" />
             {/if}
         </div>
     </div>
     <div class="status-text-area">
-        {#if status === 'closed'}
-            <span class="status-text">Zavřená</span>
-        {:else if status === 'open'}
-            <span class="status-text">Otevřená</span>
-        {:else if status === 'active'}
-            <span class="status-text">Otevřená</span>
-        {:else if status === 'paused'}
-            <span class="status-text">Pauza</span>
+        {#if state === 'CLOSED'}
+            <span class="status-text {colorClass}">Zavřená</span>
+        {:else if state === 'OPEN'}
+            <span class="status-text {colorClass}">Otevřená</span>
+        {:else if state === 'INACTIVE'}
+            <span class="status-text {colorClass}">Otevřená</span>
+        {:else if state === 'PAUSED'}
+            <span class="status-text {colorClass}">Pauza</span>
         {/if}
 
-        <span class="cashier">
-            Pokladní 00
-        </span>
+        {#if cashierId}
+            <span class="cashier">
+                Pokladní {cashierId}
+            </span>
+        {/if}
     </div>
 </div>
 
@@ -113,18 +116,18 @@
     }
 
     .red {
-        background-color: vars.$red;
+        color: vars.$red;
     }
 
     .green {
-        background-color: vars.$green;
+        color: vars.$green;
     }
 
     .accent {
-        background-color: vars.$accent-color;
+        color: vars.$accent-color;
     }
 
     .yellow {
-        background-color: vars.$yellow;
+        color: vars.$yellow;
     }
 </style>

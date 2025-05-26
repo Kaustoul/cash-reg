@@ -5,7 +5,7 @@ import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import Database from 'better-sqlite3';
 import { sqliteTills } from './sqlite-tills-data-handler';
 import type { TillsDataHandler } from '../tills-data-handler';
-import type { TillStatus } from '$lib/shared/interfaces/till';
+import type { IFrontEndTill, TillStatus } from '$lib/shared/interfaces/till';
 import type { ProductsDataHandler } from '../products-data-handler';
 import type { ItemsDataHandler } from '../items-data-handler';
 import { sqliteItems } from './sqlite-items-data-handler';
@@ -176,8 +176,30 @@ export class SQLiteDB implements DB {
         return await this._tills.fetchTill(this.db, id);
     }
 
-    async fetchTills() {
-        return await this._tills.fetchTills(this.db);
+    async fetchTills(): Promise<IFrontEndTill[] | null> {
+        let tills = await this._tills.fetchTills(this.db);
+        let formattedTills: IFrontEndTill[] = [];
+
+        for (const till of tills) {
+            const tillSession = await this._tillSessions.fetchLastSessionTill(this.db, till.id);
+
+            if (!tillSession) {
+                formattedTills.push({
+                    ...till,
+                    cashierId: null,
+                    state: 'CLOSED',
+                });
+            } else {
+
+                formattedTills.push({
+                    ...till,
+                    cashierId: tillSession.type === "CLOSED" ? null : tillSession.cashierId,
+                    state: tillSession.type,
+                });
+            }
+        }
+
+        return formattedTills;
     }
 
     async newTill() {
@@ -227,6 +249,10 @@ export class SQLiteDB implements DB {
 
     async fetchLastOpenSessionForUser(userId: number) {
         return await this._tillSessions.fetchLastOpenSessionForUser(this.db, userId);
+    }
+
+    async fetchLastSessionTill(tillId: number) {
+        return await this._tillSessions.fetchLastSessionTill(this.db, tillId);
     }
 
     //-------------------\\

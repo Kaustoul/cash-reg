@@ -49,5 +49,22 @@ export const sqliteTillSessions = {
             return null;
         
         return session;
-    }
+    },
+
+    async fetchLastSessionTill(
+        db: BetterSQLite3Database | SQLiteTx,
+        tillId: number
+    ): Promise<ITillSession | null> {
+        const res = await db
+            .select()
+            .from(tillSessionsTable)
+            .where(eq(tillSessionsTable.tillId, tillId))
+            .orderBy(desc(tillSessionsTable.createdAt))
+            .limit(1)
+            .execute();
+
+        if (res.length === 0) return null;
+        
+        return res[0];
+    },
 };

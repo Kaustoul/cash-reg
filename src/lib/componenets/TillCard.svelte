@@ -5,19 +5,24 @@
     import EyeIcon from 'svelte-material-icons/EyeOutline.svelte';
     import PlusIcon from 'svelte-material-icons/Plus.svelte';
     import MinusIcon from 'svelte-material-icons/Minus.svelte';
-    import type { ITill } from '$lib/shared/interfaces/till';
+    import type { IFrontEndTill } from '$lib/shared/interfaces/till';
     import TillCardStatus from './TillCardStatus.svelte';
     import LoginIcon from 'svelte-material-icons/LoginVariant.svelte';
     import LogoutIcon from 'svelte-material-icons/LogoutVariant.svelte';
     import { goto } from '$app/navigation';
+    import { userStore } from '$lib/shared/stores/sessionStore';
+    import { hasPermission } from '$lib/shared/utils/permission-utils';
     
-    export let till: ITill;
+    export let till: IFrontEndTill;
     export let onDeposit: (tillId: number, amount: number) => void;
     export let onWithdraw: (tillId: number, amount: number) => void;
     export let onOpenBalance: () => void;
     export let action: "open" | "close" | "none";
     let amountInput = "";
-    
+
+
+    $: user = $userStore;
+
     function handleDeposit() {
         const amount = Number(amountInput);
         if (!isNaN(amount) && amount > 0) {
@@ -66,56 +71,60 @@
 
 <div class="till-card">
     <div class="till-card-header">
-        <TillCardStatus status={till.status} />
+        <TillCardStatus state={till.state} cashierId={till.cashierId} />
     </div>
     <div class="till-card-content">
         <div class="till-card-title">
             <span class="title">Pokladna {till.id}</span>
-            {#if action === 'open'}
+            {#if till.state === 'CLOSED'}
                 <button class="open-till-btn" on:click={openTillSession}>
                     <LoginIcon size="1.5rem" />
                     Přihlásit se k pokladně
                 </button>
-            {:else if action === 'close'}
+            {:else if till.state === 'OPEN' && till.cashierId === user?.userId}
                 <button class="close-till-btn" on:click={closeTillSession}>
                     <LogoutIcon size="1.5rem" />
                     Odhlásit se s kontrolou
                 </button>
             {/if}
         </div>
+    {#if (till.state === 'OPEN' && till.cashierId === user?.userId) || hasPermission(user, 'tabs.tills.admin')}
         <div class="till-card-actions">
             <button type="button" class="btn" on:click={onOpenBalance}>
                 <WalletIcon size="1.5rem" />
                 Zůstatek
             </button>
-            <button type="button" class="btn" on:click={() => goto(`/tills/${till.id}/audit`)}>
-                <EyeIcon size="1.5rem" />
-                Kontrola    
-            </button>
             <button type="button" class="btn" on:click={() => goto(`/tills/${till.id}/transactions`)}>
                 <ListIcon size="1.5rem" />
                 Transakce
             </button>
-        </div>
-    </div>
-    <div class="till-card-deposit">
-        <span class="deposit-title">Vklad / Výběr</span>
-        <input
-            type="number"
-            class="deposit-input"
-            bind:value={amountInput}
-            min="0"
-            placeholder="Zadejte částku"
-        />
-        <div class="deposit-buttons">
-            <button type="button" class="btn-green {amountInput === '' ? 'disabled' : ''}" on:click={handleDeposit}>
-                <PlusIcon size="2.5rem" /> Vklad
+            <button type="button" class="btn {action !== "close" ? "hidden" : ""}" on:click={() => goto(`/tills/${till.id}/audit`)}>
+                <EyeIcon size="1.5rem" />
+                Kontrola    
             </button>
-            <button type="button" class="btn-red {amountInput === '' ? 'disabled' : ''}" on:click={handleWithdraw}>
-                <MinusIcon size="2.5rem" /> Výběr
-            </button>           
         </div>
+    {/if}
     </div>
+    {#if till.state === 'OPEN' && till.cashierId === user?.userId && hasPermission(user, 'tabs.tills.admin')}
+        <div class="till-card-deposit">
+            <span class="deposit-title">Vklad / Výběr</span>
+            <input
+                type="number"
+                class="deposit-input"
+                bind:value={amountInput}
+                min="0"
+                placeholder="Zadejte částku"
+            />
+            <div class="deposit-buttons">
+                <button type="button" class="btn-green {amountInput === '' ? 'disabled' : ''}" on:click={handleDeposit}>
+                    <PlusIcon size="2.5rem" /> Vklad
+                </button>
+                <button type="button" class="btn-red {amountInput === '' ? 'disabled' : ''}" on:click={handleWithdraw}>
+                    <MinusIcon size="2.5rem" /> Výběr
+                </button>           
+            </div>
+        </div>
+    {/if}
 </div>
 
 <style lang="scss">
@@ -174,6 +183,7 @@
         flex-direction: column;
         flex: 1 1 75%;
         align-items: flex-start;
+        gap: 2rem;
         justify-content: space-between;
         background-color: vars.$content-bg-color;
         border-radius: vars.$medium-radius;

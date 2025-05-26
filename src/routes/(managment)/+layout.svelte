@@ -2,7 +2,7 @@
     import Sidebar from "$lib/Sidebar.svelte";
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
-    import { userId, tillSessionId } from '$lib/shared/stores/sessionStore';
+    import { userStore as userStore, tillSessionIdStore as tillSessionIdStore } from '$lib/shared/stores/sessionStore';
 
     import CatalogIcon from 'svelte-material-icons/BookOpenVariant.svelte';
     import DashboardIcon from 'svelte-material-icons/Finance.svelte';
@@ -16,13 +16,13 @@
 
     export let data: LayoutData;
 
-    userId.set(data.userId);
-    tillSessionId.set(data.tillSessionId);
+    userStore.set(data.frontEndUser ?? null);
+    tillSessionIdStore.set(data.tillSessionId ?? null);
 
     let viewTitle: string = "";
-    let userIdValue: string | null = data.userId;
-    let groupId: string | null = data.groupId;
-    let tillSessionIdValue: string | null = data.tillSessionId;
+    let userIdValue: number | null = $userStore?.userId ?? null;
+    let groupId: number | null = $userStore?.groupId ?? null;
+    let tillSessionIdValue: number | null = data.tillSessionId;
 
     const tabs = {
         "Přehled": {

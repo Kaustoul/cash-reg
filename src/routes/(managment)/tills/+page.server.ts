@@ -4,6 +4,7 @@ import type { PageServerLoad } from './$types';
 import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
 import type { Transaction } from 'electron';
 import type { TransactionReason, TransactionType } from '$lib/shared/interfaces/transaction';
+import { getUserAndOpenSession } from '$lib/server/utils/session-utils';
 
 export const load: PageServerLoad = async () => {
     const res = await database.fetchTills();
@@ -11,13 +12,26 @@ export const load: PageServerLoad = async () => {
 }
 
 export const actions = {
-    newTill: async (event) => {
+    newTill: async ({request, cookies}) => {
+        const { user, tillSession } = await getUserAndOpenSession(cookies);
+
         const res = await database.newTill();
         return {success: res};
     },
 
-    moneyTransfer: async (event) => {
-        const data = await event.request.formData();
+    moneyTransfer: async ({request, cookies}) => {
+        const { user, tillSession } = await getUserAndOpenSession(cookies);
+        
+        if (!user || !tillSession) {
+            return { success: false, error: 'Not logged in or no open till session' };
+        }
+        
+        const data = await request.formData();
+        const tillId = Number(data.get('tillId') as string);
+
+        if (tillId !== tillSession.tillId) {
+            return { success: false, error: 'Invalid till ID' };
+        }
 
         const reason = data.get('reason') as TransactionReason;
         const type = data.get('type') as TransactionType;
@@ -30,11 +44,9 @@ export const actions = {
             value: amount,
             currency: 'CZK',
         }
-        const tillId = Number(data.get('tillId') as string);
 
         await database.updateBalanceTransaction(
-            tillId,
-            0,
+            tillSession.tillSessionId,
             sum,
             reason, 
             type,
@@ -44,12 +56,21 @@ export const actions = {
     },
 
     startSession: async ({ request, cookies }) => {
+        const { user, tillSession } = await getUserAndOpenSession(cookies);
+
+        if (!user) {
+            return { success: false, error: 'Not logged in' };
+        }
+
+        if (tillSession) {
+            return { success: false, error: 'Till session already open' };
+        }
+
+        console.log("Starting new till session for user:", user.userId);
+
         const data = await request.formData();
         const tillId = Number(data.get('tillId'));
         const userId = Number(cookies.get('userId')); 
-
-        console.log('Starting session for till:', tillId, 'by user:', userId);
-        // You may want to check if a session is already open for this till
 
         const tillSessionId = await database.newTillSession({
             tillId,
@@ -57,31 +78,20 @@ export const actions = {
             type: 'OPEN'
         });
 
-        console.log('New till session created with ID:', tillSessionId);
-
         cookies.set('tillSessionId', String(tillSessionId), { path: '/', httpOnly: true });
-        
+
         return { success: true };
     },
 
     endSession: async ({ request, cookies }) => {
-        const data = await request.formData();
-        const userId = Number(cookies.get('userId'));
-        const tillId = Number(data.get('tillId'));
-
-        const tillSessionId = Number(cookies.get('tillSessionId'));
-
-        const tillSession = await database.fetchTillSession(tillSessionId);
-        if (!tillSession || tillSession.cashierId !== userId || tillSession.tillId !== tillId || tillSession.type !== 'OPEN') {
-            return { success: false, error: 'Invalid session or user' };
+        const { user, tillSession } = await getUserAndOpenSession(cookies);
+        if (!user || !tillSession) {
+            return { success: false, error: 'Not logged in or no open till session' };
         }
-
-        // Close the till session
-        await database.newTillSession({tillId, cashierId: userId, type: 'CLOSED'});
         
+        await database.newTillSession({tillId: tillSession.tillId, cashierId: tillSession.cashierId, type: 'CLOSED'});
         cookies.delete('tillSessionId', { path: '/' });
 
-        //set tillSessionId cookie
         return { success: true };
     }
 } satisfies Actions;

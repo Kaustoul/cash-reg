@@ -6,9 +6,8 @@ export type TransactionType = Exclude<PaymentType, "account">;
 
 export interface ITransaction {
     transactionId: number;
-    tillId: number;
+    tillSessionId: number;
     amount: IMoneySum;
-    cashierId?: number | null;
     type: TransactionType;
     reason: TransactionReason;
     note?: string | null;

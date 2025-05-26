@@ -10,8 +10,7 @@ export const sqliteTransactions = {
         const res = await db
             .select({
                 transactionId: transactionsTable.transactionId,
-                tillId: tillSessionsTable.tillId,
-                cashierId: tillSessionsTable.cashierId,
+                tillSessionId: tillSessionsTable.tillSessionId,
                 amount: transactionsTable.amount,
                 type: transactionsTable.type,
                 reason: transactionsTable.reason,
@@ -42,7 +41,7 @@ export const sqliteTransactions = {
         return await db
             .select({
                 transactionId: transactionsTable.transactionId,
-                tillId: tillSessionsTable.tillId,
+                tillSessionId: tillSessionsTable.tillSessionId,
                 cashierId: tillSessionsTable.cashierId,
                 amount: transactionsTable.amount,
                 type: transactionsTable.type,
@@ -55,7 +54,7 @@ export const sqliteTransactions = {
                 tillSessionsTable,
                 eq(transactionsTable.tillSessionId, tillSessionsTable.tillSessionId)
             )
-            .where(eq(tillSessionsTable.tillId, tillId))
+            .where(eq(tillSessionsTable.tillSessionId, tillSessionsTable.tillSessionId))
             .execute();
     }
 };

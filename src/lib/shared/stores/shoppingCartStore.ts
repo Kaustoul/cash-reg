@@ -17,6 +17,7 @@ function createShoppingCartStore() {
         return {
             items: [],
             total: {},
+            subtotal: {},
             state: "items",
             checkout: { payedAmount: new Decimal(0) },
             tillId: 1,
@@ -47,19 +48,28 @@ function createShoppingCartStore() {
             return store;
         }),
         finalizeCart: async () => {
+            console.log("Finalizing cart...");
             const store = get(shoppingCartStore);
             const cart = store.carts[store.selectedCart];
             
             if (!cart || cart.items.length === 0) {
-                return;
+                throw new Error("Cannot finalize an empty cart");
             }
+
+            console.log("Cart to finalize:", cart);
 
             const data = new FormData();
             data.set('cart', JSON.stringify(cart));
+
             await fetch('?/finalizeOrder', {
                 method: 'POST',
                 body: data
+            }).catch(err => {
+                console.error("Error finalizing cart:", err);
+                throw new Error("Failed to finalize cart");
             });
+
+            console.log("Cart finalized successfully");
 
             if (cart.customerId && cart.state === "account-payment") {
                 await customerStore.reloadCustomer(cart.customerId)

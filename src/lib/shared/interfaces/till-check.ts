@@ -3,7 +3,7 @@ import type { IMoneySum } from './money-sum';
 export type TillCheckType = 'manual' | 'opening' | 'closing';
 
 export interface ITillCheck {
-    id: number;
+    tillCheckId: number;
     tillSessionId: number;
     actualBalance: IMoneySum[];
     expectedBalance: IMoneySum[];

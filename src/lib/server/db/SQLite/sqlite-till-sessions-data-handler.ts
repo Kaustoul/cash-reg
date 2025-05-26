@@ -2,7 +2,7 @@ import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import type { SQLiteTx } from "../db";
 import { tillSessionsTable } from "../schema/till-session-model";
 import type { ITillSession, INewTillSession } from "$lib/shared/interfaces/till-session";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 export const sqliteTillSessions = {
     async fetchSession(db: BetterSQLite3Database | SQLiteTx, id: number): Promise<ITillSession | null> {
@@ -30,5 +30,24 @@ export const sqliteTillSessions = {
             .returning({ id: tillSessionsTable.tillSessionId })
             .execute();
         return res[0].id;
+    },
+
+    async fetchLastOpenSessionForUser(db: BetterSQLite3Database | SQLiteTx, userId: number): Promise<ITillSession | null> {
+        const res = await db
+            .select()
+            .from(tillSessionsTable)
+            .where(eq(tillSessionsTable.cashierId, userId))
+            .orderBy(desc(tillSessionsTable.createdAt))
+            .limit(1)
+            .execute();
+
+        if (res.length === 0) 
+            return null;
+            
+        const session = res[0];
+        if (session.type === 'CLOSED') 
+            return null;
+        
+        return session;
     }
 };

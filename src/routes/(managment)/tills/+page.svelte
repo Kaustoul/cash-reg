@@ -3,11 +3,9 @@
     import TabSelector from '$lib/TabSelector.svelte';
     import ViewTitle from '$lib/ViewTitle.svelte';
     import TillCard from '$lib/componenets/TillCard.svelte';
-    import TransactionModal from '$lib/componenets/modals/TransactionModal.svelte';
     import type { PageData } from './$types';
     import Modal from '$lib/componenets/modals/Modal.svelte';
     import type { ITill } from '$lib/shared/interfaces/till';
-    import { CurrencyManager } from '$lib/shared/prices/currency-manager';
     import { formatSum } from '$lib/shared/utils/money-sum-utils';
     import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
     import type { TransactionReason, TransactionType } from '$lib/shared/interfaces/transaction';
@@ -45,12 +43,6 @@
         type: "cash",
         tillId: -1,
         show: false
-    }
-
-    function openTransactionModal(tillId: number, type: 'deposit' | 'withdraw') {
-        transactionModalData.tillId = tillId;
-        transactionModalData.reason = type;
-        transactionModalData.show = true;
     }
 
     function getFormattedSum(sums: IMoneySum[]): string {
@@ -93,13 +85,6 @@
         </span>
     </div>
 </Modal>
-
-<TransactionModal 
-    reason={transactionModalData.reason} 
-    type={transactionModalData.type}
-    bind:showModal={transactionModalData.show}
-    tillId={transactionModalData.tillId} 
-/>
 
 <ViewTitle title="Pokladny"/>
 <TabSelector {tabs}/>

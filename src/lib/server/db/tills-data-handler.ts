@@ -21,11 +21,11 @@ export enum TransactionResult {
 
 
 export interface TillsDataHandler {
-    fetchTill(db: Databases | Transactions, id: number): Promise<ITill>;
+    fetchTill(db: Databases | Transactions, tillId: number): Promise<ITill>;
     fetchTills(db: Databases | Transactions): Promise<ITill[]>;
     newTill(db: Databases | Transactions): Promise<number>;
     //saveTill(db: Databases | Transactions, till: ITill): Promise<void>;
     //saveTills(db: Databases | Transactions, tills: ITill[]): Promise<void>;
-    changeStatus(db: Databases | Transactions, tillId: number, status: TillStatus): Promise<void>;
-    updateBalance(db: Databases | Transactions, tillId: number, balance: IMoneySum): Promise<void>;
+    // changeStatus(db: Databases | Transactions, tillId: number, status: TillStatus): Promise<void>;
+    updateBalance(db: Databases | Transactions, tillSessionId: number, balance: IMoneySum): Promise<void>;
 }

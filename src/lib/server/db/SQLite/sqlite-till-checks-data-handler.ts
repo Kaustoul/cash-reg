@@ -6,11 +6,11 @@ import type { ITillCheck, INewTillCheck } from "$lib/shared/interfaces/till-chec
 import { eq, and, sql } from "drizzle-orm";
 
 export const sqliteTillChecks = {
-    async fetchCheck(db: BetterSQLite3Database | SQLiteTx, id: number): Promise<ITillCheck | null> {
+    async fetchCheck(db: BetterSQLite3Database | SQLiteTx, tillCheckId: number): Promise<ITillCheck | null> {
         const res = await db
             .select()
             .from(tillChecksTable)
-            .where(eq(tillChecksTable.id, id))
+            .where(eq(tillChecksTable.tillCheckId, tillCheckId))
             .limit(1)
             .execute();
         return res.length > 0 ? res[0] : null;
@@ -28,17 +28,17 @@ export const sqliteTillChecks = {
         const res = await db
             .insert(tillChecksTable)
             .values(check)
-            .returning({ id: tillChecksTable.id })
+            .returning({ id: tillChecksTable.tillCheckId })
             .execute();
         return res[0].id;
     },
 
     async fetchChecksForTill(
         db: BetterSQLite3Database | SQLiteTx,
-        tillId: number,
+        tillSessionId: number,
         date?: Date
     ): Promise<ITillCheck[]> {
-        let conditions = [eq(tillSessionsTable.tillId, tillId)];
+        let conditions = [eq(tillSessionsTable.tillSessionId, tillSessionId)];
 
         if (date) {
             const startOfDay = new Date(date);
@@ -55,7 +55,7 @@ export const sqliteTillChecks = {
         const res = await db
             .select()
             .from(tillChecksTable)
-            .innerJoin(tillSessionsTable, eq(tillChecksTable.tillSessionId, tillSessionsTable.id))
+            .innerJoin(tillSessionsTable, eq(tillChecksTable.tillSessionId, tillSessionsTable.tillSessionId))
             .where(and(...conditions))
             .execute();
 

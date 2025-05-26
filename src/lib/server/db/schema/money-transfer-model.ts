@@ -1,8 +1,6 @@
 import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text, foreignKey, primaryKey } from "drizzle-orm/sqlite-core";
-import { tillsTable } from "./till-model";
 import type { IMoneySum } from "$lib/shared/interfaces/money-sum";
-import { ordersTable } from "./order-model";
 import { type PaymentType, type TransactionReason, type TransactionType } from "$lib/shared/interfaces/transaction";
 import { tillSessionsTable } from "./till-session-model";
 

@@ -16,6 +16,7 @@ export interface CustomerPaymentDataHandler {
 
     processCustomerDeposit(
         db: Databases | Transactions,
+        tillSessionId: number,
         customerId: number,
         amount: IMoneySum,
         paymentType: TransactionType

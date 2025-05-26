@@ -10,15 +10,14 @@
     import LoginIcon from 'svelte-material-icons/LoginVariant.svelte';
     import LogoutIcon from 'svelte-material-icons/LogoutVariant.svelte';
     import { goto } from '$app/navigation';
-
+    
     export let till: ITill;
     export let onDeposit: (tillId: number, amount: number) => void;
     export let onWithdraw: (tillId: number, amount: number) => void;
     export let onOpenBalance: () => void;
     export let action: "open" | "close" | "none";
-
     let amountInput = "";
-
+    
     function handleDeposit() {
         const amount = Number(amountInput);
         if (!isNaN(amount) && amount > 0) {

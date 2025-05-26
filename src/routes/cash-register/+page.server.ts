@@ -1,4 +1,5 @@
 import { database } from "$lib/server/db/db";
+import { getUserAndOpenSession } from "$lib/server/utils/session-utils";
 import type { IOrder } from "$lib/shared/interfaces/order";
 import type { IShoppingCart } from "$lib/shared/interfaces/shopping-cart";
 import type { PaymentType } from "$lib/shared/interfaces/transaction";
@@ -15,10 +16,21 @@ export const load: PageServerLoad = async () => {
 } 
 
 export const actions = {
-    finalizeOrder: async (event) => {
-        const data = await event.request.formData();
+    finalizeOrder: async ({request, cookies}) => {
+        const { user, tillSession } = await getUserAndOpenSession(cookies);
+        console.log("Finalize order action called");
+        console.log("User:", user);
+        console.log("Till Session:", tillSession);
+        
+        if (!user || !tillSession) {
+            return { success: false, error: 'Not logged in or no open till session' };
+        }
+
+        const data = await request.formData();
         const cart: IShoppingCart = JSON.parse(data.get('cart') as string);
         
+        console.log("Cart data:", cart);
+
         const items: IOrder["items"] = cart.items.map(item => {
             return {
                 fullId: parseFullItemId(item.productId, item.itemId),
@@ -31,17 +43,20 @@ export const actions = {
             }
         });
 
+        console.log("Parsed items:", items);
+
         await database.newOrder({
-            tillId: cart.tillId,
+            tillSessionId: tillSession.tillSessionId,
             items: items,
             subtotal: cart.subtotal["CZK"],
             total: cart.total["CZK"],
             discounts: cart.discounts ?? null,
             paymentType: cart.state.split("-")[0] as PaymentType,
             note: cart.note ?? null,
-            cashierId: 0,
             customerId: cart.customerId ?? null
         });
+
+        console.log("Order finalized successfully");
 
         return {
             success: true,

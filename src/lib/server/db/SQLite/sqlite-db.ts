@@ -184,26 +184,24 @@ export class SQLiteDB implements DB {
         return await this._tills.newTill(this.db);
     }
 
-    async changeStatus(tillId: number, status: TillStatus) {
-        return await this._tills.changeStatus(this.db, tillId, status);
-    }
+    // async changeStatus(tillId: number, status: TillStatus) {
+    //     return await this._tills.changeStatus(this.db, tillId, status);
+    // }
 
     async updateBalance(tillId: number, balance: IMoneySum) {
         return await this._tills.updateBalance(this.db, tillId, balance);
     }
 
     async updateBalanceTransaction(
-        tillId: number,
-        cashierId: number,
+        tillSessionId: number,
         amount: IMoneySum,
         reason: TransactionReason,
         type: TransactionType,
     ): Promise<void> {
         await this.db.transaction(async (tx) => { 
-            await this._tills.updateBalance(tx, tillId, amount);
+            await this._tills.updateBalance(tx, tillSessionId, amount);
             await this._transactions.newTransaction(tx, {
-                tillId,
-                cashierId,
+                tillSessionId,
                 type,
                 reason, 
                 amount,
@@ -227,6 +225,10 @@ export class SQLiteDB implements DB {
         return await this._tillSessions.newSession(this.db, session);
     }
 
+    async fetchLastOpenSessionForUser(userId: number) {
+        return await this._tillSessions.fetchLastOpenSessionForUser(this.db, userId);
+    }
+
     //-------------------\\
     // -- TILL CHECKS -- \\
     //-------------------\\
@@ -239,8 +241,8 @@ export class SQLiteDB implements DB {
         return await this._tillChecks.fetchChecksForSession(this.db, tillSessionId);
     }
 
-    async fetchTillChecks(tillId: number, date?: Date) {
-        return await this._tillChecks.fetchChecksForTill(this.db, tillId, date);
+    async fetchTillChecks(tillSessionId: number, date?: Date) {
+        return await this._tillChecks.fetchChecksForTill(this.db, tillSessionId, date);
     }
 
     async newTillCheck(check: INewTillCheck) {
@@ -315,12 +317,13 @@ export class SQLiteDB implements DB {
     }
 
     async processCustomerDeposit(
+        tillSessionId: number,
         customerId: number,
         amount: IMoneySum,
         paymentType: TransactionType
     ): Promise<void> {
         await this.db.transaction(async (tx) => {
-            await this._customerPayments.processCustomerDeposit(tx, customerId, amount, paymentType);
+            await this._customerPayments.processCustomerDeposit(tx, tillSessionId, customerId, amount, paymentType);
         });
     }
 
@@ -328,8 +331,8 @@ export class SQLiteDB implements DB {
     // -- TRANSACTIONS -- \\
     //--------------------\\
     
-    async fetchTillTransactions(tillId: number) {
-        return await this._transactions.fetchTillTransactions(this.db, tillId);
+    async fetchTillTransactions(tillSessionId: number) {
+        return await this._transactions.fetchTillTransactions(this.db, tillSessionId);
     }
 
     //-------------\\

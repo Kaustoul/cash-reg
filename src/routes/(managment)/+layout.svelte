@@ -2,6 +2,7 @@
     import Sidebar from "$lib/Sidebar.svelte";
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
+    import { userId, tillSessionId } from '$lib/shared/stores/sessionStore';
 
     import CatalogIcon from 'svelte-material-icons/BookOpenVariant.svelte';
     import DashboardIcon from 'svelte-material-icons/Finance.svelte';
@@ -15,10 +16,13 @@
 
     export let data: LayoutData;
 
+    userId.set(data.userId);
+    tillSessionId.set(data.tillSessionId);
+
     let viewTitle: string = "";
-    let userId: string | null = data.userId;
+    let userIdValue: string | null = data.userId;
     let groupId: string | null = data.groupId;
-    let tillSessionId: string | null = data.tillSessionId;
+    let tillSessionIdValue: string | null = data.tillSessionId;
 
     const tabs = {
         "Přehled": {
@@ -73,15 +77,15 @@
         <img src="/logo.svg" alt="Logo" style="filter: invert(100%)" height="75"/>
         <div class="user-area">
             <AccountIcon size="3rem" />
-            {#if userId}
+            {#if userIdValue}
                 <div class="user">
                     <span class="cashierId-title"> Zaměstnanec: 
                         <span class="cashierId">
-                            {userId}
+                            {userIdValue}
                         </span>
                     </span>
-                    <span class="till {tillSessionId && data.tillId ? 'green' : 'gray'}">
-                        {tillSessionId && data.tillId ? `Pokladna: ${data.tillId}` : 'Bez Pokladny'}
+                    <span class="till {tillSessionIdValue && data.tillId ? 'green' : 'gray'}">
+                        {tillSessionIdValue && data.tillId ? `Pokladna: ${data.tillId}` : 'Bez Pokladny'}
                     </span>
                 </div>
                 <div class="dropdown-container">

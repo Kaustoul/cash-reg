@@ -9,8 +9,8 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 
     return {
         userId,
-        groupId,
         tillSessionId,
+        groupId,
         tillId
     };
 };

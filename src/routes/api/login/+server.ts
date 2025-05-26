@@ -15,9 +15,13 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
         return new Response(JSON.stringify({ error: 'Invalid credentials' }), { status: 401 });
     }
 
-    // Set session cookies (adjust as needed)
     cookies.set('userId', String(user.userId), { path: '/', httpOnly: true });
     cookies.set('groupId', String(user.groupId), { path: '/', httpOnly: true });
+
+    const tillSession = await database.fetchLastOpenSessionForUser(user.userId);
+    if (tillSession) {
+        cookies.set('tillSessionId', String(tillSession.tillSessionId), { path: '/', httpOnly: true });
+    }
 
     return new Response(JSON.stringify({ success: true, userId: user.userId, groupId: user.groupId }), { status: 200 });
 };

@@ -44,8 +44,7 @@ export const sqliteOrders = {
                 createdAt: ordersTable.createdAt,
                 items: ordersTable.items,
                 note: ordersTable.note,
-                tillId: tillSessionsTable.tillId,
-                cashierId: tillSessionsTable.cashierId
+                tillSessionId: tillSessionsTable.tillSessionId,
             })
             .from(ordersTable)
             .innerJoin(
@@ -169,22 +168,22 @@ export const sqliteOrders = {
         db: BetterSQLite3Database | SQLiteTx, 
         order: INewOrder,
     ): Promise<number> {
-        // Start a SQL transaction
         return await db.transaction(async (tx) => {
             let transactionId: number | null = null;
+
             if (order.paymentType !== "account") {
                 transactionId = await sqliteTransactions.newTransaction(tx, {
-                    tillId: order.tillId,
+                    tillSessionId: order.tillSessionId,
                     amount: order.total,
-                    cashierId: 0, 
                     reason: "purchase",
                     type: order.paymentType,
                     note: order.note ?? null,
                 });
 
                 if (order.paymentType === "cash") {
-                    await sqliteTills.updateBalance(tx, order.tillId, order.total)
+                    await sqliteTills.updateBalance(tx, order.tillSessionId, order.total)
                 }
+                
             } else {
                 // Check if customer has enough balance
                 const customerId = order.customerId;

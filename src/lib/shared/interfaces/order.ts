@@ -5,7 +5,7 @@ import type { PaymentType } from './transaction';
 
 export interface IOrder {
     orderId: number;
-    tillId: number;
+    tillSessionId: number;
     items: IOrderItem[];
     subtotal: IMoneySum;
     total: IMoneySum;
@@ -15,20 +15,9 @@ export interface IOrder {
     createdAt: Date;
     customerId?: number | null;
     transactionId?: number | null;
-    cashierId: number;
 }
 
-export interface INewOrder {
-    tillId: IOrder["tillId"];
-    cashierId: number;
-    items: IOrder["items"];
-    subtotal: IMoneySum;
-    total: IMoneySum;
-    discounts: IDiscount[] | null;
-    paymentType: IOrder["paymentType"];
-    note: IOrder["note"];
-    customerId?: number | null;
-}
+export type INewOrder = Omit<IOrder, 'orderId' | 'createdAt' | 'transactionId'>;
 
 export interface IOrderItem {
     fullId: number;

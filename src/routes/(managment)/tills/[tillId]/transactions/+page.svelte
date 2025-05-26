@@ -1,15 +1,12 @@
 <script lang="ts">
     import ViewTitle from '$lib/ViewTitle.svelte';
     import SortedListView from '$lib/SortedListView.svelte';
-    import { goto } from '$app/navigation';
     import type { PageData } from './$types';
     import type { DataRows, Schema } from '$lib/componenets/interactables/SortedList.svelte';
     import PurchaseIcon from 'svelte-material-icons/CartVariant.svelte';
     import CashIcon from 'svelte-material-icons/Cash.svelte';
     import QrcodeIcon from 'svelte-material-icons/Qrcode.svelte';    
-    import AccountIcon from 'svelte-material-icons/Account.svelte';
     import CardIcon from 'svelte-material-icons/CreditCard.svelte';
-    import { Column } from 'drizzle-orm';
     import WithdrawIcon from '$lib/componenets/icons/WithdrawIcon.svelte';
     import DepositIcon from '$lib/componenets/icons/DepositIcon.svelte';
     import CustomerDepositIcon from '$lib/componenets/icons/CustomerDepositIcon.svelte';

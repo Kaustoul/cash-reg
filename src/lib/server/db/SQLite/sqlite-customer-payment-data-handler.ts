@@ -10,6 +10,7 @@ import { sqliteCustomers } from "./sqlite-customers-data-handler";
 import { sqliteTransactions } from "./sqlite-transactions-data-handler";
 import type { PaymentType, TransactionType } from "$lib/shared/interfaces/transaction";
 import { sqliteTills } from "./sqlite-tills-data-handler";
+import { sqliteTillSessions } from "./sqlite-till-sessions-data-handler";
 
 export const sqliteCustomerPayments = {
     async fetchPaymentsForCustomer(db: BetterSQLite3Database | SQLiteTx, customerId: number): Promise<ICustomerPayment[]> {
@@ -35,25 +36,24 @@ export const sqliteCustomerPayments = {
 
     async processCustomerDeposit(
         db: BetterSQLite3Database | SQLiteTx,
+        tillSessionId: number,
         customerId: number,
         amount: IMoneySum,
         paymentType: TransactionType
     ) {
-        // Fetch unpaid orders
-        const customer = await sqliteCustomers.fetchCustomer(db, customerId);
-        const unpaidOrders = await sqliteOrders.fetchUnpaidOrdersForCustomer(db, customerId);
-        let remaining = new Decimal(amount.value)
-
-        if (customer && customer.balance && customer.balance.length > 0) {
-            remaining = remaining.add(new Decimal(customer.balance[0].value));
-        }
-        
         await db.transaction( async (tx) => {
-            
+            const customer = await sqliteCustomers.fetchCustomer(db, customerId);
+            const unpaidOrders = await sqliteOrders.fetchUnpaidOrdersForCustomer(db, customerId);
+            let remaining = new Decimal(amount.value)
+
+            if (customer && customer.balance && customer.balance.length > 0) {
+                remaining = remaining.add(new Decimal(customer.balance[0].value));
+            }
+        
+        
             const transactionId = await sqliteTransactions.newTransaction(tx, {
                 amount,
-                tillId: 1,
-                cashierId: 0,
+                tillSessionId,
                 reason: 'customer-deposit',
                 type: paymentType,
             });

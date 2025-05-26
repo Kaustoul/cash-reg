@@ -5,9 +5,19 @@ import type { IShoppingCart } from "$lib/shared/interfaces/shopping-cart";
 import type { PaymentType } from "$lib/shared/interfaces/transaction";
 import { fullItemId, parseFullItemId } from "$lib/shared/utils/item-utils";
 import type { PageServerLoad } from "./$types";
-import type { Actions } from '@sveltejs/kit';
+import { redirect, type Actions } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({cookies}) => {
+    const { user, tillSession } = await getUserAndOpenSession(cookies);
+
+    if (!user) {
+        throw redirect(302, '/login');
+    }
+    
+    if (!tillSession) {
+        throw redirect(302, '/tills');
+    }
+
     const products = await database.fetchProducts(true);
 
     return {

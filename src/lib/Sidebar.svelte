@@ -16,12 +16,13 @@
     $: user = $userStore;
     $: tillSessionId = $tillSessionIdStore;
 
-    for (const tab in tabs) {
+    $: {for (const tab in tabs) {
         if (!tabs[tab].disabled && $page.url.pathname.endsWith(tabs[tab].url)) {
             selectedTab = tab;
+            console.log(tab)
             break;
         }   
-    }
+    }}
 
     if (!selectedTab) {
         selectedTab = getDefaultTab(tabs);

@@ -1,5 +1,7 @@
 <script lang="ts">
     import Sidebar from "$lib/Sidebar.svelte";
+    import { onMount } from 'svelte';
+    import { goto } from '$app/navigation';
 
     import CatalogIcon from 'svelte-material-icons/BookOpenVariant.svelte';
     import DashboardIcon from 'svelte-material-icons/Finance.svelte';
@@ -7,9 +9,17 @@
     import MoneyIcon from 'svelte-material-icons/CashMultiple.svelte';
     import ReceiptIcon from 'svelte-material-icons/ReceiptText.svelte';
     import WorkerIcon from 'svelte-material-icons/AccountTie.svelte';
+    import AccountIcon from 'svelte-material-icons/Account.svelte';
+    import DotsVerticalIcon from 'svelte-material-icons/DotsVertical.svelte';
+    import type { LayoutData } from "./$types";
+
+    export let data: LayoutData;
 
     let viewTitle: string = "";
-    
+    let userId: string | null = data.userId;
+    let groupId: string | null = data.groupId;
+    let tillSessionId: string | null = data.tillSessionId;
+
     const tabs = {
         "Přehled": {
             icon: DashboardIcon,
@@ -40,21 +50,64 @@
             url: "/workers"
         }
     }
+
+    let showDropdown = false;
+
+    function logout() {
+        fetch('/api/logout', { method: 'POST' }).then(() => {
+            goto('/login');
+        });
+    }
+
+    function toggleDropdown() {
+        showDropdown = !showDropdown;
+    }
+
+    function closeDropdown() {
+        showDropdown = false;
+    }
 </script>
 
 <div class="grid-container">
     <header>
         <img src="/logo.svg" alt="Logo" style="filter: invert(100%)" height="75"/>
         <div class="user-area">
-            <WorkerIcon size="3rem" />
-            <div class="user">
-                <span class="cashierId-title"> Pokladní 
-                    <span class="cashierId">
-                        00
+            <AccountIcon size="3rem" />
+            {#if userId}
+                <div class="user">
+                    <span class="cashierId-title"> Zaměstnanec: 
+                        <span class="cashierId">
+                            {userId}
+                        </span>
                     </span>
-                </span>
-                <span class="till">Bez Pokladny</span>
-            </div>
+                    <span class="till {tillSessionId && data.tillId ? 'green' : 'gray'}">
+                        {tillSessionId && data.tillId ? `Pokladna: ${data.tillId}` : 'Bez Pokladny'}
+                    </span>
+                </div>
+                <div class="dropdown-container">
+                    <button class="dots-btn" on:click={toggleDropdown} aria-label="Možnosti">
+                        <DotsVerticalIcon size="2rem" color="white" />
+                    </button>
+                    {#if showDropdown}
+                        <div
+                            class="dropdown-menu"
+                            role="menu"
+                            tabindex="0"
+                            on:mouseleave={closeDropdown}
+                        >
+                            <button
+                                class="dropdown-item red" 
+                                role="menuitem"
+                                tabindex="0"
+                                type="button"
+                                on:click={logout}
+                            >
+                                Odhlásit se
+                            </button>
+                        </div>
+                    {/if}
+                </div>
+            {/if}
         </div>
     </header>
     <Sidebar {tabs}/>
@@ -66,6 +119,7 @@
 <style lang="scss">
     @use '$lib/styles/vars' as vars;
     @use '$lib/styles/inputs' as inputs;
+    @use '$lib/styles/buttons' as buttons;
 
     .grid-container {
         display: grid;
@@ -95,8 +149,8 @@
     .user-area {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        margin-right: 2rem;
+        gap: .5rem;
+        margin-right: 1rem;
 
         .user {
             display: flex;
@@ -107,11 +161,55 @@
             .cashierId {
                 font-weight: bold;
             }
-
-            .till {
-                color: vars.$text2-color;
-            }
         }
     }
 
+    .dropdown-container {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .dots-btn {
+        @include buttons.div-btn;
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        left: -7.3rem;
+        top: 3.5rem;
+
+        border-radius: vars.$small-radius;
+        background-color: vars.$bg-color;
+        padding: .5rem;
+
+        min-width: 10rem;
+        z-index: 100;
+    }
+
+    .dropdown-item {
+        @include buttons.div-btn;
+        width: 100%;
+        background-color: vars.$content-bg-color;
+        font-size: vars.$normal;
+        padding: .7rem 0;
+
+        &:hover {
+            background-color: vars.$primary-color;
+        }
+
+        // border-top: solid 1px vars.$text-disabled-color;
+        // border-bottom: solid 1px vars.$text-disabled-color;
+    }
+
+    .red {
+        color: vars.$red;
+    }
+
+    .green {
+        color: vars.$accent-color;
+    }
+
+    .gray {
+        color: vars.$text2-color;
+    }
 </style>

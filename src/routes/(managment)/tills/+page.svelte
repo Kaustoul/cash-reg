@@ -115,6 +115,7 @@
             balance: till.balance,
             show: true
         }}
+        action={data.tillSessionId ? (data.tillId && data.tillId === till.id ? "close" : "none") : "open"}
     />
 {/each}
 

@@ -1,7 +1,7 @@
 export type TillSessionType = 'OPEN' | 'CLOSED' | 'PAUSED' | 'UNPAUSED' | 'INACTIVE';
 
 export interface ITillSession {
-    id: number;
+    tillSessionId: number;
     cashierId: number;
     tillId: number;
     type: TillSessionType;
@@ -9,4 +9,4 @@ export interface ITillSession {
     note?: string | null;
 }
 
-export type INewTillSession = Omit<ITillSession, 'id' | 'createdAt'>
+export type INewTillSession = Omit<ITillSession, 'tillSessionId' | 'createdAt'>

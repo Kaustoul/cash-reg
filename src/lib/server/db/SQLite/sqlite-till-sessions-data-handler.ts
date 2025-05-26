@@ -9,7 +9,7 @@ export const sqliteTillSessions = {
         const res = await db
             .select()
             .from(tillSessionsTable)
-            .where(eq(tillSessionsTable.id, id))
+            .where(eq(tillSessionsTable.tillSessionId, id))
             .limit(1)
             .execute();
         return res.length > 0 ? res[0] : null;
@@ -27,7 +27,7 @@ export const sqliteTillSessions = {
         const res = await db
             .insert(tillSessionsTable)
             .values(session)
-            .returning({ id: tillSessionsTable.id })
+            .returning({ id: tillSessionsTable.tillSessionId })
             .execute();
         return res[0].id;
     }

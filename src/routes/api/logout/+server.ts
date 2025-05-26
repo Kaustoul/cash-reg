@@ -1,9 +1,10 @@
-import type { RequestHandler } from '@sveltejs/kit';
+import { redirect, type RequestHandler } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ cookies }) => {
     cookies.delete('userId', { path: '/' });
     cookies.delete('groupId', { path: '/' });
-    // Add any other session cookies you use
+    cookies.delete('tillSessionId', { path: '/' });
 
-    return new Response(JSON.stringify({ success: true }), { status: 200 });
+    throw redirect(303, '/login');
+    // return new Response(JSON.stringify({ success: true }), { status: 200 });
 };

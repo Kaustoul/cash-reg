@@ -15,6 +15,7 @@
     export let onDeposit: (tillId: number, amount: number) => void;
     export let onWithdraw: (tillId: number, amount: number) => void;
     export let onOpenBalance: () => void;
+    export let action: "open" | "close" | "none";
 
     let amountInput = "";
 
@@ -33,6 +34,35 @@
             amountInput = "";
         }
     }
+
+    async function openTillSession() {
+        const formData = new FormData();
+        formData.set('tillId', String(till.id));
+        const res = await fetch('?/startSession', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (res.ok) {
+            window.location.reload();
+        } else {
+            alert('Nepodařilo se otevřít pokladnu.');
+        }
+    }
+
+    async function closeTillSession() {
+        const formData = new FormData();
+        formData.set('tillId', String(till.id));
+        const res = await fetch('?/endSession', {
+            method: 'POST',
+            body: formData
+        });
+        if (res.ok) {
+            window.location.reload();
+        } else {
+            alert('Nepodařilo se zavřít pokladnu.');
+        }
+    }
 </script>
 
 <div class="till-card">
@@ -42,17 +72,13 @@
     <div class="till-card-content">
         <div class="till-card-title">
             <span class="title">Pokladna {till.id}</span>
-            {#if till.status === 'closed'}
-                <button class="open-till-btn"
-                    on:click={() => till.status = 'open'}
-                >
+            {#if action === 'open'}
+                <button class="open-till-btn" on:click={openTillSession}>
                     <LoginIcon size="1.5rem" />
                     Přihlásit se k pokladně
                 </button>
-            {:else}
-                <button class="close-till-btn"
-                    on:click={() => till.status = 'closed'}
-                >
+            {:else if action === 'close'}
+                <button class="close-till-btn" on:click={closeTillSession}>
                     <LogoutIcon size="1.5rem" />
                     Odhlásit se s kontrolou
                 </button>

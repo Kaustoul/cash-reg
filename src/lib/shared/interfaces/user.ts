@@ -6,6 +6,7 @@ export interface IUser {
     pinHash?: string | null;
     groupId: number;
     createdAt: Date;
+    mustChangePassword: boolean;
 }
 
 export interface IFrontEndUser {
@@ -19,7 +20,9 @@ export interface IFrontEndUser {
 
 // export type FrontEndUser = Omit<IUser, 'passwordHash' | 'pinHash'>;
 
-export type INewUser = Omit<IUser, 'userId' | 'createdAt'>
+export interface INewUser extends Omit<IUser, 'userId' | 'createdAt'> {
+    mustChangePassword: boolean;
+}
 
 export interface IGroup {
     groupId: number;

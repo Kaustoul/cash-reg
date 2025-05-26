@@ -6,6 +6,7 @@ import { PERMISSIONS } from '$lib/shared/permissions';
 import { hash } from 'bcryptjs'; // or 'bcrypt' if you use native bcrypt
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import type { INewUser } from '$lib/shared/interfaces/user';
+import { generatePassword } from '$lib/server/utils/password-utils';
 
 /**
  * Ensure "admin" and "default" groups exist.
@@ -35,14 +36,17 @@ export async function setupDefaultAdminUser(db: BetterSQLite3Database) {
         const adminGroup = groups.find(g => g.name === 'admin');
         if (!adminGroup) throw new Error('Admin group not found');
 
-        const passwordHash = await hash('admin', 10); // Change this in production!
+        const password = generatePassword();
+        const passwordHash = await hash(password, 16); // Change this in production!
         const newUser: INewUser = {
             name: 'admin',
             surname: 'admin',
             passwordHash,
             groupId: adminGroup.groupId,
             pinHash: null,
+            mustChangePassword: true
         };
+        
         await sqliteUsers.newUser(db, newUser);
     }
 }

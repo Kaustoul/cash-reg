@@ -30,6 +30,11 @@ export const usersTable = sqliteTable('users', {
         .default(1)
     ,
 
+    mustChangePassword: integer('mustChangePassword', { mode: 'boolean' })
+        .default(false)
+        .notNull()
+    ,
+
     createdAt: integer('createdAt', { mode: 'timestamp' })
         .notNull()
         .default(sql`(unixepoch())`),

@@ -1,9 +1,14 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
+    import NewPasswordModal from '$lib/componenets/modals/NewPasswordModal.svelte';
+
     let userId = '';
     let password = '';
     let error: string | null = null;
     let loading = false;
+
+    let showModal = false;
+    let newPassword: string | null = null;
 
     async function handleLogin(e: Event) {
         e.preventDefault();
@@ -16,13 +21,24 @@
         });
         loading = false;
         if (res.ok) {
-            goto('/catalog'); // Redirect to home or dashboard
+            const data = await res.json();
+            if (data.newPassword) {
+                showModal = true;
+                newPassword = data.newPassword;
+            } else {
+                goto('/catalog'); // Redirect to home or dashboard
+            }
+
         } else {
             const data = await res.json();
             error = data.error || 'Přihlášení selhalo';
         }
     }
 </script>
+
+{#if newPassword}
+    <NewPasswordModal bind:showModal onAccept={() => goto('/catalog')} {newPassword}/>
+{/if}
 
 <div class="login-container">
 
@@ -39,7 +55,7 @@
         {#if error}
             <div class="error">{error}</div>
         {/if}
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading} class="login-btn">
             {loading ? 'Přihlašuji...' : 'Přihlásit se'}
         </button>
 </form>
@@ -100,8 +116,9 @@
     }
 
     .login-form button {
-        @include buttons.btn($btn-color: vars.$accent-color, $btn-height: 3.5rem);
+        @include buttons.btn($btn-color: vars.$accent-color, $btn-height: 5rem);
         margin-top: 1.5rem;;
+        font-size: vars.$large;
     }
 
 </style>

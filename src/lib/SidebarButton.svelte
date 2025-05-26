@@ -6,10 +6,11 @@
     export let selected: boolean = false;
     export let disabled: boolean = false;
     export let onClick: () => void;
+    export let hidden: boolean = false;
 </script>
 
 <button type="button" 
-    class="list-btn {selected ? 'selected' : ''} {disabled ? 'disabled' : ''}"
+    class="list-btn {selected ? 'selected' : ''} {disabled ? 'disabled' : ''} {hidden ? 'hidden' : ''}"
     on:click={onClick}
 >
     <svelte:component this={icon} size="1.5rem"/>

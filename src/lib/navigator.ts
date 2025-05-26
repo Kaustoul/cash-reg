@@ -3,6 +3,8 @@ export type Tabs = {
     [key: string]: {
         url: string;
         disabled?: boolean;
+        permission?: string;
+        icon?: any;
     }
 }
 

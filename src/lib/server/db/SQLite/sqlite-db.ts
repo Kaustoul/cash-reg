@@ -377,8 +377,8 @@ export class SQLiteDB implements DB {
         return await this._users.updateUserGroup(this.db, userId, groupId);
     }
 
-    async updateUserPassword(userId: number, passwordHash: string) {
-        return await this._users.updateUserPassword(this.db, userId, passwordHash);
+    async updateUserPassword(userId: number, passwordHash: string, mustChangePassword: boolean = false) {
+        return await this._users.updateUserPassword(this.db, userId, passwordHash, mustChangePassword);
     }
 
     async fetchAllUsers() {

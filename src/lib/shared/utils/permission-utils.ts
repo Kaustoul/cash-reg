@@ -21,10 +21,11 @@ export function parsePermissionKey(key: string): string[] {
     return key.split('.');
 }
 
-export function hasPermission(user: IFrontEndUser | null | undefined, key: string) {
-    if (!user) {
+export function hasPermission(user: IFrontEndUser | null | undefined, key: string | null | undefined): boolean {
+    if (!key)
+        return true;
+    if (!user) 
         return false;
-    }
 
     return user.isAdmin || user.permissions.includes(key);
 }

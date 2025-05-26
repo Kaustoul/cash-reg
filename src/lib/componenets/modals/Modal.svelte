@@ -4,6 +4,7 @@
 	export let showModal: boolean;
     export let onDialogClosed: () => void = () => {};
     export let form: any | undefined = undefined;
+    export let closable: boolean = true;
     let dialog: any;
 
     function closeModal() {
@@ -28,13 +29,15 @@
 <dialog
 	bind:this={dialog}
 	on:close={closeModal}
-	on:click|self={closeModal}
+	on:click|self={() => closable ? closeModal : () => {}}
     on:click|stopPropagation
 >
 <div class="contianer">
-    <button class="close" on:click={closeModal}>
-        <CloseIcon size={"3rem"} />  
-    </button>
+    {#if closable}
+        <button class="close" on:click={closeModal}>
+            <CloseIcon size={"3rem"} />  
+        </button>
+    {/if}
     <div class="head">
 
         <div class="title">

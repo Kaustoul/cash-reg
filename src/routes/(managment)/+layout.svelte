@@ -29,29 +29,34 @@
             icon: DashboardIcon,
             url: "/dashboard",
             disabled: true,
+            permission: "tabs.dashboard.view"
         },
         "Katalog": {
             icon: CatalogIcon,
-            url: "/catalog"
+            url: "/catalog",
+            permission: "tabs.catalog.view"
         },
         "Pokladny": {
             icon: MoneyIcon,
             url: "/tills",
-            // disabled: true,
+            permission: "tabs.tills.view"
         },
         "Prodeje": {
             icon: ReceiptIcon,
             url: "/sales",
+            permission: "tabs.sales.view"
         },
 
         "Zákazníci": {
             icon: CustomersIcon,
             url: "/customers",
+            permission: "tabs.users.view"
         },
 
         "Zaměstnanci": {
             icon: WorkerIcon,
-            url: "/workers"
+            url: "/workers",
+            permission: "tabs.workers.view"
         }
     }
 

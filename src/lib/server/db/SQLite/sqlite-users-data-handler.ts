@@ -39,10 +39,10 @@ export const sqliteUsers = {
             .execute();
     },
 
-    async updateUserPassword(db: BetterSQLite3Database | SQLiteTx, userId: number, passwordHash: string): Promise<void> {
+    async updateUserPassword(db: BetterSQLite3Database | SQLiteTx, userId: number, passwordHash: string, mustChangePassword: boolean): Promise<void> {
         await db
             .update(usersTable)
-            .set({ passwordHash })
+            .set({ passwordHash, mustChangePassword })
             .where(eq(usersTable.userId, userId))
             .execute();
     },

@@ -3,8 +3,8 @@
     import type { IOrder } from '$lib/shared/interfaces/order';
 
     export let orders: IOrder[] = [];
-    export let orderIdParam: string | undefined = undefined;
-    export let selectedOrderId: number | undefined = undefined;
+    export let orderIdParam: string | null = null;
+    export let selectedOrderId: number | null = null;
 </script>
 
     

@@ -1,8 +1,7 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
     import TabSelector from '$lib/TabSelector.svelte';
-    import ViewTitle from "$lib/ViewTitle.svelte";
     import type { ActionData, PageData } from "./$types";
+    import { viewTitleStore } from "$lib/shared/stores/workerStore";
 
     export let data: PageData;
     export let form: ActionData;
@@ -20,12 +19,15 @@
         }
     };
 
-
+    viewTitleStore.set({
+        title: data.displayData.name,
+        subtitle: `(${data.displayData.id})`,
+        showBackArrow: true
+    });
     // goto(tabs["Varianty"].url);
     // console.log(data);
 </script>
 
-<ViewTitle title={data.displayData.name} subtitle={`(${data.displayData.id})`} showBackArrow={true}/>
 <TabSelector {tabs}/>
 
 <slot></slot>

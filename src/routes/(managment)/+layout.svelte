@@ -13,7 +13,8 @@
     import AccountIcon from 'svelte-material-icons/Account.svelte';
     import DotsVerticalIcon from 'svelte-material-icons/DotsVertical.svelte';
     import type { LayoutData } from "./$types";
-    import { browser } from '$app/environment';
+    import ViewTitle from '$lib/ViewTitle.svelte';
+    import { viewTitleStore } from '$lib/shared/stores/workerStore';
 
     export let data: LayoutData;
 
@@ -120,6 +121,10 @@
     </header>
     <Sidebar {tabs}/>
     <main class="main">
+        {#if $viewTitleStore.hidden === undefined || !$viewTitleStore.hidden}
+            <ViewTitle title={$viewTitleStore.title} subtitle={$viewTitleStore.subtitle ?? ''} showBackArrow={$viewTitleStore.showBackArrow ?? false} />
+        {/if}
+
         <slot></slot>
     </main>
 </div>

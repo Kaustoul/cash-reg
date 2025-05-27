@@ -9,10 +9,6 @@
 
     viewTitleStore.set({title: "Zaměstnanci"});
 
-    function onRowClick(userId: number) {
-        goto(`/workers/${userId}/info`);
-    }
-
     const schema: Schema = [
         { fieldName: "userId", type: "number", columnHeader: "ID", searchKey: true },
         { fieldName: "name", type: "string", columnHeader: "Jméno", searchKey: true },
@@ -26,7 +22,7 @@
     {schema}
     clickableRows={true}
     idFieldName="userId"
-    onRowClick={onRowClick}
+    onRowClick={(userId) => goto(`/workers/${userId}/detail`)}
     showSearchBar={true}
     selectors={false}
     buttons={{

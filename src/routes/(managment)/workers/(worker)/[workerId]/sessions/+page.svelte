@@ -2,12 +2,15 @@
     import TillSessionsTable from '$lib/componenets/TillSessionsTable.svelte';
     import ViewTitle from '$lib/ViewTitle.svelte';
     import type { PageData } from './$types';
+    import { viewTitleStore } from '$lib/shared/stores/workerStore';
 
     export let data: PageData;
+
+    viewTitleStore.set({ title: "Směny", subtitle: `Zaměstnanec ${data.worker.userId}`, showBackArrow: true });
+
 </script>
 
 <div class="container">
-    <span class="title">Směny</span>
     <TillSessionsTable sessions={data.sessions} showTillId={true} />
 </div>
 

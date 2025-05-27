@@ -12,7 +12,7 @@
     let isSubmitting = false;
     let error: string | null = null;
 
-    viewTitleStore.set({ title: "Nový zaměstnanec", showBackArrow: true });
+    viewTitleStore.set({ title: "Přidat zaměstnance", showBackArrow: true });
 
     let fields = [
         { key: 'name', label: 'Jméno', value: '' },
@@ -73,8 +73,6 @@
         }
     }
 </script>
-
-<ViewTitle title="Přidat zaměstnance" showBackArrow={true} />
 
 <div class="new-worker-page">
     {#if error}

@@ -5,9 +5,9 @@
     import type { PageData } from './$types';
     import CashPaymentModal from '$lib/componenets/modals/CashPaymentModal.svelte';
     import QRPaymentModal from '$lib/componenets/modals/QRPaymentModal.svelte';
-    import { goto } from '$app/navigation';
 
     export let data: PageData;
+
     let customer = data.customer;
 
     // Helper for unpaid orders count

@@ -1,18 +1,20 @@
 <script lang="ts">
-    import ViewTitle from '$lib/ViewTitle.svelte';
     import SortedListView from '$lib/SortedListView.svelte';
-    import SearchBar from '$lib/componenets/SearchBar.svelte';
     import { goto } from '$app/navigation';
     import type { PageData } from './$types';
     import type { ICustomer } from '$lib/shared/interfaces/customer';
-    import { formatDecimal, formatPrice } from '$lib/shared/utils';
-    import Decimal from 'decimal.js';
     import type { IDiscount } from '$lib/shared/interfaces/discount';
     import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
     import { customerStore } from '$lib/shared/stores/customerStore';
     import { formatSum } from '$lib/shared/utils/money-sum-utils';
+    import { viewTitleStore } from '$lib/shared/stores/workerStore';
 
     export let data: PageData;
+
+    viewTitleStore.set({
+        title: "Zákazníci",
+    });
+    
     let customers: ICustomer[] = data.customers;
     let filteredCustomers: ICustomer[] = customers;
     let selected: number[] = [];
@@ -35,12 +37,7 @@
     }));
 </script>
 
-<ViewTitle title="Zákazníci" />
-    <!-- <SearchBar
-        data={customers}
-        keys={['name', 'surname', 'email']}
-        bind:results={filteredCustomers}
-    /> -->
+
 <SortedListView
     data={customersWithTotalBalance}
     schema={[

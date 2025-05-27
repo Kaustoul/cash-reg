@@ -4,11 +4,15 @@
     import ImportItemsModal from '$lib/componenets/modals/ImportItemsModal.svelte';
     import SortedListView from "$lib/SortedListView.svelte";
     import TabSelector from '$lib/TabSelector.svelte';
-    import ViewTitle from '$lib/ViewTitle.svelte';
     import type { ActionData, PageData } from './$types';
+    import { viewTitleStore } from '$lib/shared/stores/workerStore';
 
 	export let data: PageData;
     export let form: ActionData
+
+    viewTitleStore.set({
+        title: "Katalog",
+    });
 
     let tabs = {
         "Produkty": {
@@ -38,7 +42,6 @@
 
 <ImportItemsModal bind:showModal={showImportModal}/>
 
-<ViewTitle title="Katalog"/>
 <TabSelector {tabs}/>
 <SortedListView 
     data={data.displayInfo} 

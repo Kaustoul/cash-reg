@@ -5,12 +5,16 @@
     import { format, parse } from 'date-fns';
     import { applyAction, deserialize } from '$app/forms';
     import type { ActionResult } from '@sveltejs/kit';
-    import OrderItem from '$lib/componenets/OrderItem.svelte';
     import { onMount } from 'svelte';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
+    import OrderList from '$lib/componenets/OrderList.svelte';
+    import { viewTitleStore } from '$lib/shared/stores/workerStore';
 
     export let data: PageData;
+
+    viewTitleStore.set({ title: "Prodeje" });
+
     let startDate: Date;
     let dateFormat = 'd.M.yyyy';
     let isDatePickerOpen = false;
@@ -51,8 +55,6 @@
     $: formattedStartDate = formatDate(startDate);
 
     let selectedOrderId: number | null = null;
-    let initialDate: string | null = null;
-    let showBackArrow = false;
 
     $: orderIdParam = $page.url.searchParams.get('orderId');
     $: dateParam = $page.url.searchParams.get('date');
@@ -68,11 +70,12 @@
             startDate = new Date();
         }
         formattedStartDate = formatDate(startDate)
-        showBackArrow = backArrowParam === "1";
+        const showBackArrow = backArrowParam === "1";
+
+        viewTitleStore.set({ title: "Prodeje", showBackArrow: showBackArrow });;
     });
 </script>
 
-<ViewTitle title="Prodeje" showBackArrow={showBackArrow} />
 <div class="controls">
     <DatePicker bind:isOpen={isDatePickerOpen} bind:startDate onDayClick={onChange} align={"right"}>
         <label for="date">Datum:
@@ -87,27 +90,11 @@
     </DatePicker>
 </div>
 
-<div class="orders-list">
-    <div class="header">
-        <span class="orderId">Objednávka</span>
-        <span class="tillId">Pokladna</span>
-        <span class="cashierId">Zákazník</span>
-        <span class="itemsAmount">Položek</span>
-        <span class="total">Suma</span>
-        <span class="paymentType">Druh platby</span>
-        <span class="isPaid">Uhrazeno</span>
-        <span class="time">Čas</span>
-        <span class="note">Poznámka</span>
-        <div class="spacer" />
-    </div>
-    {#if orders && orders.length > 0}
-        {#each orders as order}
-            <OrderItem {order} isOpen={order.orderId === selectedOrderId} orderIdParam={Number(orderIdParam)}/>
-        {/each}
-    {:else}
-        <p>Žádné objednávky pro tento den.</p>
-    {/if}
-</div>
+<OrderList 
+    orders={orders} 
+    orderIdParam={orderIdParam} 
+    selectedOrderId={selectedOrderId}
+/>
 
 <style lang="scss">
     @use '$lib/styles/vars' as vars;

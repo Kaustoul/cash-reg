@@ -7,8 +7,11 @@
     import AcceptIcon from 'svelte-material-icons/CheckCircle.svelte';
     import CancelIcon from 'svelte-material-icons/Cancel.svelte';
     import { enhance } from '$app/forms';
+    import { viewTitleStore } from '$lib/shared/stores/workerStore';
 
     export let data: PageData;
+    
+    viewTitleStore.set({ title: "Informace", subtitle: `Zaměstnanec ${data.worker.userId}`, showBackArrow: true });
     
     let formData = {
         name: data.worker.name,
@@ -88,7 +91,7 @@
 
 <div class="worker-detail">
     <div class="form-area">
-        <div class="page-title">Informace</div>
+        <div class="page-title"></div>
         <form class="form">
             <div class="field">
                 <span class="label">Jméno:</span>

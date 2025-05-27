@@ -1,13 +1,13 @@
 <script lang="ts">
-    import ViewTitle from '$lib/ViewTitle.svelte';
     import type { LayoutData } from './$types';
     import TabSelector from '$lib/TabSelector.svelte';
+    import { viewTitleStore } from '$lib/shared/stores/workerStore';
 
     export let data: LayoutData;
 
     const tabs = {
         "Informace": {
-            url: `/workers/${data.worker.userId}/info`,
+            url: `/workers/${data.worker.userId}/detail`,
         },
 
         "Směny": {
@@ -22,7 +22,6 @@
 
 </script>
 
-<ViewTitle title="Zaměstnanec {data.worker.userId}" showBackArrow={true} />
 <TabSelector {tabs}/>
 
 <slot></slot>

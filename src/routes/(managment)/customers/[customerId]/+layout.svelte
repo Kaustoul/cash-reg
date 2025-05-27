@@ -1,7 +1,7 @@
 <script lang="ts">
-    import ViewTitle from '$lib/ViewTitle.svelte';
     import type { LayoutData } from './$types';
     import TabSelector from '$lib/TabSelector.svelte';
+    import { viewTitleStore } from '$lib/shared/stores/workerStore';
 
     export let data: LayoutData;
 
@@ -14,10 +14,12 @@
         },
     }
     
+    viewTitleStore.set({
+        title: `Zákazník: ${data.customer.customerId}`,
+        showBackArrow: true,
+    });
 
 </script>
-
-<ViewTitle title={`Zákazník ${data.customer.customerId}`} showBackArrow={true} />
 
 <TabSelector {tabs} />
 

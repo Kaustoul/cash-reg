@@ -9,9 +9,14 @@
     import { formatSum } from '$lib/shared/utils/money-sum-utils';
     import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
     import type { TransactionReason, TransactionType } from '$lib/shared/interfaces/transaction';
-
+    import { viewTitleStore } from '$lib/shared/stores/workerStore';
 
 	export let data: PageData;
+
+    viewTitleStore.set({
+        title: "Pokladny",
+    });
+
     let balanceModalData: {
         show: boolean
         tillId: number
@@ -86,7 +91,6 @@
     </div>
 </Modal>
 
-<ViewTitle title="Pokladny"/>
 <TabSelector {tabs}/>
 
 

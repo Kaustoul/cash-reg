@@ -10,9 +10,15 @@
     import WithdrawIcon from '$lib/componenets/icons/WithdrawIcon.svelte';
     import DepositIcon from '$lib/componenets/icons/DepositIcon.svelte';
     import CustomerDepositIcon from '$lib/componenets/icons/CustomerDepositIcon.svelte';
-
+    import { viewTitleStore } from '$lib/shared/stores/workerStore';
 
     export let data: PageData;
+
+    viewTitleStore.set({
+        title: "Transakce",
+        subtitle: `Pokladna ${data.tillDisplayName ?? data.tillId}`,
+        showBackArrow: true
+    });
 
     // Define schema for the transaction list
     const schema: Schema = [
@@ -73,8 +79,6 @@
         }
     };
 </script>
-
-<ViewTitle title="Transakce" subtitle={`Pokladna ${data.tillDisplayName ?? data.tillId}`} showBackArrow={true}/>
 
 <SortedListView
     data={data.transactions}

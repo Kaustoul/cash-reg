@@ -3,13 +3,20 @@
     import ViewTitle from '$lib/ViewTitle.svelte';
     import { page } from '$app/stores';
     import type { PageData } from './$types';
+    import { viewTitleStore } from '$lib/shared/stores/workerStore';
 
     export let data: PageData;
+
+    viewTitleStore.set({
+        title: "Směny",
+        subtitle: `Pokladna ${data.tillId}`,
+        showBackArrow: true
+    });
+
     // If you want to get tillId from the URL directly:
     $: tillId = $page.params.tillId;
 </script>
 
-<ViewTitle title="Směny" subtitle="Pokladna {tillId}" showBackArrow={true} />
 <div class="container">
     <TillSessionsTable sessions={data.sessions} showWorkerId={true}/>
 </div>

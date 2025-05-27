@@ -35,7 +35,6 @@ export async function fetchAndHasPermission(user: IUser, permission: string) {
 }
 
 export function pairSessionsStartToEnd(sessions: ITillSession[]) {
-    sessions.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 
     // Pair open/close sessions
     const pairedSessions: { sessionStart: any, sessionEnd: any | null }[] = [];

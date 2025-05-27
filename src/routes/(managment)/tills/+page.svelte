@@ -10,6 +10,7 @@
     import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
     import type { TransactionReason, TransactionType } from '$lib/shared/interfaces/transaction';
     import { viewTitleStore } from '$lib/shared/stores/workerStore';
+    import AddIcon from 'svelte-material-icons/Plus.svelte';
 
 	export let data: PageData;
 
@@ -27,6 +28,8 @@
         balance: []
     }
 
+    let showNewTillModal = false;
+
     let tabs = {
         "Pokladny": {
             url: "/tills"
@@ -36,19 +39,6 @@
             disabled: true
         }
     };
-
-    const transactionModalData: {
-        reason: TransactionReason,
-        type: TransactionType,
-        tillId: number,
-        show: boolean
-    
-    } = {
-        reason: 'deposit',
-        type: "cash",
-        tillId: -1,
-        show: false
-    }
 
     function getFormattedSum(sums: IMoneySum[]): string {
         const zeroSum = {currency: 'CZK', value: '0'};
@@ -75,6 +65,29 @@
             alert(type === "deposit" ? "Vklad se nezdařil." : "Výběr se nezdařil.");
         }
     }
+
+    let isCreatingTill = false;
+    let error: string | null = null;
+
+    async function createTill() {
+        isCreatingTill = true;
+        error = null;
+
+        const res = await fetch('?/newTill', {
+            method: "POST",
+            body: new FormData()
+        });
+
+        isCreatingTill = false;
+
+        if (res.ok) {
+            showNewTillModal = false;
+            location.reload(); // Or refresh data in a more Svelte way
+        } else {
+            const errorData = await res.json();
+            error = errorData.message || "Nastala chyba při vytváření pokladny.";
+        }
+    }
 </script>
 
 <Modal bind:showModal={balanceModalData.show}>
@@ -91,34 +104,58 @@
     </div>
 </Modal>
 
-<TabSelector {tabs}/>
+<Modal bind:showModal={showNewTillModal}>
+    <div slot="header" class="balance-header">
+        Nová pokladna
+    </div>
+    <div class="modal">
+        <span>Opravdu chcete přidat novou pokladnu?</span>
+        {#if error}
+            <div class="error">{error}</div>
+        {/if}
+        <div class="modal-buttons">
+            <button class="green" disabled={isCreatingTill} on:click={createTill}>Potvrdit</button>
+            <button class="red" disabled={isCreatingTill} on:click={() => showNewTillModal = false}>Zrušit</button>
+        </div>
+    </div>
+</Modal>
 
 
-{#if data.tills}
-    {#each data.tills as till}
-        <TillCard 
-            {till}
-            onDeposit={(tillId, amount) => handleMoneyTransfer(tillId, amount, 'deposit')}
-            onWithdraw={(tillId, amount) => handleMoneyTransfer(tillId, amount, 'withdraw')}
-            onOpenBalance={() => balanceModalData = {
-                tillId: till.id,
-                balance: till.balance,
-                show: true
-            }}
-            action={data.tillSessionId ? (data.tillId && data.tillId === till.id ? "close" : "none") : "open"}
-        />
-    {/each}
-    
-    {#if data.tills.length === 0}
-    <form method="POST" use:enhance action="?/newTill">
-        <button type="submit" class="btn" >Přidat pokladnu</button>
-    </form>
-    {/if}
-{/if}
+<div class="container">
+    <div class="form">
+        <button class="btn" on:click={() => showNewTillModal = true} >
+            <AddIcon size="2rem" />
+            Přidat pokladnu
+        </button>
+    </div>
+
+    <div class="tills">
+        {#if data.tills}
+            {#each data.tills as till}
+                <TillCard 
+                    {till}
+                    onDeposit={(tillId, amount) => handleMoneyTransfer(tillId, amount, 'deposit')}
+                    onWithdraw={(tillId, amount) => handleMoneyTransfer(tillId, amount, 'withdraw')}
+                    onOpenBalance={() => balanceModalData = {
+                        tillId: till.id,
+                        balance: till.balance,
+                        show: true
+                    }}
+                    action={data.tillSessionId ? (data.tillId && data.tillId === till.id ? "close" : "none") : "open"}
+                />
+            {/each}
+        {/if}
+    </div>
+</div>
 
 <style lang="scss">
     @use "$lib/styles/vars" as vars;
     @use "$lib/styles/buttons" as buttons;
+    @use "$lib/styles/inputs" as inputs;
+
+    .container {
+        @include inputs.scrollable;
+    }
 
     .balance-modal {
         width: 35rem;
@@ -135,5 +172,60 @@
             font-weight: bold;
             font-size: xx-large;
         }
+    }
+
+    .tills {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+
+        height: 100%;
+    }
+
+    .form {
+        display: flex;
+        justify-content: flex-end;
+        margin: 2rem;
+    }
+
+    .btn {
+        @include buttons.btn($btn-color: vars.$green, $btn-height: 4rem);
+        max-width: 20rem;
+        font-size: vars.$large;
+    }
+
+    .modal {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        font-size: vars.$larger;
+        padding: 2rem;
+        gap: 3rem;
+    }
+
+    .modal-buttons {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        gap: 1rem;
+        margin-top: 1rem;
+
+        .green {
+            @include buttons.btn($btn-color: vars.$green, $btn-height: 3rem);
+            flex: 1 1 40%;
+        }
+
+        .red {
+            @include buttons.btn($btn-color: vars.$red, $btn-height: 3rem);
+            flex: 1 1 40%;
+        }
+    }
+
+    .error {
+        color: vars.$red;
+        font-size: vars.$larger;
+        text-align: center;
     }
 </style>

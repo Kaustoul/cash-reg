@@ -4,7 +4,7 @@ import type { PageServerLoad } from './$types';
 import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
 import type { Transaction } from 'electron';
 import type { TransactionReason, TransactionType } from '$lib/shared/interfaces/transaction';
-import { getUserAndOpenSession } from '$lib/server/utils/session-utils';
+import { fetchAndHasPermission, getUserAndOpenSession } from '$lib/server/utils/session-utils';
 
 export const load: PageServerLoad = async () => {
     const res = await database.fetchTills();
@@ -14,6 +14,9 @@ export const load: PageServerLoad = async () => {
 export const actions = {
     newTill: async ({request, cookies}) => {
         const { user, tillSession } = await getUserAndOpenSession(cookies);
+        if (!user || await !fetchAndHasPermission(user, "tabs.tills.admin")) {
+            return { success: false, error: 'Not logged in or no permission' };
+        }
 
         const res = await database.newTill();
         return {success: res};

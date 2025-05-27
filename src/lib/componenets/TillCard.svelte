@@ -10,7 +10,7 @@
     import LoginIcon from 'svelte-material-icons/LoginVariant.svelte';
     import LogoutIcon from 'svelte-material-icons/LogoutVariant.svelte';
     import { goto } from '$app/navigation';
-    import { userStore } from '$lib/shared/stores/sessionStore';
+    import { userStore, tillSessionIdStore } from '$lib/shared/stores/sessionStore';
     import { hasPermission } from '$lib/shared/utils/permission-utils';
     import ShiftIcon from 'svelte-material-icons/Briefcase.svelte';
     
@@ -23,6 +23,7 @@
 
 
     $: user = $userStore;
+    $: tillSessionId = $tillSessionIdStore;
 
     function handleDeposit() {
         const amount = Number(amountInput);
@@ -77,7 +78,7 @@
     <div class="till-card-content">
         <div class="till-card-title">
             <span class="title">Pokladna {till.id}</span>
-            {#if till.state === 'CLOSED'}
+            {#if till.state === 'CLOSED' && tillSessionId === null}
                 <button class="open-till-btn" on:click={openTillSession}>
                     <LoginIcon size="1.5rem" />
                     Přihlásit se k pokladně
@@ -165,7 +166,7 @@
     }
 
     .open-till-btn {
-        @include buttons.btn($btn-color: vars.$green, $btn-height: 3.5rem);
+        @include buttons.btn($btn-color: vars.$accent-color, $btn-height: 3.5rem);
         
     }
     .close-till-btn {

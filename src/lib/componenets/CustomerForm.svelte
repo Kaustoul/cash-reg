@@ -16,6 +16,7 @@
     let discountValue = customer.discount?.value ?? "10";
     // Default balance: [{ currency: "CZK", value: "0" }]
     let balanceValue: IMoneySum[] = customer.balance ?? [{ currency: "CZK", value: "0" }];
+    export let onSubmit: (customerId: number) => void = () => {};
 
     async function handleSubmit(e: Event) {
         e.preventDefault();
@@ -36,7 +37,8 @@
         });
         if (res.ok) {
             const result = await res.json();
-            dispatch("submit", { id: result.id, name, surname, email, discount, balance: balanceValue });
+            onSubmit(result.id);
+            // dispatch("submit", { id: result.id, name, surname, email, discount, balance: balanceValue });
         } else {
             // handle error
             alert("Chyba při ukládání zákazníka.");

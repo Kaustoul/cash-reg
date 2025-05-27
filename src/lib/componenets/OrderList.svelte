@@ -26,7 +26,7 @@
             <OrderItem {order} isOpen={order.orderId === selectedOrderId} orderIdParam={Number(orderIdParam)}/>
         {/each}
     {:else}
-        <p>Žádné objednávky pro tento den.</p>
+        <span class="empty">Žádné objednávky...</span>
     {/if}
 </div>
 
@@ -98,5 +98,12 @@
             flex: 1 0 10%;
             max-width: 11rem;
         }
+    }
+
+    .empty {
+        color: vars.$text2-color;
+        text-align: center;
+        margin: 2rem;
+        font-size: vars.$large;
     }
 </style>

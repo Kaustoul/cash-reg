@@ -62,7 +62,7 @@
             });
 
             if (res.ok) {
-                goto(`/workers/list`);
+                goto(`/workers/list`, { replaceState: true });
             } else {
                 error = 'Nepodařilo se vytvořit zaměstnance.';
             }

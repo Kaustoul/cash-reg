@@ -59,10 +59,11 @@
             action: () => goto('/customers/new'),
             icon: "plus",
             color: "green",
-            disabled: true
         },
     }}
 />
 
 <style lang="scss">
+    @use '$lib/styles/vars' as vars;
+    @use '$lib/styles/buttons' as buttons;
 </style>

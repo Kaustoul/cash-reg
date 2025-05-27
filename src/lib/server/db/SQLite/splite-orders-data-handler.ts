@@ -293,4 +293,35 @@ export const sqliteOrders = {
 
         return res.length > 0 ? res[0] : null;
     },
+
+    async fetchCustomerOrders(
+        db: BetterSQLite3Database | SQLiteTx,
+        customerId: number,
+    ): Promise<IOrder[]> {
+        const res = await db
+            .select({
+                orderId: ordersTable.orderId,
+                customerId: ordersTable.customerId,
+                subtotal: ordersTable.subtotal,
+                discounts: ordersTable.discounts,
+                total: ordersTable.total,
+                paymentType: ordersTable.paymentType,
+                transactionId: ordersTable.transactionId,
+                createdAt: ordersTable.createdAt,
+                items: ordersTable.items,
+                note: ordersTable.note,
+                tillSessionId: ordersTable.tillSessionId,
+                tillId: tillSessionsTable.tillId,
+                cashierId: tillSessionsTable.cashierId
+            })
+            .from(ordersTable)
+            .innerJoin(
+                tillSessionsTable,
+                eq(ordersTable.tillSessionId, tillSessionsTable.tillSessionId)
+            )
+            .where(eq(ordersTable.customerId, customerId))
+            .execute();
+
+        return res;
+    }
 } satisfies OrdersDataHandler;

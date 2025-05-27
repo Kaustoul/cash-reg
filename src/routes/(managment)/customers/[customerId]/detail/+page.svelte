@@ -1,7 +1,6 @@
 <script lang="ts">
     import { customerStore } from '$lib/shared/stores/customerStore';
     import { formatSum } from '$lib/shared/utils/money-sum-utils';
-    import ViewTitle from '$lib/ViewTitle.svelte';
     import Decimal from 'decimal.js';
     import type { PageData } from './$types';
     import CashPaymentModal from '$lib/componenets/modals/CashPaymentModal.svelte';
@@ -65,7 +64,6 @@
     }
 </script>
 
-<ViewTitle title={customer.name + ' ' + customer.surname} showBackArrow={true} />
 
 <div class="cards-container">
 

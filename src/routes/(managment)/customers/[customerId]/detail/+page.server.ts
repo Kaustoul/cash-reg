@@ -1,15 +1,6 @@
 import { database } from '$lib/server/db/db';
 import type { PageServerLoad, Actions } from './$types';
 
-export const load: PageServerLoad = async ({ params }) => {
-    const customerId = Number(params.customerId);
-    const customer = await database.fetchCustomer(customerId);
-    if (!customer) {
-        throw new Error('Customer not found');
-    }
-    return { customer };
-};
-
 // Payment action for customer debt/topup
 // export const actions: Actions = {
 //     topUp: async ({ params, request }) => {

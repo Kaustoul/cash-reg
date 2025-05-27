@@ -20,4 +20,8 @@ export interface OrdersDataHandler {
         db: Databases | Transactions,
         transactionId: number
     ): Promise<IOrder | null>;
+    fetchCustomerOrders(
+        db: Databases | Transactions,
+        customerId: number
+    ): Promise<IOrder[]>;
 }

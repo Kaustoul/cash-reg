@@ -17,20 +17,6 @@
     let filteredCustomers: ICustomer[] = customers;
     let selected: number[] = [];
 
-
-    function onRowClick(customerId: number) {
-        goto(`/customers/${customerId}`);
-    }
-
-    function onAdd() {
-        goto('/customers/new');
-    }
-
-    function onRemovePressed(selectedIds: (string | number)[]) {
-        // Implement your delete logic here (API call, then reload)
-        alert(`Delete customers: ${selectedIds.join(', ')}`);
-    }
-
     function renderDiscount(d: IDiscount | null) {
         if (!d) return "";
         if (d.type === "PRC") return d.value + "%";
@@ -69,38 +55,17 @@
     clickableRows={true}
     idFieldName="customerId"
     bind:selected
-    onRowClick={onRowClick}
+    onRowClick={(customerId) => goto(`/customers/${customerId}/detail`)}
+    selectors={false}
     buttons={{
-        "Přidat": {
-            action: onAdd,
+        "Nový": {
+            action: () => goto('/customers/new'),
             icon: "plus",
-            color: "green"
+            color: "green",
+            disabled: true
         },
-        
-        "Editovat": {
-            action: () => {},
-            icon: "import",
-            color: "yellow"
-        }
     }}
 />
 
 <style lang="scss">
-    .action-bar {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        align-items: center;
-    }
-    .btn {
-        max-width: 10rem;
-    }
-    .btn-green {
-        background-color: #4caf50;
-        color: white;
-    }
-    .btn-red {
-        background-color: #f44336;
-        color: white;
-    }
 </style>

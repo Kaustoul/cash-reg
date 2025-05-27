@@ -307,6 +307,10 @@ export class SQLiteDB implements DB {
         return await this._orders.fetchOrderByTransactionId(this.db, transactionId);
     }
 
+    async fetchCustomerOrders(customerId: number) {
+        return await this._orders.fetchCustomerOrders(this.db, customerId);
+    }
+
     //---------------\\
     // -- CUSTOMERS -\\
     //---------------\\

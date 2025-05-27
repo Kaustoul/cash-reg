@@ -1,11 +1,13 @@
 <script lang="ts">
-    import ViewTitle from '$lib/ViewTitle.svelte';
     import SortedListView from '$lib/SortedListView.svelte';
     import { goto } from '$app/navigation';
     import type { PageData } from './$types';
     import type { Schema } from '$lib/componenets/interactables/SortedList.svelte';
+    import { viewTitleStore } from '$lib/shared/stores/workerStore';
 
     export let data: PageData;
+
+    viewTitleStore.set({title: "Zaměstnanci"});
 
     function onRowClick(userId: number) {
         goto(`/workers/${userId}/info`);
@@ -18,8 +20,6 @@
         { fieldName: "groupId", type: "number", columnHeader: "Skupina" }
     ];
 </script>
-
-<ViewTitle title="Zaměstnanci" />
 
 <SortedListView
     data={data.users}

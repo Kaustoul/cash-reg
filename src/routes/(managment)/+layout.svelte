@@ -13,6 +13,7 @@
     import AccountIcon from 'svelte-material-icons/Account.svelte';
     import DotsVerticalIcon from 'svelte-material-icons/DotsVertical.svelte';
     import type { LayoutData } from "./$types";
+    import { browser } from '$app/environment';
 
     export let data: LayoutData;
 
@@ -53,11 +54,11 @@
 
         "Zaměstnanci": {
             icon: WorkerIcon,
-            url: "/workers",
+            url: "/workers/list",
             permission: "tabs.workers.view"
         }
-    }
-
+    };
+    
     let showDropdown = false;
 
     function logout() {

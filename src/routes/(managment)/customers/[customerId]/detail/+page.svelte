@@ -3,12 +3,26 @@
     import { formatSum } from '$lib/shared/utils/money-sum-utils';
     import Decimal from 'decimal.js';
     import type { PageData } from './$types';
+    import EditableForm from '$lib/componenets/interactables/EditableForm.svelte';
     import CashPaymentModal from '$lib/componenets/modals/CashPaymentModal.svelte';
     import QRPaymentModal from '$lib/componenets/modals/QRPaymentModal.svelte';
+    import EditableFormButtons from '$lib/componenets/interactables/EditableFormButtons.svelte';
 
     export let data: PageData;
 
     let customer = data.customer;
+
+    let editMode = false;
+    let isSubmitting = false;
+    let error: string | null = null;
+
+    // Editable fields
+    let formData = {
+        name: customer.name,
+        surname: customer.surname,
+        email: customer.email ?? "",
+        discount: customer.discount?.value?.toString() ?? ""
+    };
 
     // Helper for unpaid orders count
     let unpaidOrdersCount = customer.unpaidOrders?.length ?? 0;
@@ -18,6 +32,14 @@
     let paymentValue = '';
     let showCashModal = false;
     let showQRModal = false;
+
+    const fields = [
+        { key: 'name', label: 'Jméno', value: formData.name.toString() },
+        { key: 'surname', label: 'Příjmení', value: formData.surname.toString() },
+        { key: 'email', label: 'Email', value: formData.email.toString() },
+        { key: 'discount', label: 'Sleva (%)', value: formData.discount.toString() }
+    ];
+    let editedFields = fields.map(f => ({ ...f }));
 
     function setAmountFromCustomer() {
         if (paymentValue === '') {
@@ -62,13 +84,110 @@
         
         return '0 Kč';
     }
+
+    async function handleSave() {
+        
+        const name = editedFields.find(f => f.key === 'name')?.value ?? "";
+        const surname = editedFields.find(f => f.key === 'surname')?.value ?? "";
+        const email = editedFields.find(f => f.key === 'email')?.value ?? "";
+        const discount = editedFields.find(f => f.key === 'discount')?.value ?? "";
+        
+        let dataToSend = new FormData();
+        dataToSend.append('test', 'test'); // Placeholder for debugging
+
+        console.log(Array.from(dataToSend.entries()));
+
+        console.log("Form data to send:", {
+            name,
+            surname,
+            email,
+            discount
+        }, "to customer:", customer);
+
+        if (name.trim() === '' || surname.trim() === '') {
+            error = "Jméno a příjmení nesmí být prázdné.";
+            return;
+        }
+
+        if (name === customer.name && surname === customer.surname &&
+            email === customer.email && discount === (customer.discount?.value?.toString() ?? "")) {
+            editMode = false;
+            return;
+        }
+
+        if (name !== customer.name) {
+            dataToSend.append('name', name);
+        }
+
+        if (surname !== customer.surname) {
+            dataToSend.append('surname', surname);
+            console.log("Appending surname:", surname);
+        }
+
+        if (email !== customer.email) {
+            dataToSend.append('email', email);
+        }
+
+        if (discount !== (customer.discount?.value?.toString() ?? "")) {
+            dataToSend.append('discount', discount);
+        }
+        console.log(Array.from(dataToSend.entries()));
+
+        isSubmitting = true;
+        error = null;
+        try {
+            const res = await fetch(`?/editCustomer`, {
+                method: 'POST',
+                body: dataToSend
+            });
+
+            if (res.ok) {
+                editMode = false;
+                window.location.reload();
+            } else {
+                error = "Nepodařilo se uložit změny.";
+                alert(error);
+            }
+        } catch (e) {
+            error = "Chyba při komunikaci se serverem.";
+            alert(error);
+        } finally {
+            isSubmitting = false;
+        }
+    }
+
+    function handleCancel() {
+        formData = {
+            name: customer.name,
+            surname: customer.surname,
+            email: customer.email ?? "",
+            discount: customer.discount?.value?.toString() ?? ""
+        };
+        editMode = false;
+        error = null;
+    }
 </script>
 
+<div class="container">
+    <div class="customer-header">
+        <div class="header-fields">
+            <EditableForm
+                {fields}
+                bind:editedFields
+                bind:editMode
+            />
+        </div>
+        <div class="header-buttons">
+            <EditableFormButtons
+                bind:editMode
+                onConfirm={handleSave}
+                onCancel={handleCancel}
+                bind:isSubmitting
+            />
+        </div>
+    </div>
 
-<div class="cards-container">
 
-</div>
-<div >
     <div class="balance-container">
         <div class="balance-section">
             <span class="label">Stav účtu</span>
@@ -115,10 +234,10 @@
         </div>
     </div>
     
-    <div class="discount-section">
+    <!-- <div class="discount-section">
         <span class="discount-label">Sleva:</span>
         <span class="discount-value">{customer.discount?.value ?? 0}{customer.discount?.type === 'PRC' ? '%' : customer.discount?.type === 'FLAT' ? ' Kč' : ''}</span>
-    </div>
+    </div> -->
 </div>
 
 {#if showCashModal}
@@ -142,6 +261,44 @@
     @use '$lib/styles/buttons' as buttons;
     @use '$lib/styles/inputs' as inputs;
     @use '$lib/styles/text-styles' as text_styles;
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .customer-header {
+        display: inline-flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        font-size: vars.$large;
+        max-height: 25rem;
+
+        .header-fields {
+            flex: 1 1 75%;
+            width: 75%;
+
+        }
+
+        .header-buttons {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            flex: 1 0 20%;
+
+            background-color: transparent;
+
+            margin: 0;
+        }
+    }
+
+    .header-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-left: auto;
+        background-color: vars.$primary-color;
+    }
 
     .balance-container {
         display: flex;
@@ -234,21 +391,39 @@
     .customer-header {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 1rem;
         align-items: flex-start;
         margin-bottom: 1rem;
     }
-
-    .customer-title {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: vars.$accent-color;
-    }
-
-    .customer-email {
+    .field {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
         font-size: 1.2rem;
-        color: vars.$text2-color;
-        font-family: 'Roboto Mono', monospace;
+    }
+    .label {
+        font-weight: bold;
+        min-width: 7rem;
+    }
+    .buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    .accept-btn, .cancel-btn, .edit-btn {
+        font-size: 1.1rem;
+        padding: 0.5rem 1.5rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+    }
+    .accept-btn { background: #4caf50; color: white; }
+    .cancel-btn { background: #ccc; }
+    .edit-btn { background: #1976d2; color: white; }
+    .error {
+        color: #b71c1c;
+        margin-top: 1rem;
+        font-weight: bold;
     }
 
     .balance-row {

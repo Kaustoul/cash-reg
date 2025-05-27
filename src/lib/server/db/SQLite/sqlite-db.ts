@@ -42,6 +42,7 @@ import type { IFrontEndUser, IFrontEndUserWithLogin, INewGroup, INewUser, IUser 
 import { sqliteGroups } from './sqlite-groups-data-handler';
 import type { GroupsDataHandler } from '../groups-data-handler';
 import { setupDefaultAdminUser, setupDefaultGroups, setupDefaultPermissions } from './sqlite-prepopulate';
+import type { IDiscount } from '$lib/shared/interfaces/discount';
 
 export class SQLiteDB implements DB {
     readonly db: BetterSQLite3Database;
@@ -327,8 +328,8 @@ export class SQLiteDB implements DB {
         return await this._customers.newCustomer(this.db, customer);
     }
 
-    async updateCustomer(customer: ICustomer) {
-        return await this._customers.updateCustomer(this.db, customer);
+    async updateCustomer(customerId: number, data: {name?: string; surname?: string; email?: string; discount?: IDiscount | undefined}): Promise<void> {
+        return await this._customers.updateCustomer(this.db, customerId, data);
     }
 
     async removeCustomer(customerId: number) {

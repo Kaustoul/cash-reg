@@ -7,6 +7,8 @@ import { eq, and, isNull } from "drizzle-orm";
 import { sqliteOrders } from "./splite-orders-data-handler"; // adjust import as needed
 import { combineSums } from "$lib/shared/utils/money-sum-utils";
 import type { SQLiteTx } from "../db";
+import { cleanObject } from "$lib/shared/utils";
+import type { IDiscount } from "$lib/shared/interfaces/discount";
 
 export const sqliteCustomers = {
     async fetchCustomer(db: BetterSQLite3Database, customerId: number): Promise<ICustomer> {
@@ -58,11 +60,11 @@ export const sqliteCustomers = {
         return res[0].newId;
     },
 
-    async updateCustomer(db: BetterSQLite3Database, customer: ICustomer): Promise<void> {
+    async updateCustomer(db: BetterSQLite3Database, customerId: number, data: {name?: string, surname?: string, email?: string, discount?: IDiscount | undefined}): Promise<void> {
         await db
             .update(customersTable)
-            .set(customer)
-            .where(eq(customersTable.customerId, customer.customerId))
+            .set(cleanObject(data))
+            .where(eq(customersTable.customerId, customerId))
             .execute();
     },
 

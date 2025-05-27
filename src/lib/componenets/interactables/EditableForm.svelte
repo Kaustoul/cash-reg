@@ -1,30 +1,31 @@
 <script lang="ts">
     import EditableSpan from './EditableSpan.svelte';
+    import EditIcon from 'svelte-material-icons/AccountEdit.svelte';
 
     export let fields: { key: string, label: string, value: string }[] = [];
     export let editMode: boolean = false;
-    export let cancelBtn: boolean = true;
+    export let noButtons: boolean = true;
     export let onSubmit: (data: Record<string, string>) => void = () => {};
     export let onCancel: () => void = () => {};
 
-    let localFields = fields.map(f => ({ ...f }));
+    export let editedFields = fields.map(f => ({ ...f }));
 
     $: if (!editMode) {
-        localFields = fields.map(f => ({ ...f }));
+        editedFields = fields.map(f => ({ ...f }));
     }
 
     function handleChange(key: string, value: string) {
-        const field = localFields.find(f => f.key === key);
+        const field = editedFields.find(f => f.key === key);
         if (field) field.value = value;
     }
 
     function submit() {
-        onSubmit(Object.fromEntries(localFields.map(f => [f.key, f.value])));
+        onSubmit(Object.fromEntries(editedFields.map(f => [f.key, f.value])));
     }
 </script>
 
 <div class="editable-fields">
-    {#each localFields as field}
+    {#each editedFields as field}
         <div class="field-row">
             <span class="label">{field.label}</span>
             <EditableSpan
@@ -42,11 +43,22 @@
 
 {#if editMode}
     <div class="actions">
-        <button type="button" class="accept-btn" on:click={submit}>Přidat</button>
-        {#if cancelBtn}
+        {#if !noButtons}
+            <button type="button" class="accept-btn" on:click={submit}>Přidat</button>
             <button type="button" class="cancel-btn" on:click={onCancel}>Zrušit</button>
         {/if}
     </div>
+{:else}
+    {#if !noButtons}
+        <button 
+            class="edit-btn" 
+            type="button"
+            on:click={() => editMode = !editMode}
+        >
+            <EditIcon size="2.5rem" />
+            Upravit
+        </button>
+    {/if}
 {/if}
 
 <style lang="scss">
@@ -55,22 +67,22 @@
     @use '$lib/styles/buttons' as buttons;
 
     .editable-fields {
-        display: flex;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         flex-wrap: wrap;
+        align-items: center;
         gap: 3rem 1rem;
+        
+        width: calc(100% - 4rem);
+        
+        padding: 2rem;
     }
 
     .field-row {
         display: flex;
         flex-direction: column;
-        align-items: baseline;
-        flex-wrap: wrap;
         gap: 1rem 2rem;
-
-        width: 100%;
-
-
-        flex: 0 0 48%;
+        flex: 0 0 45%;
     }
 
     .label {

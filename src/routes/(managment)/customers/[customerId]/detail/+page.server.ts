@@ -1,23 +1,62 @@
 import { database } from '$lib/server/db/db';
+import { getUserAndOpenSession } from '$lib/server/utils/session-utils';
+import type { IDiscount } from '$lib/shared/interfaces/discount';
 import type { PageServerLoad, Actions } from './$types';
+import { fail, json } from '@sveltejs/kit';
 
-// Payment action for customer debt/topup
-// export const actions: Actions = {
-//     topUp: async ({ params, request }) => {
-//         const customerId = Number(params.customerId);
-//         const { amount, type } = await request.json();
+export const actions: Actions = {
+    async editCustomer({ params, request, cookies }) {
+        console.log('Editing customer action started');
+        const { user } = await getUserAndOpenSession(cookies);
+        if (!user) {
+            return fail(401, { error: 'Unauthorized' });
+        }
 
-//         if (isNaN(customerId) || !amount) {
-//             return new Response('Invalid input', { status: 400 });
-//         }
+        const customerId = Number(params.customerId);
+        if (!customerId) return fail(400, { error: 'Invalid customer ID' });
 
-//         // Call your DB handler to process the payment
-//         await database.processCustomerDeposit(
-//             customerId,
-//             { value: amount.toString(), currency: 'CZK' },
-//             type // TransactionType, e.g. 'cash' or 'qr'
-//         );
+        const form = await request.formData();
+        const name = form.get('name')?.toString().trim();
+        const surname = form.get('surname')?.toString().trim();
+        const email = form.get('email')?.toString().trim();
+        const discount = form.get('discount')?.toString().trim();
 
-//         return new Response('OK', { status: 200 });
-//     }
-// };
+        // Prepare discount object if present
+        let discountObj: IDiscount | null | undefined = undefined;
+        if (discount) {
+            if (isNaN(Number(discount))) {
+                return fail(400, { error: 'Sleva musí být číslo.' });
+            }
+            
+            if (discount.trim() === "")
+                discountObj = null;
+
+            discountObj = {
+                value: discount,
+                type: "PRC",
+                source: "customer"
+            };
+        }
+
+        console.log('Editing customer:', {
+            customerId,
+            data: { name, surname, email, discount: discountObj}
+        });
+
+        // Fetch current customer
+        const customer = await database.fetchCustomer(customerId);
+        if (!customer) return fail(404, { error: 'Zákazník nenalezen.' });
+
+        // Update customer object
+        const updatedCustomer = {
+            name,
+            surname,
+            email,
+            discount: discountObj
+        };
+
+        await database.updateCustomer(customerId, updatedCustomer);
+
+        return { success: true };
+    }
+};

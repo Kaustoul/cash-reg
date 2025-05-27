@@ -1,13 +1,9 @@
 <script lang="ts">
-    import ViewTitle from '$lib/ViewTitle.svelte';
     import type { PageData } from './$types';
     import { formatDate } from '$lib/shared/utils/date-utils';
     import EditableSpan from '$lib/componenets/interactables/EditableSpan.svelte';
-    import EditIcon from 'svelte-material-icons/AccountEdit.svelte';
-    import AcceptIcon from 'svelte-material-icons/CheckCircle.svelte';
-    import CancelIcon from 'svelte-material-icons/Cancel.svelte';
-    import { enhance } from '$app/forms';
     import { viewTitleStore } from '$lib/shared/stores/workerStore';
+    import EditableFormButtons from '$lib/componenets/interactables/EditableFormButtons.svelte';
 
     export let data: PageData;
     
@@ -117,37 +113,12 @@
         </div>
     </div>
     <div class="info-area">
-        <div class="buttons">
-            {#if editMode}
-                <button 
-                    class="cancel-btn" 
-                    type="button"
-                    on:click={cancelEdit}
-                    disabled={isSubmitting}
-                >
-                    <CancelIcon size="1.5rem" />
-                    Zrušit
-                </button>
-                <button 
-                    class="accept-btn" 
-                    type="button"
-                    on:click={saveChanges}
-                    disabled={isSubmitting}
-                >
-                    <AcceptIcon size="1.5rem" />
-                    {isSubmitting ? '...' : 'Potvrdit'}
-                </button>
-            {:else}
-                <button 
-                    class="edit-btn" 
-                    type="button"
-                    on:click={() => editMode = !editMode}
-                >
-                    <EditIcon size="2.5rem" />
-                    Upravit
-                </button>
-            {/if}
-        </div>
+        <EditableFormButtons 
+            bind:editMode 
+            bind:isSubmitting
+            onConfirm={saveChanges}
+            onCancel={cancelEdit}
+        />
         <div class="info">
             <div class="field">
                 <span class="label">Vytvořen:</span>
@@ -247,47 +218,11 @@
                 font-size: vars.$larger;
             }
         }
-
-        .buttons {
-            display: flex;
-            gap: 1rem;
-        }
     }
 
     .pwd-btn {
         @include buttons.btn($btn-color: vars.$red, $btn-height: 4.5rem);
         font-size: vars.$large;
         margin: 0 1rem;
-    }
-
-    .edit-btn {
-        @include buttons.btn($btn-color: vars.$yellow, $btn-height: 4rem);
-        width: 100%;
-        font-size: vars.$larger;
-        font-weight: bold;
-    }
-
-    .accept-btn {
-        @include buttons.btn($btn-color: vars.$green, $btn-height: 3.5rem);
-        width: 100%;
-        font-size: vars.$larger;
-        flex: 0 0 48%;
-
-        &:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-    }
-
-    .cancel-btn {
-        @include buttons.btn($btn-color: vars.$red, $btn-height: 3.5rem);
-        width: 100%;
-        font-size: vars.$larger;
-        flex: 0 0 48%;
-
-        &:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
     }
 </style>

@@ -2,6 +2,7 @@
     import { goto, replaceState } from "$app/navigation";
     import { page } from "$app/stores";
     import { getDefaultTab, type Tabs } from "./navigator";
+    import { browser } from "$app/environment";
 
     export let tabs: Tabs;
     export let selectedTab: string | undefined = undefined;
@@ -20,13 +21,15 @@
             // TODO handle no enabled tabs
             throw new Error("No enabled tabs");
         }
-
-        goto(tabs[selectedTab].url, {replaceState: true});
+        
+        if (browser)
+            goto(tabs[selectedTab].url, {replaceState: true});
     }
 
     async function redirectToTab(tab: string) {
         selectedTab = tab;
-        goto(tabs[tab].url, {replaceState: true});        
+        if (browser)
+            goto(tabs[tab].url, {replaceState: true});        
     }
 </script>
 
@@ -48,7 +51,7 @@
     .tab-selector {
         display: flex;
         justify-content: flex-start;
-        margin: 1rem 0;
+        margin: 0 0 1rem 0;
         gap: 1rem;
         border-bottom: 1px solid vars.$primary-color;
     }

@@ -87,3 +87,9 @@ export function formatPrice(price: IPrice, includeCurrency: boolean = false): st
 
     return res;
 }
+
+export function cleanObject<T extends {}>(obj: T): T {
+    return Object.fromEntries(
+        Object.entries(obj).filter(([_, v]) => v !== undefined)
+    ) as T;
+}

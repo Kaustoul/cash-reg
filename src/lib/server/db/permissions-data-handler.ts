@@ -6,4 +6,5 @@ export interface PermissionsDataHandler {
     fetchPermissionById(db: Databases | Transactions, key: string): Promise<PermissionLeaf | null>;
     fetchAllPermissions(db: Databases | Transactions): Promise<PermissionLeaf[]>;
     setupPermissions(db: Databases | Transactions): Promise<void>;
+    groupHasPermission(db: Databases | Transactions, groupId: number, permissionId: string): Promise<boolean>;
 }

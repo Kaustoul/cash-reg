@@ -17,7 +17,7 @@
     $: tillSessionId = $tillSessionIdStore;
 
     $: {for (const tab in tabs) {
-        if (!tabs[tab].disabled && $page.url.pathname.endsWith(tabs[tab].url)) {
+        if (!tabs[tab].disabled && $page.url.pathname.includes(tabs[tab].url)) {
             selectedTab = tab;
             console.log(tab)
             break;

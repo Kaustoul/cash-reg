@@ -25,7 +25,7 @@
     ];
 
     const customRenderer = {
-        type: (row, column) => {
+        type: (row: any, column: any) => {
             if (row[column.fieldName] === 'cash') {
                 return {
                     component: CashIcon,
@@ -47,7 +47,7 @@
             return { text: '—' };
         },
 
-        reason: (row, column) => {
+        reason: (row: any, column: any) => {
             if (row[column.fieldName] === 'purchase') {
                 return {
                     component: PurchaseIcon,

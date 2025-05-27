@@ -1,4 +1,4 @@
-import type { IFrontEndUser } from "../interfaces/user";
+import type { IFrontEndUser, IUser } from "../interfaces/user";
 import type { PermissionLeaf, PermissionTree } from "../permissions";
 
 // Recursively flatten the permissions tree to dot-separated keys

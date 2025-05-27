@@ -3,7 +3,7 @@ import type { RequestHandler } from '@sveltejs/kit';
 import { compare } from 'bcryptjs'; // Make sure bcryptjs is installed
 import { generatePassword, hashPassword } from '$lib/server/utils/password-utils';
 
-export const POST: RequestHandler = async ({ request, cookies }) => {
+export const POST: RequestHandler = async ({ request, cookies, getClientAddress }) => {
     const { userId, password } = await request.json();
     let res = {};
 
@@ -31,6 +31,9 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     }
         
     cookies.set('userId', String(user.userId), { path: '/', httpOnly: true });
+
+    const ip = getClientAddress();
+    await database.onUserLogin(user.userId, ip === "::1" ? "localhost" : ip);
 
     const tillSession = await database.fetchLastOpenSessionForUser(user.userId);
     if (tillSession) {

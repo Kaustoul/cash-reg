@@ -3,12 +3,13 @@ import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import type { SQLiteTx } from "../db";
 import type { IUser, INewUser } from "$lib/shared/interfaces/user";
 import { eq } from "drizzle-orm";
+import { cleanObject } from "$lib/shared/utils";
 
 export const sqliteUsers = {
     async newUser(db: BetterSQLite3Database | SQLiteTx, user: INewUser): Promise<number> {
         const res = await db
             .insert(usersTable)
-            .values(user)
+            .values({...user, lastIp: null, lastLogin: null})
             .returning({ userId: usersTable.userId })
             .execute();
         return res[0].userId;
@@ -43,6 +44,24 @@ export const sqliteUsers = {
         await db
             .update(usersTable)
             .set({ passwordHash, mustChangePassword })
+            .where(eq(usersTable.userId, userId))
+            .execute();
+    },
+
+    async onUserLogin(db: BetterSQLite3Database | SQLiteTx, userId: number, ip: string): Promise<void> {
+        await db
+            .update(usersTable)
+            .set({ lastLogin: new Date(), lastIp: ip })
+            .where(eq(usersTable.userId, userId))
+            .execute();
+    },
+
+    async updateUserInfo(db: BetterSQLite3Database | SQLiteTx, userId: number, data: {name?: string, surname?: string}): Promise<void> {
+        console.log("Updating user info", userId, data);
+        
+        await db
+            .update(usersTable)
+            .set(cleanObject(data))
             .where(eq(usersTable.userId, userId))
             .execute();
     },

@@ -11,17 +11,7 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
         throw redirect(302, '/login');
     }
 
-    const group = await database.fetchGroupById(user.groupId);
-    const permissions = await database.fetchGroupPermissions(user.groupId);
-
-    const frontEndUser = {
-        userId: user.userId,
-        name: user.name,
-        surname: user.surname,
-        groupId: user.groupId,
-        permissions: permissions,
-        isAdmin: group?.name === 'admin'
-    };
+    const frontEndUser = await database.fetchFrontEndUser(user);
 
     return {
         frontEndUser,

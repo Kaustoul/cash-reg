@@ -37,6 +37,7 @@
     .container {
         display: flex;
         align-items: baseline;
+        margin-bottom: 2rem;
     }
 
     .title {

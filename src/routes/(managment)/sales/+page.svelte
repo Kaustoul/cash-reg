@@ -119,7 +119,7 @@
         display: flex;
         justify-content: end;
         gap: 1rem;
-        margin: 1rem;
+        margin: 0 1rem 1rem 1rem;
         
         label {
             font-size: vars.$large;

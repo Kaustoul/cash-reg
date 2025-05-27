@@ -66,8 +66,6 @@ export const actions = {
             return { success: false, error: 'Till session already open' };
         }
 
-        console.log("Starting new till session for user:", user.userId);
-
         const data = await request.formData();
         const tillId = Number(data.get('tillId'));
         const userId = Number(cookies.get('userId')); 

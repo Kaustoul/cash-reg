@@ -90,24 +90,26 @@
 <TabSelector {tabs}/>
 
 
-{#each data.tills as till}
-    <TillCard 
-        {till}
-        onDeposit={(tillId, amount) => handleMoneyTransfer(tillId, amount, 'deposit')}
-        onWithdraw={(tillId, amount) => handleMoneyTransfer(tillId, amount, 'withdraw')}
-        onOpenBalance={() => balanceModalData = {
-            tillId: till.id,
-            balance: till.balance,
-            show: true
-        }}
-        action={data.tillSessionId ? (data.tillId && data.tillId === till.id ? "close" : "none") : "open"}
-    />
-{/each}
-
-{#if data.tills.length === 0}
+{#if data.tills}
+    {#each data.tills as till}
+        <TillCard 
+            {till}
+            onDeposit={(tillId, amount) => handleMoneyTransfer(tillId, amount, 'deposit')}
+            onWithdraw={(tillId, amount) => handleMoneyTransfer(tillId, amount, 'withdraw')}
+            onOpenBalance={() => balanceModalData = {
+                tillId: till.id,
+                balance: till.balance,
+                show: true
+            }}
+            action={data.tillSessionId ? (data.tillId && data.tillId === till.id ? "close" : "none") : "open"}
+        />
+    {/each}
+    
+    {#if data.tills.length === 0}
     <form method="POST" use:enhance action="?/newTill">
-    <button type="submit" class="btn" >Přidat pokladnu</button>
+        <button type="submit" class="btn" >Přidat pokladnu</button>
     </form>
+    {/if}
 {/if}
 
 <style lang="scss">

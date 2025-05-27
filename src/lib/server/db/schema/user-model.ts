@@ -35,6 +35,12 @@ export const usersTable = sqliteTable('users', {
         .notNull()
     ,
 
+    lastLogin: integer('lastLogin', { mode: 'timestamp' })
+    ,
+
+    lastIp: text('lastIp', { length: 64 })
+    ,
+    
     createdAt: integer('createdAt', { mode: 'timestamp' })
         .notNull()
         .default(sql`(unixepoch())`),

@@ -19,9 +19,7 @@
     userStore.set(data.frontEndUser ?? null);
     tillSessionIdStore.set(data.tillSessionId ?? null);
 
-    let viewTitle: string = "";
     let userIdValue: number | null = $userStore?.userId ?? null;
-    let groupId: number | null = $userStore?.groupId ?? null;
     let tillSessionIdValue: number | null = data.tillSessionId;
 
     const tabs = {

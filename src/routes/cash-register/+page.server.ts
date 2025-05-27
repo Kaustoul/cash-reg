@@ -28,9 +28,6 @@ export const load: PageServerLoad = async ({cookies}) => {
 export const actions = {
     finalizeOrder: async ({request, cookies}) => {
         const { user, tillSession } = await getUserAndOpenSession(cookies);
-        console.log("Finalize order action called");
-        console.log("User:", user);
-        console.log("Till Session:", tillSession);
         
         if (!user || !tillSession) {
             return { success: false, error: 'Not logged in or no open till session' };
@@ -39,8 +36,6 @@ export const actions = {
         const data = await request.formData();
         const cart: IShoppingCart = JSON.parse(data.get('cart') as string);
         
-        console.log("Cart data:", cart);
-
         const items: IOrder["items"] = cart.items.map(item => {
             return {
                 fullId: parseFullItemId(item.productId, item.itemId),
@@ -53,8 +48,6 @@ export const actions = {
             }
         });
 
-        console.log("Parsed items:", items);
-
         await database.newOrder({
             tillSessionId: tillSession.tillSessionId,
             items: items,
@@ -65,8 +58,6 @@ export const actions = {
             note: cart.note ?? null,
             customerId: cart.customerId ?? null
         });
-
-        console.log("Order finalized successfully");
 
         return {
             success: true,

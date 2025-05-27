@@ -1,3 +1,5 @@
+import { int } from "drizzle-orm/mysql-core";
+
 export interface IUser {
     userId: number;
     name: string;
@@ -7,15 +9,24 @@ export interface IUser {
     groupId: number;
     createdAt: Date;
     mustChangePassword: boolean;
+    lastLogin?: Date | null;
+    lastIp?: string | null;
 }
 
 export interface IFrontEndUser {
     userId: number;
+    group: IGroup;
     name: string;
     surname: string;
-    groupId: number;
     permissions: string[];
     isAdmin: boolean;
+    createdAt: Date;
+}
+
+export interface IFrontEndUserWithLogin extends IFrontEndUser {
+    lastLogin?: Date | null;
+    lastIp?: string | null;
+    mustChangePassword: boolean;
 }
 
 // export type FrontEndUser = Omit<IUser, 'passwordHash' | 'pinHash'>;

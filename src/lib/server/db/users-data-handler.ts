@@ -7,4 +7,6 @@ export interface UserDataHandler {
     updateUserGroup(db: Databases | Transactions, userId: number, groupId: number): Promise<void>;
     updateUserPassword(db: Databases | Transactions, userId: number, passwordHash: string, mustChangePassword: boolean): Promise<void>;
     fetchAllUsers(db: Databases | Transactions): Promise<IUser[]>;
+    onUserLogin(db: Databases | Transactions, userId: number, ip: string): Promise<void>;
+    updateUserInfo(db: Databases | Transactions, userId: number, data: {name?: string, surname?: string}): Promise<void>;
 }

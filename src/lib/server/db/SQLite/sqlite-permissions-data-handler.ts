@@ -11,6 +11,7 @@ import type { PermissionLeaf } from '$lib/shared/permissions';
 import { flattenPermissions } from '$lib/shared/utils/permission-utils';
 import { PERMISSIONS } from '$lib/shared/permissions';
 import type { PermissionsDataHandler } from '../permissions-data-handler';
+import { groupPermissionsTable } from '../schema/group-permission-model';
 
 export const sqlitePermissions = {
     async newPermission(db: BetterSQLite3Database | SQLiteTx, key: string, data: PermissionLeaf): Promise<void> {
@@ -45,5 +46,21 @@ export const sqlitePermissions = {
         for (const [key, { name, description }] of Object.entries(flat)) {
             await sqlitePermissions.newPermission(db, key, { name, description });
         }
+    },
+
+    async groupHasPermission(db: BetterSQLite3Database | SQLiteTx, groupId: number, permissionId: string): Promise<boolean> {
+        const res = await db
+            .select({ hasPermission: max(permissionsTable.permissionId) })
+            .from(groupPermissionsTable)
+            .where(
+                and(
+                    eq(groupPermissionsTable.groupId, groupId),
+                    eq(groupPermissionsTable.permissionId, permissionId)
+                )
+            )
+            .groupBy(groupPermissionsTable.groupId)
+            .execute();
+
+        return res.length > 0 && res[0].hasPermission === permissionId;
     }
 } satisfies PermissionsDataHandler;

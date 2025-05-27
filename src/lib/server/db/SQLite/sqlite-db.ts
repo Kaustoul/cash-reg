@@ -38,7 +38,7 @@ import { sqlitePermissions } from './sqlite-permissions-data-handler';
 import type { PermissionLeaf } from '$lib/shared/permissions';
 import { sqliteUsers } from './sqlite-users-data-handler';
 import type { UserDataHandler } from '../users-data-handler';
-import type { INewGroup, INewUser } from '$lib/shared/interfaces/user';
+import type { IFrontEndUser, IFrontEndUserWithLogin, INewGroup, INewUser, IUser } from '$lib/shared/interfaces/user';
 import { sqliteGroups } from './sqlite-groups-data-handler';
 import type { GroupsDataHandler } from '../groups-data-handler';
 import { setupDefaultAdminUser, setupDefaultGroups, setupDefaultPermissions } from './sqlite-prepopulate';
@@ -385,6 +385,44 @@ export class SQLiteDB implements DB {
         return await this._users.fetchAllUsers(this.db);
     }
 
+    async onUserLogin(userId: number, ip: string) {
+        return await this._users.onUserLogin(this.db, userId, ip);
+    }
+
+    async updateUserInfo(userId: number, data: { name?: string; surname?: string }) {
+        return await this._users.updateUserInfo(this.db, userId, data);
+    }
+
+    async fetchFrontEndUser(user: IUser): Promise<IFrontEndUser> {
+        const group = await this.fetchGroupById(user.groupId);
+        const permissions = await this.fetchGroupPermissions(user.groupId) ?? [];
+    
+        if (!group) {
+            throw new Error(`Group with ID ${user.groupId} not found`);
+        }
+
+        return {
+            userId: user.userId,
+            name: user.name,
+            surname: user.surname,
+            group: group,
+            permissions: permissions,
+            isAdmin: group?.name === 'admin',
+            createdAt: user.createdAt,
+        };
+    }
+
+    async fetchFrontEndUserWithLogin(user: IUser): Promise<IFrontEndUserWithLogin> {
+        const frontEndUser = await this.fetchFrontEndUser(user);
+        
+        return {
+            ...frontEndUser,
+            mustChangePassword: user.mustChangePassword,
+            lastLogin: user.lastLogin ?? null,
+            lastIp: user.lastIp ?? null,
+        };
+    }
+
     //--------------\\
     // -- GROUPS -- \\
     //--------------\\
@@ -392,18 +430,23 @@ export class SQLiteDB implements DB {
     async fetchGroupById(groupId: number) {
         return await this._groups.fetchGroupById(this.db, groupId);
     }
+    
     async fetchGroups() {
         return await this._groups.fetchGroups(this.db);
     }
+
     async newGroup(group: INewGroup) {
         return await this._groups.newGroup(this.db, group);
     }
+
     async updateGroup(groupId: number, group: Partial<INewGroup>) {
         return await this._groups.updateGroup(this.db, groupId, group);
     }
+
     async setGroupPermission(groupId: number, permissionId: string, enabled: boolean) {
         return await this._groups.setGroupPermission(this.db, groupId, permissionId, enabled);
     }
+
     async fetchGroupPermissions(groupId: number) {
         return await this._groups.fetchGroupPermissions(this.db, groupId);
     }
@@ -422,5 +465,9 @@ export class SQLiteDB implements DB {
 
     async newPermission(permissionKey: string, data: PermissionLeaf) {
         return await this._permissions.newPermission(this.db, permissionKey, data);
+    }
+
+    async groupHasPermission(groupId: number, permissionId: string): Promise<boolean> {
+        return await this._permissions.groupHasPermission(this.db, groupId, permissionId);
     }
 }

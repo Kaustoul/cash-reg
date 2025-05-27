@@ -1,4 +1,5 @@
 import { database } from '$lib/server/db/db';
+import type { IUser } from '$lib/shared/interfaces/user';
 import type { Cookies } from '@sveltejs/kit';
 
 export async function getUserAndOpenSession(cookies: Cookies) {
@@ -20,4 +21,14 @@ export async function getUserAndOpenSession(cookies: Cookies) {
     }
 
     return { user, tillSession };
+}
+
+export async function fetchAndHasPermission(user: IUser, permission: string) {
+    if (!user || !user.groupId) return false;
+
+    const group = await database.fetchGroupById(user.groupId);
+    if (!group) return false;
+    if (group.name === 'admin') return true;
+
+    return await database.groupHasPermission(user.groupId, permission);    
 }

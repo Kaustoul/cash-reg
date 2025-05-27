@@ -21,7 +21,8 @@
     export let buttons: { [key: string]: { 
         icon: "plus" | "delete" | "import",
         color: "red" | "blue" | "green" | "yellow" | "accent",
-        action: () => void 
+        action: () => void,
+        disabled?: boolean
     }} = {}; 
     export let selected: (string | number)[] = [];
     export let customSearchKeys: string[] | null = null;
@@ -72,7 +73,7 @@
 
     {#each Object.entries(buttons) as [key, value]}
         <button type="button"
-            class={`btn btn-${value.color}`}
+            class={`btn btn-${value.color} ${value.disabled === undefined || !value.disabled ? "" : "disabled"}`}
             on:click={() => value.action()}
         >
             {#if value.icon === "plus"}

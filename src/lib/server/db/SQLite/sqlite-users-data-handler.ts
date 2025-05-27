@@ -57,8 +57,6 @@ export const sqliteUsers = {
     },
 
     async updateUserInfo(db: BetterSQLite3Database | SQLiteTx, userId: number, data: {name?: string, surname?: string}): Promise<void> {
-        console.log("Updating user info", userId, data);
-        
         await db
             .update(usersTable)
             .set(cleanObject(data))

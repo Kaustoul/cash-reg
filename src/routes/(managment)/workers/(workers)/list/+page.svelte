@@ -17,7 +17,7 @@
         { fieldName: "userId", type: "number", columnHeader: "ID", searchKey: true },
         { fieldName: "name", type: "string", columnHeader: "Jméno", searchKey: true },
         { fieldName: "surname", type: "string", columnHeader: "Příjmení", searchKey: true },
-        { fieldName: "groupId", type: "number", columnHeader: "Skupina" }
+        { fieldName: "group", type: "number", columnHeader: "Skupina" }
     ];
 </script>
 
@@ -30,10 +30,14 @@
     showSearchBar={true}
     selectors={false}
     buttons={{
-        "Nový": {
+        "Přidat": {
             icon: "plus",
             color: "green",
-            action: () => goto('/workers/create')
+            action: () => goto('/workers/new')
         }
+    }}
+
+    customRenderer={{
+        group: (user) => user.group ? user.group.name : "Žádná skupina"
     }}
 />

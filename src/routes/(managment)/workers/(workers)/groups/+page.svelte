@@ -32,7 +32,8 @@
         "Přidat": {
             icon: "plus",
             color: "green",
-            action: () => {}
+            action: () => {},
+            disabled: true
         }
     }}
 />

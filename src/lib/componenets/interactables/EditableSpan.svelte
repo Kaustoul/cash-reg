@@ -39,8 +39,9 @@
     .editable-input, .editable-text {
         @include inputs.text;
 
+        display: block;
         font-size: inherit;
-        
+        width: 80%;
         padding: 1rem 2rem;
 
         border: 1px solid vars.$second-accent-color;

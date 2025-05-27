@@ -13,7 +13,7 @@
         { key: 'description', label: 'Popis', value: data.group.description ?? '' }
     ];
 
-    async function handleSubmit(updated) {
+    async function handleSubmit(updated: any) {
         // Send PATCH/PUT to `/api/groups/${data.group.groupId}` with updated
         // On success:
         editMode = false;

@@ -14,6 +14,6 @@ export const load: PageServerLoad = async ({cookies}) => {
         throw redirect(302, '/catalog');
     }
 
-    const users = await database.fetchAllUsers();
+    const users = await database.fetchFrontEndUsers();
     return { users };
 };

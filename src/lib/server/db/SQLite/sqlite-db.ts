@@ -427,6 +427,33 @@ export class SQLiteDB implements DB {
         };
     }
 
+    async fetchFrontEndUsers(): Promise<IFrontEndUser[]> {
+        const users = await this._users.fetchAllUsers(this.db);
+        const groups = await this._groups.fetchGroups(this.db);
+     
+        const frontEndUsers: IFrontEndUser[] = [];
+        for (const user of users) {
+            const group = groups.find(g => g.groupId === user.groupId);
+            
+            if (!group) {
+                throw new Error(`Group with ID ${user.groupId} not found for user ${user.userId}`);
+            }
+
+
+            frontEndUsers.push({
+                userId: user.userId,
+                name: user.name,
+                surname: user.surname,
+                group: group,
+                isAdmin: group.name === 'admin',
+                createdAt: user.createdAt,
+                permissions: [],
+            });
+        }
+
+        return frontEndUsers;
+    }
+    
     //--------------\\
     // -- GROUPS -- \\
     //--------------\\

@@ -3,6 +3,7 @@
 
     export let fields: { key: string, label: string, value: string }[] = [];
     export let editMode: boolean = false;
+    export let cancelBtn: boolean = true;
     export let onSubmit: (data: Record<string, string>) => void = () => {};
     export let onCancel: () => void = () => {};
 
@@ -33,41 +34,71 @@
             />
         </div>
     {/each}
-    {#if editMode}
-        <div class="actions">
-            <button type="button" class="accept-btn" on:click={submit}>Potvrdit</button>
-            <button type="button" class="cancel-btn" on:click={onCancel}>Zrušit</button>
-        </div>
-    {/if}
+
+    <div class="slot">
+        <slot></slot>
+    </div>
 </div>
 
-<style>
-.editable-fields {
-    display: flex;
-    flex-direction: column;
-    gap: 1.2rem;
-}
-.field-row {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-}
-.label {
-    min-width: 8rem;
-    font-weight: bold;
-}
-.actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-.accept-btn, .cancel-btn {
-    font-size: 1.1rem;
-    padding: 0.5rem 1.5rem;
-    border-radius: 0.5rem;
-    border: none;
-    cursor: pointer;
-}
-.accept-btn { background: #4caf50; color: white; }
-.cancel-btn { background: #ccc; }
+{#if editMode}
+    <div class="actions">
+        <button type="button" class="accept-btn" on:click={submit}>Přidat</button>
+        {#if cancelBtn}
+            <button type="button" class="cancel-btn" on:click={onCancel}>Zrušit</button>
+        {/if}
+    </div>
+{/if}
+
+<style lang="scss">
+    @use '$lib/styles/vars' as vars;
+    @use '$lib/styles/inputs' as inputs;
+    @use '$lib/styles/buttons' as buttons;
+
+    .editable-fields {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 3rem 1rem;
+    }
+
+    .field-row {
+        display: flex;
+        flex-direction: column;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 1rem 2rem;
+
+        width: 100%;
+
+
+        flex: 0 0 48%;
+    }
+
+    .label {
+        font-size: inherit;
+        color: vars.$text2-color;
+        font-weight: bold;
+    }
+
+    .actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 4rem;
+        width: 30%;
+        align-items: center;
+        justify-self: center;
+    }
+
+    .accept-btn, .cancel-btn {
+        font-size: 1.1rem;
+        padding: 0.5rem 1.5rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+    }
+
+    .accept-btn {
+        @include buttons.btn($btn-color: vars.$green, $btn-height: 4rem);
+        font-size: vars.$large;
+        width: 30%
+    }
 </style>

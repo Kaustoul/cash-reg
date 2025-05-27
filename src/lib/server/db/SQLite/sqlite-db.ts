@@ -255,6 +255,10 @@ export class SQLiteDB implements DB {
         return await this._tillSessions.fetchLastSessionTill(this.db, tillId);
     }
 
+    async fetchSessionsForUser(userId: number) {
+        return await this._tillSessions.fetchSessionsForUser(this.db, userId);
+    }
+
     //-------------------\\
     // -- TILL CHECKS -- \\
     //-------------------\\

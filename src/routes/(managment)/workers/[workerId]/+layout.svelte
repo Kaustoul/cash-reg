@@ -12,7 +12,6 @@
 
         "Směny": {
             url: `/workers/${data.worker.userId}/sessions`,
-            disabled: true,
         },
 
         "Kontroly": {

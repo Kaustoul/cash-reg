@@ -3,6 +3,8 @@
     import { formatDate } from '$lib/shared/utils/date-utils';
 
     export let sessions: {sessionStart: ITillSession, sessionEnd: ITillSession}[];
+    export let showWorkerId: boolean = false;
+    export let showTillId: boolean = false;
 
     function formatDuration(start: Date | string | number, end: Date | string | number | null) {
         if (!end) return "—";
@@ -23,7 +25,12 @@
         <div class="session-card">
             <div class="session-line open">
                 <span class="label green">Začátek směny</span>
-                <span class="center">Zaměstnanec: {session.sessionStart.cashierId}</span>
+                {#if showWorkerId}
+                    <span class="center">Zaměstnanec: {session.sessionStart.cashierId}</span>
+                {/if}
+                {#if showTillId}
+                    <span class="center">Pokladna: {session.sessionStart.tillId}</span>
+                {/if}
                 <span class="time">{formatDate(session.sessionStart.createdAt)}</span>
             </div>
             <hr class="divider" />
@@ -51,9 +58,12 @@
 <style lang="scss">
     @use '$lib/styles/vars' as vars;
     @use '$lib/styles/buttons' as buttons;
+    @use '$lib/styles/inputs' as inputs;
     @use '$lib/styles/text-styles' as textStyles;
 
     .sessions-log {
+        @include inputs.scrollable;
+
         display: flex;
         flex-direction: column;
         gap: 1.5rem;

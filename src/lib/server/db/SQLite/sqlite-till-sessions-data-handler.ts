@@ -67,4 +67,13 @@ export const sqliteTillSessions = {
         
         return res[0];
     },
+
+    async fetchSessionsForUser(db: BetterSQLite3Database | SQLiteTx, userId: number): Promise<ITillSession[]> {
+        return await db
+            .select()
+            .from(tillSessionsTable)
+            .where(eq(tillSessionsTable.cashierId, userId))
+            .orderBy(desc(tillSessionsTable.createdAt))
+            .execute();
+    }
 };

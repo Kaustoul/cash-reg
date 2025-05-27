@@ -1,17 +1,14 @@
 <script lang="ts">
     import TillSessionsTable from '$lib/componenets/TillSessionsTable.svelte';
     import ViewTitle from '$lib/ViewTitle.svelte';
-    import { page } from '$app/stores';
     import type { PageData } from './$types';
 
     export let data: PageData;
-    // If you want to get tillId from the URL directly:
-    $: tillId = $page.params.tillId;
 </script>
 
-<ViewTitle title="Směny" subtitle="Pokladna {tillId}" showBackArrow={true} />
 <div class="container">
-    <TillSessionsTable sessions={data.sessions} showWorkerId={true}/>
+    <span class="title">Směny</span>
+    <TillSessionsTable sessions={data.sessions} showTillId={true} />
 </div>
 
 <style lang="scss">
@@ -22,5 +19,12 @@
 
     .container {
         @include inputs.scrollable;
+    }
+
+    .title {
+        display: block;
+        margin: 2rem 0;
+        font-size: vars.$xx-large;
+        font-weight: bold;
     }
 </style>

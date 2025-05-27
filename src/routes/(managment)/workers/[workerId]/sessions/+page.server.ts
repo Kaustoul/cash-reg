@@ -5,15 +5,16 @@ import { redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ params, cookies }) => {
     const { user } = await getUserAndOpenSession(cookies);
+    if (!user) throw redirect(302, '/login');
+
+    const workerId = Number(params.workerId);
+    if (!workerId) throw redirect(302, '/workers');
+
+    const worker = await database.fetchUserById(workerId);
+    if (!worker) throw redirect(302, '/workers');
     
-    if (!user) 
-        throw redirect(302, '/login');
+    // Fetch all sessions for this worker, sorted by createdAt ascending
+    const sessions = await database.fetchSessionsForUser(workerId);
 
-    const tillId = Number(params.tillId);
-    if (!tillId) 
-        throw redirect(302, '/tills');
-
-    // Get all sessions for this till, sorted by createdAt ascending
-    const sessions = await database.fetchTillSessionsForTill(tillId);
     return pairSessionsStartToEnd(sessions);
 };

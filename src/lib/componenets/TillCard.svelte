@@ -78,40 +78,40 @@
     <div class="till-card-content">
         <div class="till-card-title">
             <span class="title">Pokladna {till.id}</span>
-            {#if till.state === 'CLOSED' && tillSessionId === null}
+            {#if till.state === 'CLOSED' && !till.isUserLogggedIn}
                 <button class="open-till-btn" on:click={openTillSession}>
                     <LoginIcon size="1.5rem" />
                     Přihlásit se k pokladně
                 </button>
-            {:else if till.state === 'OPEN' && till.cashierId === user?.userId}
+            {:else if till.state === 'OPEN' && till.isUserLogggedIn}
                 <button class="close-till-btn" on:click={closeTillSession}>
                     <LogoutIcon size="1.5rem" />
                     Odhlásit se s kontrolou
                 </button>
             {/if}
         </div>
-    {#if (till.state === 'OPEN' && till.cashierId === user?.userId) || hasPermission(user, 'tabs.tills.admin')}
-        <div class="till-card-actions">
-            <button type="button" class="btn" on:click={onOpenBalance}>
-                <WalletIcon size="1.5rem" />
-                Zůstatek
-            </button>
-            <button type="button" class="btn" on:click={() => goto(`/tills/${till.id}/transactions`)}>
-                <ListIcon size="1.5rem" />
-                Transakce
-            </button>
-            <button type="button" class="btn {hasPermission(user, "tabs.tills.admin") ? "" : "hidden"}" on:click={() => goto(`/tills/${till.id}/sessions`)}>
-                <ShiftIcon size="1.5rem" />
-                Směny    
-            </button>
-            <button type="button" class="btn {action !== "close" ? "hidden" : ""}" on:click={() => goto(`/tills/${till.id}/audit`)}>
-                <EyeIcon size="1.5rem" />
-                Kontrola    
-            </button>
-        </div>
-    {/if}
+        {#if (till.state === 'OPEN' && till.isUserLogggedIn) || hasPermission(user, 'tabs.tills.admin')}
+            <div class="till-card-actions">
+                <button type="button" class="btn" on:click={onOpenBalance}>
+                    <WalletIcon size="1.5rem" />
+                    Zůstatek
+                </button>
+                <button type="button" class="btn" on:click={() => goto(`/tills/${till.id}/transactions`)}>
+                    <ListIcon size="1.5rem" />
+                    Transakce
+                </button>
+                <button type="button" class="btn {hasPermission(user, "tabs.tills.admin") ? "" : "hidden"}" on:click={() => goto(`/tills/${till.id}/sessions`)}>
+                    <ShiftIcon size="1.5rem" />
+                    Směny    
+                </button>
+                <button type="button" class="btn {action !== "close" ? "hidden" : ""}" on:click={() => goto(`/tills/${till.id}/audit`)}>
+                    <EyeIcon size="1.5rem" />
+                    Kontrola    
+                </button>
+            </div>
+        {/if}
     </div>
-    {#if till.state === 'OPEN' && till.cashierId === user?.userId && hasPermission(user, 'tabs.tills.admin')}
+    {#if till.state === 'OPEN' && till.isUserLogggedIn && hasPermission(user, 'tabs.tills.admin')}
         <div class="till-card-deposit">
             <span class="deposit-title">Vklad / Výběr</span>
             <input

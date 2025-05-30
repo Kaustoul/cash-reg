@@ -1,3 +1,4 @@
+import type { IBalance } from './balance';
 import type { IMoneySum } from './money-sum';
 
 export type TillCheckType = 'manual' | 'opening' | 'closing';
@@ -5,9 +6,9 @@ export type TillCheckType = 'manual' | 'opening' | 'closing';
 export interface ITillCheck {
     tillCheckId: number;
     tillSessionId: number;
-    actualBalance: IMoneySum[];
-    expectedBalance: IMoneySum[];
-    difference: IMoneySum[];
+    actualBalance: IBalance;
+    expectedBalance: IBalance;
+    difference: IBalance;
     type: TillCheckType;
     approvedBy?: number | null;
     createdAt: Date;

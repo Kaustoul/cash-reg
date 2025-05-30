@@ -2,13 +2,10 @@
     import SortedList from "$lib/componenets/interactables/SortedList.svelte";
     import PlusIcon from 'svelte-material-icons/Plus.svelte';
     import DeleteIcon from 'svelte-material-icons/Delete.svelte';
-    import MagnifyIcon from 'svelte-material-icons/Magnify.svelte';
     import ImportIcon from 'svelte-material-icons/Import.svelte';
 
     import type { DataRows, Schema } from '$lib/componenets/interactables/SortedList.svelte';
-    import { invalidateAll } from "$app/navigation";
     import SearchBar from "./componenets/SearchBar.svelte";
-    import type { IProduct } from "./shared/interfaces/product";
 
     export let data: DataRows;
     export let schema: Schema;
@@ -30,16 +27,7 @@
     export let customRenderer: { [fieldName: string]: (row: any, column: any) => any } = {};
     export let emptyMessage: string = "Žádná data k zobrazení";
 
-    let search = '';
-
     let filteredData = data;
-
-    function handleFocus(event: any) {
-        event.target.select();
-    }
-
-
-
     const BTN_SIZE = "1.7rem"
 
     // Compute search keys from schema

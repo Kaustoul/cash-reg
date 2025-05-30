@@ -21,6 +21,9 @@
 </script>
 
 <div class="sessions-log">
+    {#if sessions.length === 0}
+        <span class="empty">Zatím nebyly zaznamenány žádné směny.</span>
+    {/if}
     {#each sessions as session}
         <div class="session-card">
             <div class="session-line open">
@@ -132,5 +135,12 @@
         display: flex;
         flex: 1 0 20%;
         justify-content: center;
+    }
+
+    .empty {
+        color: vars.$text2-color;
+        font-size: vars.$large;
+        text-align: center;
+        margin-top: 2rem;
     }
 </style>

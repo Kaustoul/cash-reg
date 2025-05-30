@@ -10,11 +10,10 @@ export interface IOrder {
     subtotal: IMoneySum;
     total: IMoneySum;
     discounts: IDiscount[] | null;
-    paymentType: PaymentType;
     note: string | null;
     createdAt: Date;
     customerId?: number | null;
-    transactionId?: number | null;
+    transactionId: number;
 }
 
 export type INewOrder = Omit<IOrder, 'orderId' | 'createdAt' | 'transactionId'>;

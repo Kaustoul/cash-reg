@@ -4,13 +4,13 @@ import type { ICustomerPayment } from "$lib/shared/interfaces/customer-payment";
 import { eq } from "drizzle-orm";
 import type { SQLiteTx } from "../db";
 import { sqliteOrders } from "./splite-orders-data-handler";
-import type { IMoneySum } from "$lib/shared/interfaces/money-sum";
 import Decimal from "decimal.js";
 import { sqliteCustomers } from "./sqlite-customers-data-handler";
 import { sqliteTransactions } from "./sqlite-transactions-data-handler";
-import type { PaymentType, TransactionType } from "$lib/shared/interfaces/transaction";
 import { sqliteTills } from "./sqlite-tills-data-handler";
-import { sqliteTillSessions } from "./sqlite-till-sessions-data-handler";
+import type { IFrontEndBalance } from "$lib/shared/interfaces/balance";
+import { balanceToMoneySum, getBalancePaymentTypes } from "$lib/shared/utils/balance-utils";
+import { asMoneySum, isZero, sumMoneySums } from "$lib/shared/utils/money-sum-utils";
 
 export const sqliteCustomerPayments = {
     async fetchPaymentsForCustomer(db: BetterSQLite3Database | SQLiteTx, customerId: number): Promise<ICustomerPayment[]> {
@@ -38,66 +38,62 @@ export const sqliteCustomerPayments = {
         db: BetterSQLite3Database | SQLiteTx,
         tillSessionId: number,
         customerId: number,
-        amount: IMoneySum,
-        paymentType: TransactionType
+        amount: IFrontEndBalance,
     ) {
         await db.transaction( async (tx) => {
             const customer = await sqliteCustomers.fetchCustomer(db, customerId);
             const unpaidOrders = await sqliteOrders.fetchUnpaidOrdersForCustomer(db, customerId);
-            let remaining = new Decimal(amount.value)
 
-            if (customer && customer.balance && customer.balance.length > 0) {
-                remaining = remaining.add(new Decimal(customer.balance[0].value));
-            }
-        
+            const paymentTotal = balanceToMoneySum(amount);
+
+            let remaining = sumMoneySums(customer.balance, paymentTotal)
         
             const transactionId = await sqliteTransactions.newTransaction(tx, {
                 amount,
                 tillSessionId,
                 reason: 'customer-deposit',
-                type: paymentType,
+                isPaid: true,
+                paymentType: getBalancePaymentTypes(amount).type,
             });
 
-            for (const order of unpaidOrders) {
-
-                const orderAmount = new Decimal(order.total.value);
-                if (remaining.lte(0)) break;
-                if (orderAmount.gt(remaining)) continue;
+            if (remaining && !isZero(remaining)) {
+                for (const order of unpaidOrders) {
+                    const orderAmount = new Decimal(order.total["CZK"]);
+                    
+                    if (remaining["CZK"].lte(0)) break;
+                    if (!order.total["CZK"]) continue;
+                    if (orderAmount.gt(remaining["CZK"])) continue;
             
-                // Log payment for this order
-                await sqliteCustomerPayments.newCustomerPayment(tx, {
-                    customerId,
-                    transactionId,
-                    orderId: order.orderId,
-                    amount: order.total,
-                    destination: 'order-payment',
-                });
+                    // Log payment for this order
+                    await sqliteCustomerPayments.newCustomerPayment(tx, {
+                        customerId,
+                        transactionId,
+                        orderId: order.orderId,
+                        amount: order.total,
+                        destination: 'order-payment',
+                    });
                 
-                await sqliteOrders.markOrderAsPaid(tx, order.orderId, transactionId);
+                    await sqliteOrders.markOrderAsPaid(tx, order.orderId, transactionId);
 
-                remaining = remaining.minus(orderAmount);
+                    remaining["CZK"] = remaining["CZK"].minus(orderAmount);
+                }
             }    
             
-            // If any remainder, add to customer balance and log as 'remainder'
-            // Update customer balance (implement this in your customer handler)
-            await sqliteCustomers.updateBalance(tx, customer, {
-                value: remaining.toString(),
-                currency: amount.currency,
-            });
+            await sqliteCustomers.updateBalance(tx, customer, asMoneySum(remaining) ?? {});
 
             await sqliteCustomerPayments.newCustomerPayment(tx, {
                 customerId,
                 transactionId,
                 orderId: null,
-                amount: { value: remaining.toString(), currency: amount.currency },
+                amount: asMoneySum(remaining) ?? {},
                 destination: 'balance',
             });
 
             // Finally update the till balance for cash payments
-            if (paymentType === 'cash') {
-                await sqliteTills.updateBalance(
+            if (amount["CZK"].cash !== undefined) {
+                await sqliteTills.sumAndUpdateBalance(
                     tx,
-                    1,
+                    tillSessionId,
                     amount
                 );
             }

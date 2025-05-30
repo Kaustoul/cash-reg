@@ -1,5 +1,7 @@
 import { database } from '$lib/server/db/db';
 import { getUserAndOpenSession } from '$lib/server/utils/session-utils';
+import type { PaymentType } from '$lib/shared/interfaces/transaction';
+import { toDefualtBalance } from '$lib/shared/utils/balance-utils';
 import type { RequestHandler } from '@sveltejs/kit';
 
 export const POST: RequestHandler = async ({ params, request, cookies }) => {
@@ -15,8 +17,7 @@ export const POST: RequestHandler = async ({ params, request, cookies }) => {
     await database.processCustomerDeposit(
         tillSession.tillSessionId,
         customerId,
-        { value: amount.toString(), currency: 'CZK' },
-        type
+        toDefualtBalance(amount, 'incoming', type),
     );
     return new Response('OK', { status: 200 });
 };

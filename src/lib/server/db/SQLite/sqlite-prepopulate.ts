@@ -7,6 +7,7 @@ import { hash } from 'bcryptjs'; // or 'bcrypt' if you use native bcrypt
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import type { INewUser } from '$lib/shared/interfaces/user';
 import { generatePassword } from '$lib/server/utils/password-utils';
+import { database } from '../db';
 
 /**
  * Ensure "admin" and "default" groups exist.
@@ -58,5 +59,18 @@ export async function setupDefaultPermissions(db: BetterSQLite3Database) {
     const flat = flattenPermissions(PERMISSIONS);
     for (const [key, { name, description }] of Object.entries(flat)) {
         await sqlitePermissions.newPermission(db, key, {name, description });
+    }
+
+    const defaultGroupPermsissions = [
+        "tabs.tills.view", "tabs.catalog.view", "tabs.sales.view", "tabs.customers.view"
+    ]
+
+    const groups = await sqliteGroups.fetchGroups(db);
+    const defaultGroupId = groups.find(g => g.name === 'default')?.groupId;
+
+    if (!defaultGroupId) throw new Error('Default group not found'); 
+
+    for (const permission of defaultGroupPermsissions) {
+        await sqliteGroups.setGroupPermission(db, defaultGroupId, permission, true);
     }
 }

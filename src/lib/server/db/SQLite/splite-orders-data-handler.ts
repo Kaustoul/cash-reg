@@ -1,5 +1,5 @@
 import type { INewOrder, IOrder } from '$lib/shared/interfaces/order';
-import { eq, and, desc, sql, inArray, Column, SQL, isNull } from 'drizzle-orm';
+import { eq, and, desc, sql, inArray, Column, SQL, isNull, is } from 'drizzle-orm';
 import type { OrdersDataHandler } from '../orders-data-handler';
 import { ordersTable } from '../schema/order-model';
 import type { SQLiteTx } from '../db';
@@ -16,6 +16,8 @@ import { sqliteCustomers } from './sqlite-customers-data-handler';
 import Decimal from 'decimal.js';
 import { customerPaymentsTable } from '../schema/customer-payment-model';
 import { tillSessionsTable } from '../schema/till-session-model';
+import type { IShoppingCart } from '$lib/shared/interfaces/shopping-cart';
+import { sqliteCustomerPayments } from './sqlite-customer-payment-data-handler';
 
 function matchDateString(column: Column, date: Date): SQL {
     const targetYear = date.getFullYear();
@@ -39,7 +41,6 @@ export const sqliteOrders = {
                 subtotal: ordersTable.subtotal,
                 discounts: ordersTable.discounts,
                 total: ordersTable.total,
-                paymentType: ordersTable.paymentType,
                 transactionId: ordersTable.transactionId,
                 createdAt: ordersTable.createdAt,
                 items: ordersTable.items,
@@ -73,7 +74,6 @@ export const sqliteOrders = {
                 subtotal: ordersTable.subtotal,
                 discounts: ordersTable.discounts,
                 total: ordersTable.total,
-                paymentType: ordersTable.paymentType,
                 transactionId: ordersTable.transactionId,
                 createdAt: ordersTable.createdAt,
                 items: ordersTable.items,
@@ -138,7 +138,6 @@ export const sqliteOrders = {
                 subtotal: ordersTable.subtotal,
                 discounts: ordersTable.discounts,
                 total: ordersTable.total,
-                paymentType: ordersTable.paymentType,
                 transactionId: ordersTable.transactionId,
                 createdAt: ordersTable.createdAt,
                 items: ordersTable.items,
@@ -166,68 +165,97 @@ export const sqliteOrders = {
 
     async newOrder(
         db: BetterSQLite3Database | SQLiteTx, 
-        order: INewOrder,
+        order: IShoppingCart,
     ): Promise<number> {
+        if (!order.checkout || !order.checkout["CZK"]) {
+            // Currently only CZK currency is supported for orders
+            throw new Error('Order must have a checkout with CZK currency');
+        }
+
         return await db.transaction(async (tx) => {
-            let transactionId: number | null = null;
-
-            if (order.paymentType !== "account") {
-                transactionId = await sqliteTransactions.newTransaction(tx, {
-                    tillSessionId: order.tillSessionId,
-                    amount: order.total,
-                    reason: "purchase",
-                    type: order.paymentType,
-                    note: order.note ?? null,
-                });
-
-                if (order.paymentType === "cash") {
-                    await sqliteTills.updateBalance(tx, order.tillSessionId, order.total)
-                }
-                
-            } else {
-                // Check if customer has enough balance
-                const customerId = order.customerId;
-                if (!customerId) {
-                    throw new Error('Customer ID is required for account payment');
-                }
-                const customer = await sqliteCustomers.fetchCustomer(tx, customerId);
-
-                // Pay from customer balance if customer has enough balance
-                if (new Decimal(order.total.value).lte(new Decimal(customer.balance[0].value))) {
-                    const lastPayment = await tx
-                        .select()
-                        .from(customerPaymentsTable)
-                        .where(
-                            and(
-                                eq(customerPaymentsTable.customerId, customerId),
-                                eq(customerPaymentsTable.destination, 'balance')
-                            )
-                        )
-
-                        .orderBy(desc(customerPaymentsTable.createdAt))
-                        .limit(1)
-                    ;
-
-                    transactionId = lastPayment.length > 0 ? lastPayment[0].transactionId : null;
-
-                    const newBalance = sumMoneySums([customer.balance, [{value: "-" + order.total.value, currency: order.total.currency}]])[0];
-                    await sqliteCustomers.updateBalance(tx, customer, newBalance);
-                }
+            if (order.checkout.cash) {
+                // If there is a cash payment, we need to update the till balance
+                await sqliteTills.sumAndUpdateBalance(tx, order.tillSessionId, order.checkout)
             }
 
-            const res = await tx
-                .insert(ordersTable)
-                .values(transactionId ? {...order, transactionId} : order)
-                .returning({ orderId: ordersTable.orderId })
-                .execute();
+            const isCashPayment = order.checkout.cash !== undefined;
+            const isCardPayment = order.checkout.cash !== undefined;
+            const isQrPayment = order.checkout.cash !== undefined;
+            const isAccountPayment = order.checkout.cash !== undefined;
 
-            if (res.length <= 0) {
+            if (!isCashPayment && !isCardPayment && !isQrPayment && !isAccountPayment) {
+                throw new Error('Order must have at least one payment method');
+            }
+            
+            let customer = null;
+            let customerRemainder = null
+            let isPaid = !order.checkout["CZK"].account;
+
+            if (isAccountPayment) {
+                if (!order.customerId) {
+                    throw new Error('Customer ID is required for account payment');
+                }
+
+                customer = await sqliteCustomers.fetchCustomer(tx, order.customerId);
+                if (!customer) {
+                    throw new Error(`Customer with ID ${order.customerId} not found`);
+                }
+
+                // TODO Implement currency conversions
+                // For now, we assume all account payments are in the same currency
+                customerRemainder = new Decimal(customer.balance["CZK"]).sub(new Decimal(order.total["CZK"]))
+                if (!customer.balance["CZK"] || customerRemainder.lt(0)) {
+                    isPaid = false;                    
+                } 
+            }
+
+            const transactionId = await sqliteTransactions.newTransaction(tx, {
+                tillSessionId: order.tillSessionId,
+                amount: order.checkout,
+                isPaid: !customerRemainder || customerRemainder.gte(0),
+                paymentType: isPaid ? 'account' : 'mixed',
+                reason: "purchase",
+                note: order.note ?? null,
+            });
+
+            const orderItems: IOrder["items"] = order.items.map(item => {
+                return {
+                    fullId: parseFullItemId(item.productId, item.itemId),
+                    quantity: item.quantity.toString(),
+                    price: item.prices[item.priceIdx],
+                    discounts: item.discounts,
+                    subtotal: item.subtotal.toString(),
+                    total: item.total.toString(),
+                    name: item.name
+                }
+            });
+
+            const newOrder = await tx
+                .insert(ordersTable)
+                .values({...order, items: orderItems, transactionId})
+                .returning({ orderId: ordersTable.orderId })
+                .execute()
+            ;
+
+            if (!newOrder || newOrder.length === 0) {
                 throw new Error('Failed to create new order');
             }
 
-            const orderId = res[0].orderId;
+            const newOrderId = newOrder[0].orderId;
 
-            return orderId;
+            if (order.checkout["CZK"].account && customerRemainder && customer && isPaid) {
+                await sqliteCustomerPayments.newCustomerPayment(tx, {
+                    customerId: customer.customerId,
+                    transactionId,
+                    orderId: newOrderId, 
+                    amount: order.total, 
+                    destination: 'balance'
+                });
+                
+                await sqliteCustomers.updateBalance(tx, customer, {...customer.balance, "CZK": customerRemainder.toString()});
+            }
+
+            return newOrderId;
         });
     },
 
@@ -238,11 +266,14 @@ export const sqliteOrders = {
         const res = await db
             .select({ orderId: ordersTable.orderId, total: ordersTable.total })
             .from(ordersTable)
+            .innerJoin(transactionsTable,
+                eq(ordersTable.transactionId, transactionsTable.transactionId)
+            )
             .where(
                 and(
                     eq(ordersTable.customerId, customerId),
-                    eq(ordersTable.paymentType, 'account'),
-                    isNull(ordersTable.transactionId)
+                    eq(transactionsTable.paymentType, 'account'),
+                    eq(transactionsTable.isPaid, false),
                 )
             )
             .execute();
@@ -273,7 +304,6 @@ export const sqliteOrders = {
                 subtotal: ordersTable.subtotal,
                 discounts: ordersTable.discounts,
                 total: ordersTable.total,
-                paymentType: ordersTable.paymentType,
                 transactionId: ordersTable.transactionId,
                 createdAt: ordersTable.createdAt,
                 items: ordersTable.items,
@@ -305,7 +335,6 @@ export const sqliteOrders = {
                 subtotal: ordersTable.subtotal,
                 discounts: ordersTable.discounts,
                 total: ordersTable.total,
-                paymentType: ordersTable.paymentType,
                 transactionId: ordersTable.transactionId,
                 createdAt: ordersTable.createdAt,
                 items: ordersTable.items,

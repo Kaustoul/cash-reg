@@ -36,11 +36,6 @@ export const ordersTable = sqliteTable(ORDERS_TABLE_NAME, {
         .$type<IOrder["total"]>()
     ,
 
-    paymentType: text('paymentType', { length: 16 })
-        .notNull()
-        .$type<IOrder["paymentType"]>()
-    ,
-
     note: text('note', { length: 256 })
     ,
 
@@ -54,8 +49,7 @@ export const ordersTable = sqliteTable(ORDERS_TABLE_NAME, {
     ,
 
     transactionId: integer('transactionId', { mode: 'number' })
-        .$type<number | null>()
         .references(() => transactionsTable.transactionId)
-        .default(null)
+        .notNull()
     ,
 });

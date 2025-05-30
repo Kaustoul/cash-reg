@@ -5,10 +5,40 @@ import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
 import type { Transaction } from 'electron';
 import type { TransactionReason, TransactionType } from '$lib/shared/interfaces/transaction';
 import { fetchAndHasPermission, getUserAndOpenSession } from '$lib/server/utils/session-utils';
+import { toBalance, toDefualtBalance, toJson } from '$lib/shared/utils/balance-utils';
+import type { IFrontEndTill, IFrontEndTillData } from '$lib/shared/interfaces/till';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ cookies }) => {
+    const { user, tillSession } = await getUserAndOpenSession(cookies);
+    if (!user ) {
+        return { success: false, error: 'Not logged in or no open till session' };
+    } 
+
+
     const res = await database.fetchTills();
-    return {tills: res};
+
+    if (!res || res.length === 0) {
+        return { tills: [], loggedIn: null };
+    }
+
+    const tills: IFrontEndTillData[] = []
+    for (const till of res) {
+        const session = await database.fetchLastSessionTill(till.id);
+        const isOpen = session && session.type === 'OPEN';
+
+        
+        tills.push({
+            id: till.id,
+            name: till.name,
+            balance: toJson(till.balance),
+            cashierId: session?.cashierId ?? null,
+            state: isOpen ? 'OPEN' : 'CLOSED',
+            isUserLogggedIn: tillSession?.tillId === till.id,
+        });
+    }
+    console.log('Loaded tills:', tills);
+
+    return { tills: tills, loggedIn: tillSession?.tillId ?? null };
 }
 
 export const actions = {
@@ -37,20 +67,23 @@ export const actions = {
         }
 
         const reason = data.get('reason') as TransactionReason;
-        const type = data.get('type') as TransactionType;
+        const type = data.get('type') as TransactionType ?? 'cash';
         let amount = data.get('amount') as string;
+
+        let balance = null;
         if (reason === 'withdraw') {
-            amount = '-' + amount;
+            balance = toDefualtBalance(amount, 'outgoing', type);
+        } else if (reason === 'deposit') {
+            balance = toDefualtBalance(amount, 'incoming', type);
         }
 
-        const sum = {
-            value: amount,
-            currency: 'CZK',
+        if (!balance) {
+            return { success: false, error: 'Invalid amount' };
         }
 
-        await database.updateBalanceTransaction(
+        await database.sumAndUpdateBalanceTransaction(
             tillSession.tillSessionId,
-            sum,
+            toBalance(balance),
             reason, 
             type,
         );

@@ -14,8 +14,6 @@
     let surname = customer.surname ?? "";
     let email = customer.email ?? "";
     let discountValue = customer.discount?.value ?? "10";
-    // Default balance: [{ currency: "CZK", value: "0" }]
-    let balanceValue: IMoneySum[] = customer.balance ?? [{ currency: "CZK", value: "0" }];
     export let onSubmit: (customerId: number) => void = () => {};
 
     async function handleSubmit(e: Event) {
@@ -33,7 +31,7 @@
         const res = await fetch('/api/customers', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, surname, email, discount, balance: balanceValue })
+            body: JSON.stringify({ name, surname, email, discount })
         });
         if (res.ok) {
             const result = await res.json();

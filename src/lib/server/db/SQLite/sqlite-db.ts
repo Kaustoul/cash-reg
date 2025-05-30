@@ -5,7 +5,7 @@ import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import Database from 'better-sqlite3';
 import { sqliteTills } from './sqlite-tills-data-handler';
 import type { TillsDataHandler } from '../tills-data-handler';
-import type { IFrontEndTill, TillStatus } from '$lib/shared/interfaces/till';
+import type { IFrontEndTill, ITill } from '$lib/shared/interfaces/till';
 import type { ProductsDataHandler } from '../products-data-handler';
 import type { ItemsDataHandler } from '../items-data-handler';
 import { sqliteItems } from './sqlite-items-data-handler';
@@ -43,6 +43,9 @@ import { sqliteGroups } from './sqlite-groups-data-handler';
 import type { GroupsDataHandler } from '../groups-data-handler';
 import { setupDefaultAdminUser, setupDefaultGroups, setupDefaultPermissions } from './sqlite-prepopulate';
 import type { IDiscount } from '$lib/shared/interfaces/discount';
+import type { IBalance, IFrontEndBalance } from '$lib/shared/interfaces/balance';
+import { calculateBalanceTotal } from '$lib/shared/utils/balance-utils';
+import type { IShoppingCart } from '$lib/shared/interfaces/shopping-cart';
 
 export class SQLiteDB implements DB {
     readonly db: BetterSQLite3Database;
@@ -173,59 +176,58 @@ export class SQLiteDB implements DB {
     // --- TILLS --- \\
     //---------------\\
     
-    async fetchTill(id: number) {
-        return await this._tills.fetchTill(this.db, id);
+    async fetchTill(tillId: number) {
+        return await this._tills.fetchTill(this.db, tillId);
     }
 
-    async fetchTills(): Promise<IFrontEndTill[] | null> {
+    async fetchTills(): Promise<ITill[] | null> {
         let tills = await this._tills.fetchTills(this.db);
-        let formattedTills: IFrontEndTill[] = [];
+        // let formattedTills: IFrontEndTill[] = [];
 
-        for (const till of tills) {
-            const tillSession = await this._tillSessions.fetchLastSessionTill(this.db, till.id);
+        // for (const till of tills) {
+        //     const tillSession = await this._tillSessions.fetchLastSessionTill(this.db, till.id);
 
-            if (!tillSession) {
-                formattedTills.push({
-                    ...till,
-                    cashierId: null,
-                    state: 'CLOSED',
-                });
-            } else {
+        //     if (!tillSession) {
+        //         formattedTills.push({
+        //             ...till,
+        //             balance: calculateBalanceTotal(till.balance),
+        //             cashierId: null,
+        //             state: 'CLOSED',
+        //         });
+        //     } else {
 
-                formattedTills.push({
-                    ...till,
-                    cashierId: tillSession.type === "CLOSED" ? null : tillSession.cashierId,
-                    state: tillSession.type,
-                });
-            }
-        }
+        //         formattedTills.push({
+        //             ...till,
+        //             balance: calculateBalanceTotal(till.balance),
+        //             cashierId: tillSession.type === "CLOSED" ? null : tillSession.cashierId,
+        //             state: tillSession.type,
+        //         });
+        //     }
+        // }
 
-        return formattedTills;
+        return tills;
     }
 
     async newTill() {
         return await this._tills.newTill(this.db);
     }
 
-    // async changeStatus(tillId: number, status: TillStatus) {
-    //     return await this._tills.changeStatus(this.db, tillId, status);
-    // }
-
-    async updateBalance(tillId: number, balance: IMoneySum) {
-        return await this._tills.updateBalance(this.db, tillId, balance);
+    async sumAndUpdateBalance(tillSessionId: number, addBalance: IBalance) {
+        return await this._tills.sumAndUpdateBalance(this.db, tillSessionId, addBalance);
     }
 
-    async updateBalanceTransaction(
+    async sumAndUpdateBalanceTransaction(
         tillSessionId: number,
-        amount: IMoneySum,
+        amount: IBalance,
         reason: TransactionReason,
         type: TransactionType,
     ): Promise<void> {
         await this.db.transaction(async (tx) => { 
-            await this._tills.updateBalance(tx, tillSessionId, amount);
+            await this._tills.sumAndUpdateBalance(tx, tillSessionId, amount);
             await this._transactions.newTransaction(tx, {
                 tillSessionId,
-                type,
+                paymentType: type,
+                isPaid: true,
                 reason, 
                 amount,
             });
@@ -258,6 +260,16 @@ export class SQLiteDB implements DB {
 
     async fetchSessionsForUser(userId: number) {
         return await this._tillSessions.fetchSessionsForUser(this.db, userId);
+    }
+
+    async fetchUserIdByTillSessionId(tillSessionId: number): Promise<number | null> {
+        const res = await this._tillSessions.fetchSession(this.db, tillSessionId);
+
+        if (!res) {
+            return null; 
+        }
+
+        return res.cashierId ?? null;
     }
 
     //-------------------\\
@@ -296,7 +308,7 @@ export class SQLiteDB implements DB {
         return await this._orders.fetchTillOrders(this.db, tillId, date);
     }
 
-    async newOrder(order: INewOrder) {
+    async newOrder(order: IShoppingCart) {
         return await this._orders.newOrder(this.db, order);
     }
 
@@ -336,7 +348,7 @@ export class SQLiteDB implements DB {
         return await this._customers.removeCustomer(this.db, customerId);
     }
 
-    async updateCustomerBalance(customer: ICustomer, balance: IMoneySum[]) {
+    async updateCustomerBalance(customer: ICustomer, balance: IMoneySum) {
         return await this._customers.updateBalance(this.db, customer, balance);
     }
 
@@ -354,11 +366,10 @@ export class SQLiteDB implements DB {
     async processCustomerDeposit(
         tillSessionId: number,
         customerId: number,
-        amount: IMoneySum,
-        paymentType: TransactionType
+        amount: IFrontEndBalance,
     ): Promise<void> {
         await this.db.transaction(async (tx) => {
-            await this._customerPayments.processCustomerDeposit(tx, tillSessionId, customerId, amount, paymentType);
+            await this._customerPayments.processCustomerDeposit(tx, tillSessionId, customerId, amount);
         });
     }
 

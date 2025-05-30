@@ -1,6 +1,11 @@
+import type Decimal from "decimal.js";
+
 export type DecimalStr = string;
 
 export interface IMoneySum {
-    value: DecimalStr;
-    currency: string;
+    [currency: string]: DecimalStr;
+}
+
+export interface IFrontEndMoneySum {
+    [currency: string]: Decimal;
 }

@@ -4,12 +4,11 @@ import {
 } from '../tills-data-handler';
 import type { SQLiteTx } from '../db';
 import { tillsTable } from '$lib/server/db/schema/till-model'
-import type { ITill, TillStatus } from '$lib/shared/interfaces/till';
-import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
-import Decimal from 'decimal.js';
+import type { ITill } from '$lib/shared/interfaces/till';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
-import { transactionsTable } from '../schema/money-transfer-model';
 import { sqliteTillSessions } from './sqlite-till-sessions-data-handler';
+import type { IBalance } from '$lib/shared/interfaces/balance';
+import { sumBalances } from '$lib/shared/utils/balance-utils';
 
 export const sqliteTills = {
     async fetchTill(db: BetterSQLite3Database | SQLiteTx, id: number): Promise<ITill> {
@@ -41,7 +40,7 @@ export const sqliteTills = {
         const res = await db
             .insert(tillsTable)
             .values({
-                balance: [],
+                balance: {},
             })
             .returning({ newId: tillsTable.id })
 
@@ -52,24 +51,14 @@ export const sqliteTills = {
         return res[0].newId;
     },
 
-    // async changeStatus(db: BetterSQLite3Database | SQLiteTx, tillId: number, status: TillStatus): Promise<void> {
-    //     await db
-    //         .update(tillsTable)
-    //         .set({ status: status })
-    //         .where(eq(tillsTable.id, tillId))
-    //         .execute()
-    //     ;  
-    // },
-
-    async updateBalance(
+    async sumAndUpdateBalance(
         db: BetterSQLite3Database | SQLiteTx,
         tillSessionId: number,
-        updateValue: IMoneySum
+        addBalance: IBalance
     ): Promise<void> {
         await db.transaction(async (tx) => {
             // First, fetch the till ID from the session
             const tillSession = await sqliteTillSessions.fetchSession(tx, tillSessionId);
-            
             if (!tillSession) {
                 throw new Error(`Till session with ID ${tillSessionId} not found`);
             }
@@ -85,22 +74,12 @@ export const sqliteTills = {
                 throw new Error(`Till with ID ${tillSession.tillId} not found`);
             }
 
-            const balances: IMoneySum[] = res[0].balance;
-            let sumIdx = balances.findIndex((balance) => balance.currency === updateValue.currency);
-
-            if (sumIdx === -1) {
-                balances.push({value: "0", currency: updateValue.currency});
-                sumIdx = 0;
-            }
-
-            balances[sumIdx] = {
-                value: new Decimal(balances[sumIdx].value).add(new Decimal(updateValue.value)).toString(),
-                currency: balances[sumIdx].currency,
-            };
+            const balance: IBalance = res[0].balance;
+            const updateBalance = sumBalances(balance, addBalance);
 
             await tx
                 .update(tillsTable)
-                .set({ balance: balances })
+                .set({ balance: updateBalance })
                 .where(eq(tillsTable.id, tillSession.tillId))
                 .execute()
             ;

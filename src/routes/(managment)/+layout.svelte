@@ -50,7 +50,7 @@
         "Zákazníci": {
             icon: CustomersIcon,
             url: "/customers",
-            permission: "tabs.users.view"
+            permission: "tabs.customers.view"
         },
 
         "Zaměstnanci": {

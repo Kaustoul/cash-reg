@@ -35,29 +35,8 @@ export const actions = {
 
         const data = await request.formData();
         const cart: IShoppingCart = JSON.parse(data.get('cart') as string);
-        
-        const items: IOrder["items"] = cart.items.map(item => {
-            return {
-                fullId: parseFullItemId(item.productId, item.itemId),
-                quantity: item.quantity.toString(),
-                price: item.prices[item.priceIdx],
-                discounts: item.discounts,
-                subtotal: item.subtotal.toString(),
-                total: item.total.toString(),
-                name: item.name
-            }
-        });
 
-        await database.newOrder({
-            tillSessionId: tillSession.tillSessionId,
-            items: items,
-            subtotal: cart.subtotal["CZK"],
-            total: cart.total["CZK"],
-            discounts: cart.discounts ?? null,
-            paymentType: cart.state.split("-")[0] as PaymentType,
-            note: cart.note ?? null,
-            customerId: cart.customerId ?? null
-        });
+        await database.newOrder(cart);
 
         return {
             success: true,

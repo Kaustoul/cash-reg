@@ -7,14 +7,14 @@
 
     export let data: PageData;
 
-    viewTitleStore.set({
+    $: tillId = $page.params.tillId;
+    $: viewTitleStore.set({
         title: "Směny",
-        subtitle: `Pokladna ${data.tillId}`,
+        subtitle: `Pokladna ${tillId}`,
         showBackArrow: true
     });
 
     // If you want to get tillId from the URL directly:
-    $: tillId = $page.params.tillId;
 </script>
 
 <div class="container">

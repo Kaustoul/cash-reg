@@ -1,6 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { database } from '$lib/server/db/db';
 import { format } from 'date-fns';
+import type { ITransaction } from '$lib/shared/interfaces/transaction';
 
 export const load: PageServerLoad = async ({ params }) => {
     const tillId = Number(params.tillId);
@@ -16,21 +17,28 @@ export const load: PageServerLoad = async ({ params }) => {
         return { ...tx, orderId };
     }));
 
-    // Format for table
-    const formatted = withOrderId.map(tx => ({
-        id: tx.transactionId,
-        createdAt: format(new Date(tx.createdAt), 'd.M.yyyy H:mm'),
-        cashierId: tx.cashierId,
-        type: tx.type,
-        reason: tx.reason,
-        amount: tx.amount,
-        orderId: tx.orderId,
-        orderDate: tx.createdAt // for deep-linking
-    }));
+    const formattedTransactions = []
+
+    for (const tx of withOrderId) {
+    
+        const cashierId = await database.fetchUserIdByTillSessionId(tx.tillSessionId);
+        
+        formattedTransactions.push({
+            id: tx.transactionId,
+            createdAt: format(new Date(tx.createdAt), 'd.M.yyyy H:mm'),
+            tillSessionId: tx.tillSessionId,
+            cashierId,
+            type: tx.paymentType,
+            reason: tx.reason,
+            amount: tx.amount,
+            orderId: tx.orderId,
+            orderDate: tx.createdAt // for deep-linking
+        });
+    }
 
     return {
         tillId,
         tillDisplayName: null,
-        transactions: formatted
+        transactions: formattedTransactions
     };
 };

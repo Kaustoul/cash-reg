@@ -49,6 +49,8 @@ export function productIdFromFullId(fullItemId: number): number {
 }
 
 export function formatDecimal(value: Decimal | DecimalStr, alwaysDecimal: boolean = false, roundToWhole: boolean = false): string {
+    console.log("formatDecimal", value, alwaysDecimal, roundToWhole);
+    
     if (!(value instanceof Decimal)) {
         value = new Decimal(value);
     }

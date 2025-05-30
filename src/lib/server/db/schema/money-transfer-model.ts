@@ -3,6 +3,7 @@ import { integer, sqliteTable, text, foreignKey, primaryKey } from "drizzle-orm/
 import type { IMoneySum } from "$lib/shared/interfaces/money-sum";
 import { type PaymentType, type TransactionReason, type TransactionType } from "$lib/shared/interfaces/transaction";
 import { tillSessionsTable } from "./till-session-model";
+import type { IBalance } from "$lib/shared/interfaces/balance";
 
 export const transactionsTable = sqliteTable('money_transfers', {
     transactionId: integer('transactionId')
@@ -17,12 +18,16 @@ export const transactionsTable = sqliteTable('money_transfers', {
 
     amount: text('moneySums', { mode: 'json' })
         .notNull()
-        .$type<IMoneySum>()
+        .$type<IBalance>()
     ,
 
-    type: text('type', { length: 16 })
+    isPaid: integer('isPaid', { mode: 'boolean' })
         .notNull()
-        .$type<TransactionType>()
+    ,
+
+    paymentType: text('paymentType', { length: 16 })
+        .$type<PaymentType>()
+        .notNull()
         .default('unknown')
     ,
     

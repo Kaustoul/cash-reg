@@ -3,19 +3,18 @@ import type { IPrice } from './price';
 import type { DecimalStr, IMoneySum } from './money-sum';
 import type { IUnit } from './product';
 import type { IDiscount } from './discount';
+import type { IBalance } from './balance';
 
 export type ShoppingCartState = "items" | "checkout" | "cash-payment" | "card-payment" | "qr-payment" | "account-payment";
 
 export interface IShoppingCart {
     items: IShoppingCartItem[];
-    total: {[currency: string]: IMoneySum};
-    subtotal: { [currency: string]: IMoneySum }; // <-- change from Decimal to object
+    total: IMoneySum;
+    subtotal: IMoneySum;
     state: ShoppingCartState;
-    checkout: {
-        payedAmount: Decimal;
-    };
+    checkout: IBalance;
     discounts?: IDiscount[];
-    tillId: number;
+    tillSessionId: number;
     note?: string;
     customerId?: number | null;
 }

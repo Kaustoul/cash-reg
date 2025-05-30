@@ -9,5 +9,5 @@ export interface CustomersDataHandler {
     newCustomer(db: Databases | Transactions, customer: Omit<ICustomer, "customerId" | "createdAt" | "modifiedAt">): Promise<number>;
     updateCustomer(db: Databases | Transactions, customerId: number, data: {name?: string, surname?: string, email?: string, discount?: IDiscount | undefined}): Promise<void>;
     removeCustomer(db: Databases | Transactions, customerId: number): Promise<void>;
-    updateBalance(db: Databases | Transactions, customer: ICustomer, balance: IMoneySum[]): Promise<void>; // <-- Add this
+    updateBalance(db: Databases | Transactions, customer: ICustomer, balance: IMoneySum): Promise<void>; // <-- Add this
 }

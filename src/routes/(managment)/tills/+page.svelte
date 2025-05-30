@@ -11,8 +11,18 @@
     import type { TransactionReason, TransactionType } from '$lib/shared/interfaces/transaction';
     import { viewTitleStore } from '$lib/shared/stores/workerStore';
     import AddIcon from 'svelte-material-icons/Plus.svelte';
+    import { userStore } from '$lib/shared/stores/sessionStore';
+    import { hasPermission } from '$lib/shared/utils/permission-utils';
+    import type { IFrontEndBalance } from '$lib/shared/interfaces/balance';
+    import { balanceToMoneySum, fromJson } from '$lib/shared/utils/balance-utils';
 
 	export let data: PageData;
+
+    $: tills = data.tills?.map(till => ({
+        ...till,
+        balance: fromJson(till.balance)
+    })) || [];
+    $: user = $userStore;
 
     viewTitleStore.set({
         title: "Pokladny",
@@ -21,33 +31,14 @@
     let balanceModalData: {
         show: boolean
         tillId: number
-        balance: ITill['balance']
+        balance: IFrontEndBalance
     } = {
         show: false,
         tillId: -1,
-        balance: []
+        balance: {}
     }
 
     let showNewTillModal = false;
-
-    let tabs = {
-        "Pokladny": {
-            url: "/tills"
-        }, 
-        "Měny": {
-            url: "/tills/currencies",
-            disabled: true
-        }
-    };
-
-    function getFormattedSum(sums: IMoneySum[]): string {
-        const zeroSum = {currency: 'CZK', value: '0'};
-        if (sums.length === 0) {
-            return formatSum(zeroSum);
-        }
-
-        return formatSum(balanceModalData.balance[0] ?? zeroSum);
-    }
 
     async function handleMoneyTransfer(tillId: number, amount: number, type: 'deposit' | 'withdraw') {
         const res = await fetch('?/moneyTransfer', {
@@ -99,7 +90,7 @@
         <span>Stav pokladny:</span>
 
         <span class="balance-sum">
-            {getFormattedSum(balanceModalData.balance)}
+            {formatSum(balanceToMoneySum(balanceModalData.balance))}
         </span>
     </div>
 </Modal>
@@ -122,16 +113,18 @@
 
 
 <div class="container">
-    <div class="form">
-        <button class="btn" on:click={() => showNewTillModal = true} >
-            <AddIcon size="2rem" />
-            Přidat pokladnu
-        </button>
-    </div>
+    {#if hasPermission(user, 'tabs.tills.admin')}
+        <div class="form">
+            <button class="btn" on:click={() => showNewTillModal = true} >
+                <AddIcon size="2rem" />
+                Přidat pokladnu
+            </button>
+        </div>
+    {/if}
 
     <div class="tills">
         {#if data.tills}
-            {#each data.tills as till}
+            {#each tills as till}
                 <TillCard 
                     {till}
                     onDeposit={(tillId, amount) => handleMoneyTransfer(tillId, amount, 'deposit')}

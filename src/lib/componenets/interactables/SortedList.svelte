@@ -5,7 +5,7 @@
 
     export type Schema = {
         fieldName: string,
-        type: "string" | "number" | "unsortable" | "selector" | "json" | "link" | "sum" | "decimal",
+        type: "string" | "number" | "unsortable" | "selector" | "json" | "link" | "sum" | "decimal" | "balance",
         columnHeader: string,
         jsonToString?: (obj: any) => string,
         customData?: any,
@@ -23,7 +23,8 @@
 <script lang="ts">
     import MultiSelector from './MultiSelector.svelte';
     import { ensureArray, formatDecimal } from '$lib/shared/utils';
-    import { formatSum } from '$lib/shared/utils/money-sum-utils';
+    import { asMoneySum, formatSum } from '$lib/shared/utils/money-sum-utils';
+    import { balanceToMoneySum } from '$lib/shared/utils/balance-utils';
 
     export let data: DataRows;
     export let schema: Schema;
@@ -35,6 +36,8 @@
     export let selectors: boolean = true;
     export let customRenderer: { [fieldName: string]: (row: any, column: any) => any } = {};
     export let emptyMessage: string = "Žádná data k zobrazení";
+
+    $: console.log("Data in SortedList:", data);
 
     function toggleProductSelection(idx: number, id?: string | number) {
         const selection = idFieldName === "idx" ? idx : id!;
@@ -132,7 +135,9 @@
                                             }}
                                         />
                                     {:else if column.type === 'json'}
-                                        <span>{column.jsonToString === undefined ? defaultJsonToString(row[column.fieldName]) : column.jsonToString(row[column.fieldName])}</span>
+                                            <span>{column.jsonToString === undefined ? defaultJsonToString(row[column.fieldName]) : column.jsonToString(row[column.fieldName])}</span>
+                                    {:else if column.type === 'balance'}
+                                            <span class="mono {column.class ? column.class(row, column) : ""}">{formatSum(balanceToMoneySum(row[column.fieldName]))}</span>
                                     {:else if column.type === 'sum'}
                                             <span class="mono {column.class ? column.class(row, column) : ""}">{formatSum(row[column.fieldName])}</span>
                                     {:else if column.type === 'decimal'}

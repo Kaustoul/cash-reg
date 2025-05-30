@@ -11,8 +11,12 @@
     import DepositIcon from '$lib/componenets/icons/DepositIcon.svelte';
     import CustomerDepositIcon from '$lib/componenets/icons/CustomerDepositIcon.svelte';
     import { viewTitleStore } from '$lib/shared/stores/workerStore';
+    import { isNegativeBalance } from '$lib/shared/utils/balance-utils';
+    import { asMoneySum, formatSum } from '$lib/shared/utils/money-sum-utils';
 
     export let data: PageData;
+
+    $: console.log("Transactions data:", data.transactions);
 
     viewTitleStore.set({
         title: "Transakce",
@@ -27,7 +31,7 @@
         { fieldName: "cashierId", type: "number", columnHeader: "Pokladník" },
         { fieldName: "type", type: "string", columnHeader: "Typ Platby" },
         { fieldName: "reason", type: "string", columnHeader: "Důvod" },
-        { fieldName: "amount", type: "sum", columnHeader: "Částka", class: (row, column) => row[column.fieldName].value.startsWith("-") ? "red" : "green" },
+        { fieldName: "amount", type: "balance", columnHeader: "Částka", class: (row, column) => isNegativeBalance(row[column.fieldName]) ? "red" : "green" },
     ];
 
     const customRenderer = {
@@ -76,7 +80,7 @@
                 };
             }
             return { text: row[column.fieldName] || '—' };
-        }
+        },
     };
 </script>
 

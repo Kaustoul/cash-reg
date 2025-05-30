@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text, } from "drizzle-orm/sqlite-core";
 import type { IMoneySum } from "$lib/shared/interfaces/money-sum";
-import type { TillStatus } from "$lib/shared/interfaces/till";
+import type { IBalance } from "$lib/shared/interfaces/balance";
 
 
 export const tillsTable = sqliteTable('tills', {
@@ -12,10 +12,10 @@ export const tillsTable = sqliteTable('tills', {
 
     balance: text('balance', {mode: 'json'})
         .notNull()
-        .$type<IMoneySum[]>()
+        .$type<IBalance>()
     ,
-    
-    note: text('note', { length: 256 })
+
+    name: text('name', { length: 64 })
     ,
 
     createdAt: integer('createdAt', { mode: 'timestamp' })

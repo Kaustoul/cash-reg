@@ -6,28 +6,36 @@ import type { IDiscount } from "$lib/shared/interfaces/discount";
 export const customersTable = sqliteTable('customers', {
     customerId: integer('customerId', { mode: 'number' })
         .notNull()
-        .primaryKey({ autoIncrement: true }),
+        .primaryKey({ autoIncrement: true })
+    ,
 
     name: text('name', { length: 256 })
-        .notNull(),
+        .notNull()
+    ,
 
     surname: text('surname', { length: 256 })
-        .notNull(),
+        .notNull()
+    ,
 
-    email: text('email', { length: 256 }),
+    email: text('email', { length: 256 })
+    ,
 
     balance: text('balance', { mode: 'json' })
         .notNull()
-        .$type<IMoneySum[]>(),
+        .$type<IMoneySum>()
+    ,
 
     discount: text('discount', { mode: 'json' })
-        .$type<IDiscount | null>(),
+        .$type<IDiscount | null>()
+    ,
 
     createdAt: integer('createdAt', { mode: 'timestamp' })
         .notNull()
-        .default(sql`(unixepoch())`),
+        .default(sql`(unixepoch())`)
+    ,
 
     modifiedAt: integer('modifiedAt', { mode: 'timestamp' })
         .notNull()
         .default(sql`(unixepoch())`)
+    ,
 });

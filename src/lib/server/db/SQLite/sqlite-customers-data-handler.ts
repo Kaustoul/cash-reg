@@ -5,10 +5,10 @@ import { customersTable } from "../schema/customer-model";
 import { ordersTable } from "../schema/order-model";
 import { eq, and, isNull } from "drizzle-orm";
 import { sqliteOrders } from "./splite-orders-data-handler"; // adjust import as needed
-import { combineSums } from "$lib/shared/utils/money-sum-utils";
 import type { SQLiteTx } from "../db";
 import { cleanObject } from "$lib/shared/utils";
 import type { IDiscount } from "$lib/shared/interfaces/discount";
+import { asMoneySum, sumMoneySums } from "$lib/shared/utils/money-sum-utils";
 
 export const sqliteCustomers = {
     async fetchCustomer(db: BetterSQLite3Database, customerId: number): Promise<ICustomer> {
@@ -28,7 +28,7 @@ export const sqliteCustomers = {
 
         return {
             ...customer,
-            unpaidAmount: unpaidSums.length > 0 ? combineSums(unpaidSums) : [],
+            unpaidAmount: unpaidSums.length > 0 ? asMoneySum(sumMoneySums(...unpaidSums)) : null,
             unpaidOrders: unpaidOrders.map(o => o.orderId),
         };
     },
@@ -43,7 +43,7 @@ export const sqliteCustomers = {
 
             updatedCustomers.push({
                 ...customer,
-                unpaidAmount: unpaidSums.length > 0 ? combineSums(unpaidSums) : [],
+                unpaidAmount: unpaidSums.length > 0 ? asMoneySum(sumMoneySums(...unpaidSums)) : null,
                 unpaidOrders: unpaidOrders.map(o => o.orderId),
             });
         }
@@ -75,29 +75,27 @@ export const sqliteCustomers = {
             .execute();
     },
 
-    async updateBalance(db: BetterSQLite3Database | SQLiteTx, customer: ICustomer, newBalance: IMoneySum | IMoneySum[]): Promise<void> {
-        if (newBalance instanceof Array) {
-            await db
-                .update(customersTable)
-                .set({ balance: newBalance })
-                .where(eq(customersTable.customerId, customer.customerId))
-                .execute();
-        } else {
+    async updateBalance(db: BetterSQLite3Database | SQLiteTx, customer: ICustomer, newBalance: IMoneySum): Promise<void> {
+        await db
+            .update(customersTable)
+            .set({ balance: newBalance })
+            .where(eq(customersTable.customerId, customer.customerId))
+            .execute();
 
-            let newBalances = []
-            for (let balance of customer.balance) {
-                if (balance.currency === newBalance.currency) {
-                    balance.value = newBalance.value;
-                }
+        //     let newBalances = []
+        //     for (let balance of customer.balance) {
+        //         if (balance.currency === newBalance.currency) {
+        //             balance.value = newBalance.value;
+        //         }
 
-                newBalances.push(balance);
-            }
+        //         newBalances.push(balance);
+        //     }
 
-            await db
-                .update(customersTable)
-                .set({ balance: newBalances })
-                .where(eq(customersTable.customerId, customer.customerId))
-                .execute();
-        }
+        //     await db
+        //         .update(customersTable)
+        //         .set({ balance: newBalances })
+        //         .where(eq(customersTable.customerId, customer.customerId))
+        //         .execute();
+        // }
     }
 };

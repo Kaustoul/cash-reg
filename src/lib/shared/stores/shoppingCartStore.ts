@@ -20,7 +20,7 @@ function createShoppingCartStore() {
             subtotal: {},
             state: "items",
             checkout: { payedAmount: new Decimal(0) },
-            tillId: 1,
+            tillSessionId: 1,
             customerId: null,
         };
     }

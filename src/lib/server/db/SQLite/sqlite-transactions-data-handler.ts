@@ -12,16 +12,13 @@ export const sqliteTransactions = {
                 transactionId: transactionsTable.transactionId,
                 tillSessionId: tillSessionsTable.tillSessionId,
                 amount: transactionsTable.amount,
-                type: transactionsTable.type,
+                paymentType: transactionsTable.paymentType,
+                isPaid: transactionsTable.isPaid,
                 reason: transactionsTable.reason,
                 note: transactionsTable.note,
                 createdAt: transactionsTable.createdAt,
             })
             .from(transactionsTable)
-            .innerJoin(
-                tillSessionsTable,
-                eq(transactionsTable.tillSessionId, tillSessionsTable.tillSessionId)
-            )
             .where(eq(transactionsTable.transactionId, transactionId))
             .limit(1)
             .execute();
@@ -44,7 +41,8 @@ export const sqliteTransactions = {
                 tillSessionId: tillSessionsTable.tillSessionId,
                 cashierId: tillSessionsTable.cashierId,
                 amount: transactionsTable.amount,
-                type: transactionsTable.type,
+                paymentType: transactionsTable.paymentType,
+                isPaid: transactionsTable.isPaid,
                 reason: transactionsTable.reason,
                 note: transactionsTable.note,
                 createdAt: transactionsTable.createdAt,

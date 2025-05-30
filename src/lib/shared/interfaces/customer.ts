@@ -6,10 +6,10 @@ export interface ICustomer {
     name: string;
     surname: string;
     email: string | null;
-    balance: IMoneySum[];
+    balance: IMoneySum;
     discount?: IDiscount | null;
     createdAt: Date;
     modifiedAt: Date;
-    unpaidAmount: IMoneySum[] | null;
+    unpaidAmount: IMoneySum | null;
     unpaidOrders: number[] | null;
 }

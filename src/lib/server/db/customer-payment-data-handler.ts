@@ -2,6 +2,7 @@ import type { ICustomerPayment } from "$lib/shared/interfaces/customer-payment";
 import type { Databases, Transactions } from "./db";
 import type { IMoneySum } from "$lib/shared/interfaces/money-sum";
 import type { TransactionType } from "$lib/shared/interfaces/transaction";
+import type { IBalance } from "$lib/shared/interfaces/balance";
 
 export interface CustomerPaymentDataHandler {
     fetchPaymentsForCustomer(
@@ -18,7 +19,6 @@ export interface CustomerPaymentDataHandler {
         db: Databases | Transactions,
         tillSessionId: number,
         customerId: number,
-        amount: IMoneySum,
-        paymentType: TransactionType
+        amount: IBalance,
     ): Promise<void>;
 }

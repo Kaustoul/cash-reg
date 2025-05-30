@@ -1,15 +1,17 @@
 <script lang="ts">
     import { customerStore } from '$lib/shared/stores/customerStore';
-    import { formatSum } from '$lib/shared/utils/money-sum-utils';
+    import { formatSum, toNegative } from '$lib/shared/utils/money-sum-utils';
     import Decimal from 'decimal.js';
     import type { PageData } from './$types';
     import EditableForm from '$lib/componenets/interactables/EditableForm.svelte';
     import CashPaymentModal from '$lib/componenets/modals/CashPaymentModal.svelte';
     import QRPaymentModal from '$lib/componenets/modals/QRPaymentModal.svelte';
     import EditableFormButtons from '$lib/componenets/interactables/EditableFormButtons.svelte';
+    import { tillSessionIdStore } from '$lib/shared/stores/sessionStore';
 
     export let data: PageData;
 
+    $: tillSessionId = $tillSessionIdStore;
     let customer = data.customer;
 
     let editMode = false;
@@ -26,8 +28,8 @@
 
     // Helper for unpaid orders count
     let unpaidOrdersCount = customer.unpaidOrders?.length ?? 0;
-    let totalBalance = customerStore.calculateTotalBalance(customer)[0];
-    let totalNegativeBalance = { value: totalBalance.value.replace('-', ''), currency: totalBalance.currency };
+    let totalBalance = customerStore.calculateTotalBalance(customer);
+    // let totalNegativeBalance = { value: totalBalance.value.replace('-', ''), currency: totalBalance.currency };
 
     let paymentValue = '';
     let showCashModal = false;
@@ -44,7 +46,7 @@
     function setAmountFromCustomer() {
         if (paymentValue === '') {
 
-            paymentValue =  totalNegativeBalance.value;
+            paymentValue =  formatSum(toNegative(totalBalance));
         }
     }
 
@@ -79,8 +81,8 @@
     }
 
     function inputPlaceholder() {
-        if (customer.unpaidAmount && customer.unpaidAmount.length > 0)
-            return formatSum(totalNegativeBalance);
+        if (customer.unpaidAmount && customer.unpaidAmount["CZK"])
+            return formatSum(toNegative(totalBalance));
         
         return '0 Kč';
     }
@@ -195,13 +197,13 @@
             <div class="balance-row">
                 <span class="balance-label gray">Zůstatek na účtu:</span>
                 <span class="mono balance-value gray">
-                    {formatSum(customer.balance[0] ?? { value: '0', currency: 'CZK' })}
+                    {formatSum(customer.balance ?? { 'CZK': "0" })}
                 </span>
             </div>
             <div class="balance-row">
                 <span class="balance-label gray">Neuhrazené nákupy:</span>
                 <span class="mono balance-value gray">
-                    {formatSum(customer.unpaidAmount?.[0] ?? { value: '0', currency: 'CZK' })}
+                    {formatSum(customer.unpaidAmount ?? { "CZK": '0' })}
                 </span>
             </div>
             <hr class="section-divider" />
@@ -217,21 +219,23 @@
             <hr class="section-divider" />
             <span class="unpaid-orders {unpaidOrdersCount > 0 ? 'red' : 'green'}">{unpaidOrdersCount}</span>
         </div>
-        <div class="payment-section">
-            <label class="payment-label" for="payment-input">Vložit na účet</label>
-            <input
-                id="payment-input"
-                class="payment-input mono"
-                type="number"
-                min="0"
-                bind:value={paymentValue}
-                placeholder={inputPlaceholder()}
-            />
-            <div class="payment-buttons">
-                <button class="btn btn-green" type="button" on:click={openCashModal}>Hotově</button>
-                <button class="btn btn-blue" type="button" on:click={openQRModal}>QR kód</button>
+        {#if tillSessionId !== null}
+            <div class="payment-section">
+                <label class="payment-label" for="payment-input">Vložit na účet</label>
+                <input
+                    id="payment-input"
+                    class="payment-input mono"
+                    type="number"
+                    min="0"
+                    bind:value={paymentValue}
+                    placeholder={inputPlaceholder()}
+                />
+                <div class="payment-buttons">
+                    <button class="btn btn-green" type="button" on:click={openCashModal}>Hotově</button>
+                    <button class="btn btn-blue" type="button" on:click={openQRModal}>QR kód</button>
+                </div>
             </div>
-        </div>
+        {/if}
     </div>
     
     <!-- <div class="discount-section">
@@ -272,7 +276,7 @@
         display: inline-flex;
         flex-direction: row;
         flex-wrap: wrap;
-        font-size: vars.$large;
+        font-size: vars.$larger;
         max-height: 25rem;
 
         .header-fields {

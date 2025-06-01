@@ -1,6 +1,6 @@
-import type { IItem } from "../interfaces/item";
+import type { IProductVariant } from "../interfaces/product-variant";
 
-export const fullItemId = (item: IItem): number => {
+export const fullItemId = (item: IProductVariant): number => {
     return parseFullItemId(item.productId, item.itemId);
 }
 

@@ -5,7 +5,7 @@ import Decimal from "decimal.js";
 import { Price } from "$lib/server/prices/price";
 import { Unit } from "$lib/server/products/product";
 import { productsTable } from "../db/schema/product-model";
-import { itemsTable } from "../db/schema/item-model";
+import { productVariantsTable } from "../db/schema/product-variant-model";
 
 test("fetchNextProductId returns correct IDs", async () => {
     const testDb = testSQLiteDb("catalog.db");

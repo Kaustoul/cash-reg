@@ -5,7 +5,7 @@ import { ordersTable } from '../schema/order-model';
 import type { SQLiteTx } from '../db';
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { productsTable } from '../schema/product-model';
-import { itemsTable } from '../schema/item-model';
+import { productVariantsTable } from '../schema/product-variant-model';
 import { parseFullItemId, parseItemName, reduceFullItemId } from '$lib/shared/utils/item-utils';
 import { transactionsTable } from '../schema/money-transfer-model'; // Make sure this import exists
 import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
@@ -102,14 +102,14 @@ export const sqliteOrders = {
 
             const names = await db
                 .select({
-                    productId: itemsTable.productId,
-                    itemId: itemsTable.itemId,
+                    productId: productVariantsTable.productId,
+                    itemId: productVariantsTable.itemId,
                     name: productsTable.name,
-                    subname: itemsTable.subname
+                    subname: productVariantsTable.subname
                 })
-                .from(itemsTable)
-                .innerJoin(productsTable, eq(productsTable.productId, itemsTable.productId))
-                .where(inArray(itemsTable.productId, productIds))
+                .from(productVariantsTable)
+                .innerJoin(productsTable, eq(productsTable.productId, productVariantsTable.productId))
+                .where(inArray(productVariantsTable.productId, productIds))
             ;
 
             const nameMap = names.reduce((map, name) => {

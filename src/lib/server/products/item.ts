@@ -8,7 +8,7 @@ import type { ShoppingCart } from "$lib/shared/till/shopping-cart";
 import { CashRegisterError } from "$lib/shared/errors/cash-register-error";
 import type { ItemDiscount } from "$lib/shared/prices/item-discount";
 import { db } from "../db/db";
-import { itemsTable } from "../db/schema/item-model";
+import { productVariantsTable } from "../db/schema/product-variant-model";
 import { and, eq } from "drizzle-orm";
 
 /**
@@ -264,10 +264,10 @@ export class Item {
 
     public async updatePriceIdxs(): Promise<void> {
         await db
-            .update(itemsTable)
+            .update(productVariantsTable)
             .set({ priceIdxs: this.priceIndexes})
-            .where(and(eq(itemsTable.productId, this.getProductId()), 
-                       eq(itemsTable.itemId, this.itemId)))
+            .where(and(eq(productVariantsTable.productId, this.getProductId()), 
+                       eq(productVariantsTable.itemId, this.itemId)))
             .execute()
 
     }

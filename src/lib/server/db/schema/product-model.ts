@@ -10,6 +10,7 @@ export const productsTable = sqliteTable('products', {
     ,
 
     name: text('name', { length: 256 })
+        .notNull()
     ,
 
     prices: text('prices', { mode: 'json' })
@@ -22,15 +23,14 @@ export const productsTable = sqliteTable('products', {
         .$type<IUnit>()
     ,
 
+    isActive: integer('isActive', { mode: 'boolean' })
+        .notNull()
+        .default(true)
+    ,
+
     createdAt: integer('createdAt', { mode: 'timestamp' })
         .notNull()
         .default(sql`(unixepoch())`)
-    ,
-
-    modifiedAt: integer('modifiedAt', { mode: 'timestamp' })
-        .notNull()
-        .default(sql`(unixepoch())`)
-        // .$onUpdate(() => sql`(unixepoch())`)
     ,
     
 });

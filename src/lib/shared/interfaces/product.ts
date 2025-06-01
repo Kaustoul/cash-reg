@@ -1,5 +1,5 @@
 import type { Unit } from "$lib/server/products/product";
-import type { IItem } from "./item";
+import type { IProductVariant } from "./product-variant";
 import type { IPrice } from "./price";
 
 interface IItemDiscount {
@@ -8,7 +8,7 @@ interface IItemDiscount {
 export interface IProduct {
     productId: number;
     name: string | null;
-    items: IItem[];
+    items: IProductVariant[];
     prices: IPrice[];
     itemDiscounts: IItemDiscount[];
     units: IUnit;

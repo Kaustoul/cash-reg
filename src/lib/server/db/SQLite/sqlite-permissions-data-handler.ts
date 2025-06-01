@@ -1,10 +1,10 @@
 import { permissionsTable } from '../schema/permissions-model';
-import type { IItem } from "$lib/shared/interfaces/item";
+import type { IProductVariant } from "$lib/shared/interfaces/product-variant";
 import { eq , and, max, asc } from 'drizzle-orm';
 import type { SQLiteTx } from "../db";
 import type { ItemsDataHandler } from "../items-data-handler";
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
-import { itemsTable } from "../schema/item-model";
+import { productVariantsTable } from "../schema/product-variant-model";
 import { itemIdFromFullId, productIdFromFullId } from "$lib/shared/utils";
 import type { SQLiteDB } from './sqlite-db';
 import type { PermissionLeaf } from '$lib/shared/permissions';

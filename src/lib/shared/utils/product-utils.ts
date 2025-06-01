@@ -1,5 +1,5 @@
 import type { IProduct } from "../interfaces/product";
-import type { IItem } from "../interfaces/item";
+import type { IProductVariant } from "../interfaces/product-variant";
 import { fullItemId } from "./item-utils";
 import Decimal from "decimal.js";
 import { formatDecimal, formatPrice } from "../utils";
@@ -28,7 +28,7 @@ export const formatProductName = (product: IProduct): string => {
     return isSingleVariant(product) ? product.items[0].subname : product.name!;
 }
 
-export const formatItemIds = (items: IItem[]): string => {
+export const formatItemIds = (items: IProductVariant[]): string => {
     const itemIds = items.map(item => item.itemId);
     return Math.min(...itemIds).toString().padStart(3, '0') 
         + " - " + Math.max(...itemIds).toString().padStart(3, '0');

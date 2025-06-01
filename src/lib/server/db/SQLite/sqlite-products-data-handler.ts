@@ -4,7 +4,7 @@ import type { ProductsDataHandler } from "../products-data-handler"
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { productsTable } from "../schema/product-model";
 import { asc, desc, eq } from "drizzle-orm";
-import type { IItem } from "$lib/shared/interfaces/item";
+import type { IProductVariant } from "$lib/shared/interfaces/product-variant";
 import type { IPrice } from "$lib/shared/interfaces/price";
 import type { ICondition } from "$lib/shared/interfaces/condition";
 import { sqliteItems } from "./sqlite-items-data-handler";
@@ -20,7 +20,7 @@ export const sqliteProducts = {
             .from(productsTable)
         
         for (const product of res) {
-            let items: IItem[] = []; 
+            let items: IProductVariant[] = []; 
             if (fetchItems) {
                 items = await database.fetchProductItems(product.productId);
         

@@ -12,7 +12,7 @@ import { sqliteItems } from './sqlite-items-data-handler';
 import { sqliteProducts } from './sqlite-products-data-handler';
 import type { INewProduct} from '$lib/shared/interfaces/product';
 import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
-import type { IItem } from '$lib/shared/interfaces/item';
+import type { IProductVariant } from '$lib/shared/interfaces/product-variant';
 import type { IPrice } from '$lib/shared/interfaces/price';
 import type { ICondition } from '$lib/shared/interfaces/condition';
 import type { OrdersDataHandler } from '../orders-data-handler';
@@ -160,7 +160,7 @@ export class SQLiteDB implements DB {
         return await this._items.fetchProductItems(this.db, productId);
     }
 
-    async newItem(item: IItem) {
+    async newItem(item: IProductVariant) {
         return await this._items.newItem(this.db, item);
     }
 

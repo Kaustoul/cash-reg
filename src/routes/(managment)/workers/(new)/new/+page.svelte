@@ -78,7 +78,7 @@
     {#if error}
         <div class="error">{error}</div>
     {/if}
-    <EditableForm {fields} {editMode} onSubmit={handleSubmit} cancelBtn={false}>
+    <EditableForm {fields} {editMode} onSubmit={handleSubmit} noButtons={true}>
         <div class="field-row">
             <span class="label">Skupina</span>
             <MultiSelector

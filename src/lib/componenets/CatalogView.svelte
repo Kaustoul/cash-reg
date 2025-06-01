@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { IProduct } from "$lib/shared/interfaces/product";
-    import type { IItem } from "$lib/shared/interfaces/item";
+    import type { IItem } from "$lib/shared/interfaces/product-variant";
     import { isSingleVariant, formatProductName, singleVariantFullId } from "$lib/shared/utils/product-utils";
     import { fullItemId } from "$lib/shared/utils/item-utils";
     import SearchBar from "$lib/componenets/SearchBar.svelte";

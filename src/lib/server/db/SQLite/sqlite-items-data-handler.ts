@@ -1,19 +1,19 @@
-import type { IItem } from "$lib/shared/interfaces/item";
+import type { IProductVariant } from "$lib/shared/interfaces/product-variant";
 import { eq , and, max, asc } from 'drizzle-orm';
 import type { SQLiteTx } from "../db";
 import type { ItemsDataHandler } from "../items-data-handler";
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
-import { itemsTable } from "../schema/item-model";
+import { productVariantsTable } from "../schema/product-variant-model";
 import { itemIdFromFullId, productIdFromFullId } from "$lib/shared/utils";
 
 export const sqliteItems = {
-    async fetchItem(db: BetterSQLite3Database | SQLiteTx, fullId: number): Promise<IItem> {
+    async fetchItem(db: BetterSQLite3Database | SQLiteTx, fullId: number): Promise<IProductVariant> {
         const itemId = itemIdFromFullId(fullId);
         const productId = productIdFromFullId(fullId);
         const res = await db
             .select()
-            .from(itemsTable)
-            .where(and(eq(itemsTable.itemId, itemId), eq(itemsTable.productId, productId)))
+            .from(productVariantsTable)
+            .where(and(eq(productVariantsTable.itemId, itemId), eq(productVariantsTable.productId, productId)))
             .limit(1)
             .execute()
         ;
@@ -25,23 +25,23 @@ export const sqliteItems = {
         return res[0];
     },
 
-    async fetchProductItems(db: BetterSQLite3Database | SQLiteTx, productId: number): Promise<IItem[]> {
+    async fetchProductItems(db: BetterSQLite3Database | SQLiteTx, productId: number): Promise<IProductVariant[]> {
         const res = await db
             .select()
-            .from(itemsTable)
-            .where(eq(itemsTable.productId, productId))
+            .from(productVariantsTable)
+            .where(eq(productVariantsTable.productId, productId))
             .execute()
         ;
         
         return res;
     },
 
-    async newItem(db: BetterSQLite3Database | SQLiteTx, item: IItem): Promise<void> {
+    async newItem(db: BetterSQLite3Database | SQLiteTx, item: IProductVariant): Promise<void> {
         if (item.itemId === undefined) {
             const idRes = await db
-                .select({ maxId: max(itemsTable.itemId) })
-                .from(itemsTable)
-                .where(eq(itemsTable.productId, item.productId))
+                .select({ maxId: max(productVariantsTable.itemId) })
+                .from(productVariantsTable)
+                .where(eq(productVariantsTable.productId, item.productId))
             ;
             
             if (idRes.length === 0 || idRes[0].maxId === null) {
@@ -52,7 +52,7 @@ export const sqliteItems = {
         }
 
         await db
-            .insert(itemsTable)
+            .insert(productVariantsTable)
             .values(item)
             .execute()
         ;
@@ -65,10 +65,10 @@ export const sqliteItems = {
         priceIdxs: number[]
     ): Promise<void> {
         const res = await db
-            .select({priceIdxs: itemsTable.priceIdxs})
-            .from(itemsTable)
+            .select({priceIdxs: productVariantsTable.priceIdxs})
+            .from(productVariantsTable)
             .where(and(
-                eq(itemsTable.productId, productId), eq(itemsTable.itemId, itemId)
+                eq(productVariantsTable.productId, productId), eq(productVariantsTable.itemId, itemId)
             ))
         ;
         if (res.length > 0 && res[0].priceIdxs) {
@@ -76,10 +76,10 @@ export const sqliteItems = {
         }
 
         await db
-            .update(itemsTable)
+            .update(productVariantsTable)
             .set({ priceIdxs: priceIdxs })
             .where(and(
-                eq(itemsTable.productId, productId), eq(itemsTable.itemId, itemId)
+                eq(productVariantsTable.productId, productId), eq(productVariantsTable.itemId, itemId)
             ))
             .execute()
         ;
@@ -92,10 +92,10 @@ export const sqliteItems = {
         priceIdxs: number[]
     ): Promise<void> {
         const res = await db
-            .select({priceIdxs: itemsTable.priceIdxs})
-            .from(itemsTable)
+            .select({priceIdxs: productVariantsTable.priceIdxs})
+            .from(productVariantsTable)
             .where(and(
-                eq(itemsTable.productId, productId), eq(itemsTable.itemId, itemId)
+                eq(productVariantsTable.productId, productId), eq(productVariantsTable.itemId, itemId)
             ))
         ;
         if (res.length === 0 || !res[0].priceIdxs) {
@@ -105,10 +105,10 @@ export const sqliteItems = {
         const newPriceIdxs = res[0].priceIdxs.filter((idx) => !priceIdxs.includes(idx));
 
         await db
-            .update(itemsTable)
+            .update(productVariantsTable)
             .set({ priceIdxs: newPriceIdxs })
             .where(and(
-                eq(itemsTable.productId, productId), eq(itemsTable.itemId, itemId)
+                eq(productVariantsTable.productId, productId), eq(productVariantsTable.itemId, itemId)
             ))
             .execute()
         ;   

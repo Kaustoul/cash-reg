@@ -6,7 +6,7 @@ import { CashRegisterError, ErrCode } from "$lib/shared/errors/cash-register-err
 import { createFullItemId, ensureArray, productIdFromFullId } from "$lib/shared/utils";
 import { Price } from "$lib/shared/prices/price";
 import { productsTable } from "../db/schema/product-model";
-import { itemsTable } from "../db/schema/item-model";
+import { productVariantsTable } from "../db/schema/product-variant-model";
 import { eq, sql } from "drizzle-orm";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { db } from "../db/db";
@@ -82,8 +82,8 @@ export class Catalog {
     public static async fetchNextItemId(database: any, productId: number): Promise<number> {
         const res = await database
             .select({nextItemId: sql<number>`MAX(itemId) + 1`})
-            .from(itemsTable)
-            .where(eq(itemsTable.productId, productId))
+            .from(productVariantsTable)
+            .where(eq(productVariantsTable.productId, productId))
         ;
 
         if (res.length === 0 || res[0]['nextItemId'] === null) {
@@ -98,7 +98,7 @@ export class Catalog {
             itemId = await this.fetchNextItemId(database, productId);
         }
         
-        const res = await database.insert(itemsTable)
+        const res = await database.insert(productVariantsTable)
             .values({
                 itemId: itemId,
                 productId: productId,
@@ -108,7 +108,7 @@ export class Catalog {
                 stock: stock === undefined ? null : stock.toString(),
                 ean: ean,
             })
-            .returning({newId: itemsTable.itemId})
+            .returning({newId: productVariantsTable.itemId})
             .execute()
         ;
     
@@ -142,8 +142,8 @@ export class Catalog {
     private static async fetchAllItems(database: BetterSQLite3Database, product: Product) : Promise<void> {
         const res = await database
             .select()
-            .from(itemsTable)
-            .where(eq(itemsTable.productId, product.getProductId()));
+            .from(productVariantsTable)
+            .where(eq(productVariantsTable.productId, product.getProductId()));
         ;
 
         for (const itemObj of res) {

@@ -1,7 +1,7 @@
 import Decimal from 'decimal.js';
-import type { IPrice } from './price';
+import type { IPrice } from './product-price';
 import type { DecimalStr, IMoneySum } from './money-sum';
-import type { IUnit } from './product';
+import type { Unit } from './product';
 import type { IDiscount } from './discount';
 import type { IBalance } from './balance';
 
@@ -30,5 +30,5 @@ export interface IShoppingCartItem {
     discounts?: IDiscount[];
     subtotal: Decimal;
     priceIdx: number;
-    unit: IUnit;
+    unit: Unit;
 }

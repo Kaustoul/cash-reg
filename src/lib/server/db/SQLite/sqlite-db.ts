@@ -10,10 +10,10 @@ import type { ProductsDataHandler } from '../products-data-handler';
 import type { ItemsDataHandler } from '../items-data-handler';
 import { sqliteItems } from './sqlite-items-data-handler';
 import { sqliteProducts } from './sqlite-products-data-handler';
-import type { INewProduct} from '$lib/shared/interfaces/product';
+import type { INewProduct, IProduct} from '$lib/shared/interfaces/product';
 import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
 import type { IProductVariant } from '$lib/shared/interfaces/product-variant';
-import type { IPrice } from '$lib/shared/interfaces/price';
+import type { IPrice } from '$lib/shared/interfaces/product-price';
 import type { ICondition } from '$lib/shared/interfaces/condition';
 import type { OrdersDataHandler } from '../orders-data-handler';
 import { sqliteOrders } from "./splite-orders-data-handler";
@@ -46,12 +46,15 @@ import type { IDiscount } from '$lib/shared/interfaces/discount';
 import type { IBalance, IFrontEndBalance } from '$lib/shared/interfaces/balance';
 import { calculateBalanceTotal } from '$lib/shared/utils/balance-utils';
 import type { IShoppingCart } from '$lib/shared/interfaces/shopping-cart';
+import { sqliteProductPrices } from './sqlite-product-prices-data-handler';
+import type { ProductPricesDataHandler } from '../product-prices-data-handler';
 
 export class SQLiteDB implements DB {
     readonly db: BetterSQLite3Database;
     readonly _tills: TillsDataHandler;
     readonly _products: ProductsDataHandler;
     readonly _items: ItemsDataHandler;
+    readonly _productPrices: ProductPricesDataHandler;
     readonly _orders: OrdersDataHandler;
     readonly _customers: CustomersDataHandler;
     readonly _customerPayments: CustomerPaymentDataHandler;
@@ -78,6 +81,7 @@ export class SQLiteDB implements DB {
         this._tills = sqliteTills;
         this._products = sqliteProducts;
         this._items = sqliteItems;
+        this._productPrices = sqliteProductPrices;
         this._orders = sqliteOrders;
         this._customers = sqliteCustomers;
         this._customerPayments = sqliteCustomerPayments;
@@ -108,7 +112,7 @@ export class SQLiteDB implements DB {
     // -- PRODUCTS - \\
     //---------------\\
 
-    async fetchProduct(productId: number, fetchItems: boolean = false) {
+    async fetchProduct(productId: number, fetchItems: boolean = false): Promise<IProduct> {
         return await this._products.fetchProduct(this.db, productId, fetchItems);
     }
 
@@ -117,7 +121,15 @@ export class SQLiteDB implements DB {
     }
 
     async newProduct(product: INewProduct) {
-        return await this._products.newProduct(this.db, product);
+        return this.db.transaction(async (tx) => {
+            const productId = await this._products.newProduct(tx, product);
+
+            return productId;
+        });
+    }
+
+    async updateProduct(productId: number, data: Partial<INewProduct>) {
+        return await this._products.updateProduct(this.db, productId, data);
     }
 
     async updatePrices(productId: number, prices: IPrice[]) {
@@ -170,6 +182,14 @@ export class SQLiteDB implements DB {
 
     async removeItemPriceIdxs(productId: number, itemId: number, priceIdxs: number[]) {
         return this._items.removeItemPriceIdxs(this.db, productId, itemId, priceIdxs);
+    }
+
+    //------------------------\\
+    // --- PRODUCT PRICES --- \\
+    //------------------------\\
+
+    async fetchPricesForProduct(productId: number) {
+        return await this._productPrices.fetchPricesForProduct(this.db, productId);
     }
 
     //---------------\\

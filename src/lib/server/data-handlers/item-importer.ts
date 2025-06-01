@@ -6,7 +6,7 @@ import { CashRegisterError } from "$lib/shared/errors/cash-register-error";
 import { Catalog } from "../till/catalog";
 import { database, db, type Databases } from "../db/db";
 import { CurrencyManager } from "$lib/shared/prices/currency-manager";
-import type { IPrice } from "$lib/shared/interfaces/price";
+import type { IPrice } from "$lib/shared/interfaces/product-price";
 
 export async function importItemsAndProductsFromCSV(
     rawCSV: string,

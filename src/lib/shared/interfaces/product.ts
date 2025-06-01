@@ -1,26 +1,13 @@
-import type { Unit } from "$lib/server/products/product";
-import type { IProductVariant } from "./product-variant";
-import type { IPrice } from "./price";
-
-interface IItemDiscount {
-}
+export type ProductStatus = "draft" | "active" | "archived";
 
 export interface IProduct {
     productId: number;
-    name: string | null;
-    items: IProductVariant[];
-    prices: IPrice[];
-    itemDiscounts: IItemDiscount[];
-    units: IUnit;
-    createdAt?: Date;
-    modifiedAt?: Date;
-}
-
-export interface INewProduct {
-    name: string | null;
-    prices: IPrice[];
-    itemDiscounts: IItemDiscount[];
+    name: string;
     units: Unit;
+    status: ProductStatus;
+    createdAt: Date;
 }
 
-export type IUnit = "ks" | "Kg" | "g"; 
+export type INewProduct = Omit<IProduct, "productId" | "status" | "createdAt" | "modifiedAt">;
+
+export type Unit = "ks" | "Kg" | "g"; 

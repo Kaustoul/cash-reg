@@ -1,7 +1,7 @@
 import type { IFrontEndMoneySum, IMoneySum } from "../interfaces/money-sum";
 import { CurrencyManager } from "$lib/shared/prices/currency-manager";
 import Decimal from "decimal.js";
-import type { IPrice } from "../interfaces/price";
+import type { IPrice } from "../interfaces/product-price";
 import { formatDecimal } from "../utils";
 import { MoneySum } from "../prices/money-sum";
 

@@ -6,5 +6,5 @@ export interface IProductVariant {
     subname: string;
     ean: string | null;
     isActive: boolean;
-    createdAt?: Date;
+    createdAt: Date;
 }

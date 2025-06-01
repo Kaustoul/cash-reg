@@ -1,78 +1,85 @@
 @use 'vars' as vars;
 
 @mixin text{
-  padding: 0.5rem 1rem 0.5rem 1rem;
-  background-color: vars.$primary-color;
-  border: none;
-  color: vars.$text-color;
-  font-size: vars.$large;
-  border-radius: vars.$large-radius;
-
-  &:focus {
+    padding: 0.5rem 1rem 0.5rem 1rem;
+    background-color: vars.$primary-color;
     border: none;
-    outline: none;
-  }
+    color: vars.$text-color;
+    font-size: vars.$large;
+    border-radius: vars.$large-radius;
 
-  &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
+    &:focus {
+        border: solid 1px vars.$accent-color;
+        outline: none;
+    }
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
 }
 
 @mixin number{
-  padding: 0.5rem 1rem 0.5rem 1rem;
-  background-color: vars.$primary-color;
-  border: none;
-  margin-right: .5rem;
-  color: vars.$text-color;
-  font-size: vars.$large;
-  font-family: 'Roboto Mono', monospace;
-  border-radius: vars.$large-radius;
-
-  &:focus {
+    padding: 0.5rem 1rem 0.5rem 1rem;
+    background-color: vars.$primary-color;
     border: none;
-    outline: none;
-  }
+    margin-right: .5rem;
+    color: vars.$text-color;
+    font-size: vars.$large;
+    font-family: 'Roboto Mono', monospace;
+    border-radius: vars.$large-radius;
 
-  &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
+    &:focus {
+        border: solid 1px vars.$accent-color;
+        outline: none;
+    }
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
 }
 
 @mixin checkbox{
-      appearance: none;
-      -webkit-appearance: none;
-      width: 4rem;
-      height: 2rem;
-      background-color: vars.$primary-color;
-      border-radius: vars.$large-radius;
-      position: relative;
-      outline: none;
-      cursor: pointer;
-      transition: background-color 0.4s;
+    appearance: none;
+    -webkit-appearance: none;
+    width: 6rem;
+    height: 3.5rem;
+    background-color: vars.$primary-color;
+    border-radius: vars.$large-radius;
+    position: relative;
+    outline: none;
+    cursor: pointer;
+    transition: background-color 0.4s;
+    border: solid 1px vars.$second-accent-color;
 
     &::before {
-      content: "";
-      position: absolute;
-      width: 1.6rem;
-      height: 1.6rem;
-      top: 3px;
-      left: 3px;
-      background-color: lighten($color: vars.$primary-color, $amount: 10%);
-      border-radius: vars.$full-radius;
-      transition: transform 0.4s, background-color 0.4s;
+        content: "";
+        position: absolute;
+        width: 2.8rem;
+        height: 2.8rem;
+        top: 4px;
+        left: 4px;
+        background-color: vars.$highlight-color;
+        border-radius: vars.$full-radius;
+        transition: transform 0.4s, background-color 0.4s;
+        // background-color: vars.$second-accent-color;
     }
 
     &:checked {
-      background-color: vars.$accent-color;
+        background-color: vars.$accent-color;
     }
 
     &:checked::before {
-      transform: translateX(2rem);
-      background-color: vars.$second-accent-color;
+        transform: translateX(2.5rem);
+        background-color: vars.$second-accent-color;
+    }
+
+    &:focus {
+        outline: none;
+        border: solid 1px vars.$accent-color;
     }
 }
 
@@ -97,9 +104,11 @@
     }
 
     input[type="search"]:focus {
-        border: none;
+        border: solid 1px vars.$accent-color;
         outline: none;
     }
+
+
 }
 
 @mixin scrollable {
@@ -122,4 +131,43 @@
         -webkit-box-shadow: inset 0 0 6px transparent;
         margin: 3.5rem;
     }
+}
+
+@mixin selector {
+    padding: 1rem 2rem;
+    background-color: vars.$primary-color;
+    color: vars.$text-color;
+    font-size: vars.$larger;
+    border: solid 1px vars.$second-accent-color;
+    border-radius: vars.$large-radius;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+
+    // Custom arrow (SVG), adjust color and padding as needed
+    background-image: url("data:image/svg+xml;utf8,<svg fill='#{vars.$accent-color}' height='32' viewBox='0 0 24 24' width='32' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 1.5rem center;
+    background-size: 2rem;
+
+    padding-right: 3.5rem; // Make space for the arrow
+
+    &:focus {
+        border: solid 1px vars.$accent-color;
+        outline: none;
+    }
+
+    option {
+        background-color: vars.$primary-color;
+        color: vars.$text-color;
+    }
+
+    option:hover {
+        background: vars.$highlight-color;
+    }
+    
+    option:checked {
+        // background: vars.$highlight-color;
+    }
+
 }

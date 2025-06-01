@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text, } from "drizzle-orm/sqlite-core";
-import type { IPrice } from "$lib/shared/interfaces/price";
-import type { IUnit } from "$lib/shared/interfaces/product";
+import type { IPrice } from "$lib/shared/interfaces/product-price";
+import type { IProduct, Unit } from "$lib/shared/interfaces/product";
 
 export const productsTable = sqliteTable('products', {
     productId: integer('productid', { mode: 'number' })
@@ -13,19 +13,15 @@ export const productsTable = sqliteTable('products', {
         .notNull()
     ,
 
-    prices: text('prices', { mode: 'json' })
-        .notNull()
-        .$type<IPrice[]>()
-    ,
-
     units: text('units')
         .notNull()
-        .$type<IUnit>()
+        .$type<IProduct['units']>()
     ,
 
-    isActive: integer('isActive', { mode: 'boolean' })
+    status: text('status', { length: 16 })
+        .$type<IProduct['status']>()
         .notNull()
-        .default(true)
+        .default('draft')
     ,
 
     createdAt: integer('createdAt', { mode: 'timestamp' })

@@ -1,6 +1,6 @@
 import type { IDiscount } from './discount';
 import type { DecimalStr, IMoneySum } from './money-sum';
-import type { IPrice } from './price';
+import type { IPrice } from './product-price';
 import type { PaymentType } from './transaction';
 
 export interface IOrder {

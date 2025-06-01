@@ -6,6 +6,7 @@
     import TabSelector from '$lib/TabSelector.svelte';
     import type { ActionData, PageData } from './$types';
     import { viewTitleStore } from '$lib/shared/stores/workerStore';
+    import AlertModal from '$lib/componenets/modals/AlertModal.svelte';
 
 	export let data: PageData;
     export let form: ActionData
@@ -29,6 +30,7 @@
     }
     
     let showImportModal = false;
+    let showNewProductAlert = false;
 
     $: if (form?.success) {
        alert(`${form.count} produktů bylo úspěšně importovány`); 
@@ -38,9 +40,43 @@
         alert(`Chyba při importu: ${form.error}`);
     }
 
+    async function newProduct() {
+        showNewProductAlert = false;
+
+        const res = await fetch('/api/products/new', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        });
+
+        if (!res.ok) {
+            const error = await res.json();
+            alert(`Chyba při vytváření produktu: ${error.message}`);
+            return;
+        }
+
+        
+        const resJson = await res.json();
+        console.log(resJson);
+        if (!resJson.productId) {
+            alert("Chyba při vytváření produktu: Produkt ID nebylo vráceno.");
+            return;
+        }
+
+
+        goto(`/catalog/products/${resJson.productId}/detail?edit=1`);
+    }
+
 </script>
 
 <ImportItemsModal bind:showModal={showImportModal}/>
+<AlertModal 
+    message="Opravdu chcete vytvořit nový produkt?" 
+    onConfirm={newProduct} 
+    bind:showModal={showNewProductAlert}
+/>
 
 <TabSelector {tabs}/>
 <SortedListView 
@@ -57,7 +93,7 @@
     showSearchBar={true}
     buttons={{
         "Přidat": {
-            action: () => {},
+            action: () => showNewProductAlert = true,
             icon: "plus",
             color: "green"
         },

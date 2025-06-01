@@ -38,13 +38,13 @@
                     class="number-input" 
                     min="0"
                     step="0.01"
-                    placeholder="420.69"
+                    placeholder="1600.00"
                     bind:value={priceValue}
                 />
                 Kč
             </div>
         </label>
-        <label>
+        <!-- <label>
             Aplikovat cenu na všechny položky
             <input 
                 type="checkbox"
@@ -52,7 +52,7 @@
                 class="checkbox"
                 bind:checked={applyToAll}
             />
-        </label>
+        </label> -->
         <label>
             Množstevní podmínka
             <input 
@@ -81,6 +81,8 @@
         display: flex;
         flex-direction: column;
         gap: 2rem;
+        min-width: 60rem;
+
     }
 
     label {

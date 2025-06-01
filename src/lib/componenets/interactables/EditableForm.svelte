@@ -1,20 +1,26 @@
+<script lang="ts" context="module">
+    export type FormFields = { key: string, label: string, value: any, type: string, options?: string[], defaultValue?: string }
+</script>
+
 <script lang="ts">
     import EditableSpan from './EditableSpan.svelte';
     import EditIcon from 'svelte-material-icons/AccountEdit.svelte';
+    import Selector from './Selector.svelte';
 
-    export let fields: { key: string, label: string, value: string }[] = [];
+    export let fields: FormFields[] = [];
     export let editMode: boolean = false;
     export let noButtons: boolean = true;
-    export let onSubmit: (data: Record<string, string>) => void = () => {};
+    export let onSubmit: (data: Record<string, any>) => void = () => {};
     export let onCancel: () => void = () => {};
-
     export let editedFields = fields.map(f => ({ ...f }));
+
+    console.log('fields', fields);
 
     $: if (!editMode) {
         editedFields = fields.map(f => ({ ...f }));
     }
 
-    function handleChange(key: string, value: string) {
+    function handleChange(key: string, value: any) {
         const field = editedFields.find(f => f.key === key);
         if (field) field.value = value;
     }
@@ -28,11 +34,21 @@
     {#each editedFields as field}
         <div class="field-row">
             <span class="label">{field.label}</span>
-            <EditableSpan
-                value={field.value}
-                editMode={editMode}
-                onChange={val => handleChange(field.key, val)}
-            />
+            {#if field.type === 'select'}
+                {#if editMode}
+                    <Selector bind:value={field.value} defaultValue={field.defaultValue ? field.defaultValue : ""} options={field.options} />
+                {:else}
+                    <span class="editable-text">{field.value}</span>
+                {/if}
+            {:else if field.type === 'checkbox'}
+                    <input type="checkbox" class="checkbox {editMode ? "" : "disabled"}" bind:checked={field.value} on:change={e => handleChange(field.key, e.target)} />
+            {:else}
+                <EditableSpan
+                    value={field.value}
+                    editMode={editMode}
+                    onChange={val => handleChange(field.key, val)}
+                />
+            {/if}
         </div>
     {/each}
 
@@ -83,6 +99,7 @@
         flex-direction: column;
         gap: 1rem 2rem;
         flex: 0 0 45%;
+        font-size: vars.$larger;
     }
 
     .label {
@@ -113,4 +130,30 @@
         font-size: vars.$large;
         width: 30%
     }
+
+    .checkbox {
+        @include inputs.checkbox;
+    }
+
+    .text-input {
+        @include inputs.text;
+    }
+
+    .number-input {
+        @include inputs.number;
+    }  
+
+    .editable-text {
+        @include inputs.text;
+
+        background-color: transparent;
+
+        display: block;
+        font-size: inherit;
+        width: 80%;
+        padding: 1rem 2rem;
+
+        border: 1px solid vars.$second-accent-color;
+    }
+    
 </style>

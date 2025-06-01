@@ -5,7 +5,7 @@ import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { productsTable } from "../schema/product-model";
 import { asc, desc, eq } from "drizzle-orm";
 import type { IProductVariant } from "$lib/shared/interfaces/product-variant";
-import type { IPrice } from "$lib/shared/interfaces/price";
+import type { IPrice } from "$lib/shared/interfaces/product-price";
 import type { ICondition } from "$lib/shared/interfaces/condition";
 import { sqliteItems } from "./sqlite-items-data-handler";
 
@@ -38,27 +38,22 @@ export const sqliteProducts = {
     async fetchProduct(
         db: BetterSQLite3Database | SQLiteTx,
         productId: number,
-        fetchItems: boolean = false
     ): Promise<IProduct> {
         const productRes = await db
             .select()
             .from(productsTable)
             .where(eq(productsTable.productId, productId))
         ;
+
         const res = productRes[0];
-        
-        if (!fetchItems) {
-            return { ...res, items: [], itemDiscounts: [] };
+
+        if (!res) {
+            throw new Error(`Product with ID ${productId} not found`);
         }
-
-        const items = await database.fetchProductItems(productId);
-
-        return { ...res, items: items, itemDiscounts: [] };
+        
+        return res;
     },
 
-    /**
-     * Does not insert items or item discounts
-     */
     async newProduct(db: BetterSQLite3Database | SQLiteTx, product: INewProduct): Promise<number> {
         const res = await db
             .insert(productsTable)
@@ -68,6 +63,19 @@ export const sqliteProducts = {
         ;
 
         return res[0].newProductId;
+    },
+
+    async updateProduct(
+        db: BetterSQLite3Database | SQLiteTx,
+        productId: number,
+        update: Partial<IProduct>
+    ): Promise<void> {
+        await db
+            .update(productsTable)
+            .set(update)
+            .where(eq(productsTable.productId, productId))
+            .execute()
+        ;
     },
 
     async updatePrices(

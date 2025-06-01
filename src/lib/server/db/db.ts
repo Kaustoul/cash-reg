@@ -32,6 +32,7 @@ export interface DB {
     readonly _tills: TillsDataHandler;
     readonly _products: ProductsDataHandler;
     readonly _items: ItemsDataHandler;
+    readonly _productPrices: ProductsDataHandler;
     readonly _orders: OrdersDataHandler;
     readonly _customers: CustomersDataHandler;
     readonly _customerPayments: CustomerPaymentDataHandler;

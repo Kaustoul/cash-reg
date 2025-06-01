@@ -6,7 +6,7 @@
         label: string,
         returnLabel?: string,
         confirmLabel?: string,
-        unit?: IUnit | IDiscount['type'],
+        unit?: Unit | IDiscount['type'],
 
         content: {
             type: 'weight' | 'money' | 'discount',
@@ -19,7 +19,7 @@
 </script>
 
 <script lang="ts">
-    import type { IUnit } from '$lib/shared/interfaces/product';
+    import type { Unit } from '$lib/shared/interfaces/product';
     import Decimal from 'decimal.js';
     import type { IShoppingCart } from '$lib/shared/interfaces/shopping-cart';
     import { onMount } from 'svelte';

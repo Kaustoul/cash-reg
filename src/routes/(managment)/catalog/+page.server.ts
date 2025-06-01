@@ -1,26 +1,23 @@
 import { csvImporter } from '$lib/server/data-handlers/item-importer.js';
 import type { PageServerLoad } from './$types';
 import type { Actions } from '@sveltejs/kit';
-import { database } from '$lib/server/db/db';
-import { formatSumsArray } from '$lib/shared/utils/money-sum-utils';
-import { formatProductName, formatFullId } from '$lib/shared/utils/product-utils';
 
 export const load: PageServerLoad = async () => {
-    const products = await database.fetchProducts(true);
-    const productsDisplayList = [];
-    for (const product of products) {
-        productsDisplayList.push({
-            fullId: formatFullId(product),
-            subnames: product.items.map(i => i.subname),
-            productId: product.productId,
-            prices: formatSumsArray(product.prices.map(p => p.value)),
-            name: formatProductName(product),
-            stock: "N/A"
-        });
-    }
+    // const products = await database.fetchProducts(true);
+    // const productsDisplayList = [];
+    // for (const product of products) {
+    //     productsDisplayList.push({
+    //         fullId: formatFullId(product),
+    //         subnames: product.items.map(i => i.subname),
+    //         productId: product.productId,
+    //         prices: formatSumsArray(product.prices.map(p => p.value)),
+    //         name: formatProductName(product),
+    //         stock: "N/A"
+    //     });
+    // }
     return {
-        products: products,
-        displayInfo: productsDisplayList,
+        // products: products,
+        // displayInfo: productsDisplayList,
     }
 }
 

@@ -15,6 +15,8 @@ export const productVariantsTable = sqliteTable('productVariants', {
     ,
 
     subname: text('name', { length: 256 })
+        .notNull()
+        .default('')
     ,
 
     ean: text('ean', { length: 128 })

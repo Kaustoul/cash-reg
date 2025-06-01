@@ -1,5 +1,5 @@
 import Decimal from "decimal.js";
-import type { IPrice } from "./interfaces/price";
+import type { IPrice } from "./interfaces/product-price";
 import { CurrencyManager } from "./prices/currency-manager";
 import type { DecimalStr } from "./interfaces/money-sum";
 

@@ -1,11 +1,11 @@
 import type { ICondition } from "../interfaces/condition";
-import type { IUnit } from "../interfaces/product";
+import type { Unit } from "../interfaces/product";
 import type { IShoppingCartItem } from "../interfaces/shopping-cart";
 import { Decimal } from "decimal.js";
 
 export function formatConditionStrs(
     conditions: ICondition[],
-    units?: IUnit
+    units?: Unit
 ): string[] {
     const res = []
 

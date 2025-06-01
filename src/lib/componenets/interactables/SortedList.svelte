@@ -5,7 +5,7 @@
 
     export type Schema = {
         fieldName: string,
-        type: "string" | "number" | "unsortable" | "selector" | "json" | "link" | "sum" | "decimal" | "balance",
+        type: "string" | "number" | "unsortable" | "selector" | "json" | "link" | "sum" | "decimal" | "balance" | "button",
         columnHeader: string,
         jsonToString?: (obj: any) => string,
         customData?: any,
@@ -16,6 +16,12 @@
         url?: string,
         urlParams?: string[],
         class?: (row: any, column: any) => string
+        btnProps?: {
+            text?: string,
+            color?: "red" | "green" | "blue" | "yellow" | "primary" | "accent" ,
+            class?: string,
+            onClick?: (row: any) => void
+        }
 
     }[];
 </script>
@@ -155,6 +161,18 @@
                                         {:else}
                                             <span class="second-accent">—</span>
                                         {/if}
+                                    {:else if column.type === 'button'}
+                                        <button 
+                                            class="btn {column.btnProps && column.btnProps.color ? column.btnProps.color : ""}"
+                                            on:click={(e) => {
+                                                e.stopPropagation();
+                                                if (column.btnProps && column.btnProps.onClick) {
+                                                    column.btnProps.onClick(row);
+                                                }
+                                            }}
+                                        >
+                                            {column.btnProps && column.btnProps.text ? column.btnProps.text : "Akce"}
+                                        </button>
                                     {:else}
                                         <span>{row[column.fieldName]}</span>
                                     {/if}
@@ -284,5 +302,34 @@
         color: vars.$text2-color;
         text-align: center;
 
+    }
+
+    .btn {
+        @include buttons.btn;
+        $btn-height: 2.5rem;
+
+        .red {
+            @include buttons.btn($btn-color: vars.$red, $btn-height: $btn-height);
+        }
+
+        .blue {
+            @include buttons.btn($btn-color: vars.$blue, $btn-height: $btn-height);
+        }
+
+        .yellow {
+            @include buttons.btn($btn-color: vars.$yellow, $btn-height: $btn-height);
+        }
+
+        .green {
+            @include buttons.btn($btn-color: vars.$green, $btn-height: $btn-height);
+        }
+
+        .primary {
+            @include buttons.btn($btn-color: vars.$primary-color, $btn-height: $btn-height);
+        }
+
+        .accent {
+            @include buttons.btn($btn-color: vars.$accent-color, $btn-height: $btn-height);
+        }
     }
 </style>

@@ -346,7 +346,6 @@ export function isNegativeBalance(balance: IFrontEndBalance): boolean {
         balance = calculateBalanceTotal(balance);
     }
 
-    console.log("negative" , balance["CZK"].total)
     return new Decimal(balance["CZK"].total).isNegative();
 }
 

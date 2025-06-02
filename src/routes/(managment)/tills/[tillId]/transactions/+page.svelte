@@ -12,11 +12,8 @@
     import CustomerDepositIcon from '$lib/componenets/icons/CustomerDepositIcon.svelte';
     import { viewTitleStore } from '$lib/shared/stores/workerStore';
     import { isNegativeBalance } from '$lib/shared/utils/balance-utils';
-    import { asMoneySum, formatSum } from '$lib/shared/utils/money-sum-utils';
 
     export let data: PageData;
-
-    $: console.log("Transactions data:", data.transactions);
 
     viewTitleStore.set({
         title: "Transakce",

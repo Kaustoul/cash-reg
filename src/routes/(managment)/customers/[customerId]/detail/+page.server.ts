@@ -6,7 +6,6 @@ import { fail, json } from '@sveltejs/kit';
 
 export const actions: Actions = {
     async editCustomer({ params, request, cookies }) {
-        console.log('Editing customer action started');
         const { user } = await getUserAndOpenSession(cookies);
         if (!user) {
             return fail(401, { error: 'Unauthorized' });
@@ -37,11 +36,6 @@ export const actions: Actions = {
                 source: "customer"
             };
         }
-
-        console.log('Editing customer:', {
-            customerId,
-            data: { name, surname, email, discount: discountObj}
-        });
 
         // Fetch current customer
         const customer = await database.fetchCustomer(customerId);

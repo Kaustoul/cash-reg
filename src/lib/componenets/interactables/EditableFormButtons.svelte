@@ -2,6 +2,7 @@
     import EditIcon from 'svelte-material-icons/AccountEdit.svelte';
     import AcceptIcon from 'svelte-material-icons/CheckCircle.svelte';
     import CancelIcon from 'svelte-material-icons/Cancel.svelte';
+    import DeleteIcon from 'svelte-material-icons/Delete.svelte';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
 
@@ -9,6 +10,7 @@
     export let isSubmitting: boolean = false;
     export let onConfirm: () => Promise<void> = async () => {};
     export let onCancel: () => void = () => {};
+    export let onDelete: () => void = () => {};
 
     function toggleEditMode() {
         editMode = true;
@@ -36,24 +38,26 @@
 
 <div class="buttons">
     {#if editMode}
-        <button 
-            class="cancel-btn" 
-            type="button"
-            on:click={cancel}
-            disabled={isSubmitting}
-        >
-            <CancelIcon size="1.5rem" />
-            Zrušit
-        </button>
-        <button 
-            class="accept-btn" 
-            type="button"
-            on:click={confirm}
-            disabled={isSubmitting}
-        >
-            <AcceptIcon size="1.5rem" />
-            {isSubmitting ? '...' : 'Uložit'}
-        </button>
+        <div class="edit-mode">
+            <button 
+                class="cancel-btn" 
+                type="button"
+                on:click={cancel}
+                disabled={isSubmitting}
+                >
+                <CancelIcon size="1.5rem" />
+                Zrušit
+            </button>
+            <button 
+                class="accept-btn" 
+                type="button"
+                on:click={confirm}
+                disabled={isSubmitting}
+            >
+                <AcceptIcon size="1.5rem" />
+                {isSubmitting ? '...' : 'Uložit'}
+            </button>
+        </div>
     {:else}
         <button 
             class="edit-btn" 
@@ -64,14 +68,29 @@
             Upravit
         </button>
     {/if}
+    <button 
+        class="delete-btn {editMode? 'disabled' : ''}" 
+        type="button"
+        on:click={onDelete}
+    >
+        <DeleteIcon size="2.5rem" />
+        Smazat
+    </button>
 </div>
 
 <style lang="scss">
     @use '$lib/styles/vars' as vars;
     @use '$lib/styles/buttons' as buttons;
 
+    .edit-mode {
+        display: flex;
+        gap: 1rem;
+        width: 100%;
+    }
+
     .buttons {
         display: flex;
+        flex-direction: column;
         gap: 1rem;
     }
 
@@ -83,16 +102,23 @@
     }
 
     .accept-btn {
-        @include buttons.btn($btn-color: vars.$green, $btn-height: 3.5rem);
+        @include buttons.btn($btn-color: vars.$green, $btn-height: 4rem);
         width: 100%;
         font-size: vars.$larger;
         flex: 0 0 48%;
     }
 
     .cancel-btn {
-        @include buttons.btn($btn-color: vars.$red, $btn-height: 3.5rem);
+        @include buttons.btn($btn-color: vars.$red, $btn-height: 4rem);
         width: 100%;
         font-size: vars.$larger;
         flex: 0 0 48%;
+    }
+
+    .delete-btn {
+        @include buttons.btn($btn-color: vars.$red, $btn-height: 4rem);
+        width: 100%;
+        font-size: vars.$larger;
+        font-weight: bold;
     }
 </style>

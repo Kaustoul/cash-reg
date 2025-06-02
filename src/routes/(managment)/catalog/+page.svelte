@@ -55,7 +55,6 @@
 
         
         const resJson = await res.json();
-        console.log(resJson);
         if (!resJson.productId) {
             alert("Chyba při vytváření produktu: Produkt ID nebylo vráceno.");
             return;
@@ -101,6 +100,7 @@
         }
      }}
     customSearchKeys={['name', 'subnames', 'productId', 'fullId']}
+    grayRowOn={(row) => row['status'] === 'archived' || row['status'] === 'draft'}
 />
 
 <style lang="scss">

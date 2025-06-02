@@ -186,10 +186,11 @@ export class SQLiteDB implements DB {
         });
     }
 
-    async updateVariant(variantId: number, update: Partial<IProductVariant>) {
+    async updateVariant(variantId: number, update: Partial<IProductVariant>): Promise<number> {
         return await this.db.transaction(async (tx) => {
             const res = await this._productVariants.updateVariant(this.db, variantId, update);
             await this._products.modifiedProduct(tx, res);
+            return res;
         });
     }
 
@@ -200,6 +201,28 @@ export class SQLiteDB implements DB {
     async fetchPricesForProduct(productId: number): Promise<IPrice[]> {
         return await this._productPrices.fetchPricesForProduct(this.db, productId);
     }
+
+    async fetchPriceForVariant(variantId: number): Promise<IPrice[]> {
+        return await this._productPrices.fetchPricesForVariant(this.db, variantId);
+    }
+
+    async fetchPrice(priceId: number): Promise<IPrice> {
+        return await this._productPrices.fetchPrice(this.db, priceId);
+    }
+
+    async newPrice(price: Omit<IPrice, "priceId" | "createdAt" | "modifiedAt">): Promise<number> {
+        return await this._productPrices.newPrice(this.db, price);
+    }
+
+    async updatePrice(priceId: number, price: Partial<IPrice>): Promise<void> {
+        return await this._productPrices.updatePrice(this.db, priceId, price);
+    }
+
+    async removePrice(priceId: number): Promise<void> {
+        return await this._productPrices.removePrice(this.db, priceId);
+    }
+
+
 
     //---------------\\
     // --- TILLS --- \\

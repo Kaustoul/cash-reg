@@ -7,6 +7,21 @@
 <div class="inputs">
     <div class="left">
         <input 
+            name="max" 
+            type="number" 
+            class="input-field left" 
+            min="0" 
+            step="1" 
+            placeholder="Max"
+            bind:value={max}
+        />
+        {units}
+    </div>
+    <span class="text-between">&gt;</span>
+    <span class="text-between">množství</span>
+    <span class="text-between">≥</span>
+    <div class="right">
+        <input 
             name="min" 
             type="number" 
             class="input-field" 
@@ -16,21 +31,6 @@
             bind:value={min}
         />
         <span>{units}</span>
-    </div>
-    <span class="text-between">≤</span>
-    <span class="text-between">množství</span>
-    <span class="text-between">&lt;</span>
-    <div class="right">
-        <input 
-            name="max" 
-            type="number" 
-            class="input-field right" 
-            min="0" 
-            step="1" 
-            placeholder="Max"
-            bind:value={max}
-        />
-        {units}
     </div>
 </div>
 

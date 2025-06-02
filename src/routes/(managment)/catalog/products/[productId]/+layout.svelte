@@ -27,7 +27,6 @@
         showBackArrow: true
     });
     // goto(tabs["Varianty"].url);
-    // console.log(data);
 </script>
 
 <TabSelector {tabs}/>

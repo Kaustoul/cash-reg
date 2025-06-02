@@ -37,14 +37,13 @@
     export let schema: Schema;
     export let clickableRows: boolean = false;
     export let onRowClick: (id: number) => void = () => {};
-    export let idFieldName: string = "idx";
+    export let idFieldName: string = Object.keys(data[0])[0];
     export let selected: (string | number)[] = [];
     export let defaultJsonToString: (obj: any) => string = (obj) => JSON.stringify(obj);
     export let selectors: boolean = true;
     export let customRenderer: { [fieldName: string]: (row: any, column: any) => any } = {};
     export let emptyMessage: string = "Žádná data k zobrazení";
-
-    $: console.log("Data in SortedList:", data);
+    export let grayRowOn: (row: any) => boolean = () => false;
 
     function toggleProductSelection(idx: number, id?: string | number) {
         const selection = idFieldName === "idx" ? idx : id!;
@@ -67,13 +66,11 @@
     }
 
     function parseUrlWithParams(url: string | undefined, urlParams: string[] | undefined, row: any): string {
-        console.log("Parsing URL with params:", url, urlParams, row);
         if (!row || !url) return '#';
         if (!urlParams) return row.url;
         let result = url;
         if (urlParams && Array.isArray(urlParams)) {
             for (const param of urlParams) {
-                console.log("Replacing param:", param, "with value:", row[param]);
                 result = result.replace("${" + param + "}", encodeURIComponent(row[param]));
             }
         }
@@ -103,7 +100,7 @@
             </tr>
         {:else}
             {#each data as row, idx}
-                <tr class={clickableRows ? "clickable" : ""}>
+                <tr class="{clickableRows ? "clickable" : ""} {grayRowOn(row) ? "gray" : ""}">
                     {#if selectors}
                         <td class="selector">
                             <div class="selectorContainer">   
@@ -121,7 +118,7 @@
                                 {#if customRenderer[column.fieldName](row, column).component}
                                     <svelte:component this={customRenderer[column.fieldName](row, column).component} {...customRenderer[column.fieldName](row, column).props} />
                                 {:else if customRenderer[column.fieldName](row, column).text}
-                                    {customRenderer[column.fieldName](row, column).text}
+                                    <span class={customRenderer[column.fieldName](row, column).class ? customRenderer[column.fieldName](row, column).class : ""} >{customRenderer[column.fieldName](row, column).text}</span>
                                 {:else}
                                     {@html customRenderer[column.fieldName](row, column)}
                                 {/if}
@@ -287,6 +284,10 @@
 
     .second-accent {
         color: vars.$second-accent-color;
+    }
+
+    .gray {
+        color: vars.$text2-color;
     }
 
     .mono {

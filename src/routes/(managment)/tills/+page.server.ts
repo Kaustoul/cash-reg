@@ -36,7 +36,6 @@ export const load: PageServerLoad = async ({ cookies }) => {
             isUserLogggedIn: tillSession?.tillId === till.id,
         });
     }
-    console.log('Loaded tills:', tills);
 
     return { tills: tills, loggedIn: tillSession?.tillId ?? null };
 }

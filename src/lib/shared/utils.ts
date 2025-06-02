@@ -49,8 +49,6 @@ export function productIdFromFullId(fullItemId: number): number {
 }
 
 export function formatDecimal(value: Decimal | DecimalStr, alwaysDecimal: boolean = false, roundToWhole: boolean = false): string {
-    console.log("formatDecimal", value, alwaysDecimal, roundToWhole);
-    
     if (!(value instanceof Decimal)) {
         value = new Decimal(value);
     }
@@ -80,15 +78,15 @@ export function formatDecimal(value: Decimal | DecimalStr, alwaysDecimal: boolea
     return decimalPart && decimalPart !== '00' ? `${isNegative ? "- " : ""}${integerPart}.${decimalPart}` : `${isNegative ? "- " : ""}${integerPart}`;
 }
 
-export function formatPrice(price: IPrice, includeCurrency: boolean = false): string {
-    let res = formatDecimal(new Decimal(price.value.value))
+// export function formatPrice(price: IPrice, includeCurrency: boolean = false): string {
+//     let res = formatDecimal(new Decimal(price.value.value))
 
-    if (includeCurrency) {
-        res += ' ' + CurrencyManager.getCurrency(price.value.currency).getSymbol();
-    }
+//     if (includeCurrency) {
+//         res += ' ' + CurrencyManager.getCurrency(price.value.currency).getSymbol();
+//     }
 
-    return res;
-}
+//     return res;
+// }
 
 export function cleanObject<T extends {}>(obj: T): T {
     return Object.fromEntries(

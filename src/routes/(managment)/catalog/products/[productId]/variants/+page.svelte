@@ -1,7 +1,7 @@
 <script lang="ts">
     import SortedListView from '$lib/SortedListView.svelte';
     import { goto } from '$app/navigation';
-    import type { PageData } from '../variants/$types';
+    import type { PageData } from './$types';
     import AlertModal from '$lib/componenets/modals/AlertModal.svelte';
 
     export let data: PageData;
@@ -48,8 +48,9 @@
     removeButton={false}
     idFieldName="variantId"
     clickableRows={data.variants.length > 1}
-    onRowClick={variant => goto(`/catalog/variants/${variant}/detail?edit=1`)}
+    onRowClick={variant => goto(`/catalog/variants/${variant}/detail`)}
     selectors={false}
     showSearchBar={true}
     customSearchKeys={["variantId", "subname", "ean"]}
+    grayRowOn={row => row['status'] === 'archived'}
 />

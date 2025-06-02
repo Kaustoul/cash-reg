@@ -3,7 +3,7 @@ import { database, type SQLiteTx } from "../db";
 import type { ProductsDataHandler } from "../products-data-handler"
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { productsTable } from "../schema/product-model";
-import { asc, desc, eq } from "drizzle-orm";
+import { asc, desc, eq, ne } from "drizzle-orm";
 import type { IProductVariant } from "$lib/shared/interfaces/product-variant";
 
 export const sqliteProducts = {
@@ -14,6 +14,7 @@ export const sqliteProducts = {
         const res = await db
             .select()
             .from(productsTable)
+            .where(ne(productsTable.status, 'deleted' as const))
        
         return res;
     },

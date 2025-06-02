@@ -11,7 +11,7 @@
     export let schema: Schema;
     export let clickableRows: boolean = false;
     export let onRowClick: (productId: number) => void = () => {};
-    export let idFieldName: string = "idx";
+    export let idFieldName: string = Object.keys(data[0])[0];
     export let showSearchBar: boolean = false;
     export let removeButton: boolean = false;
     export let onRemovePressed: (selectedIds: (string | number)[]) => void = () => {};
@@ -26,6 +26,7 @@
     export let selectors: boolean = true;
     export let customRenderer: { [fieldName: string]: (row: any, column: any) => any } = {};
     export let emptyMessage: string = "Žádná data k zobrazení";
+    export let grayRowOn: (row: any) => boolean = () => false;
 
     let filteredData = data;
     const BTN_SIZE = "1.7rem"
@@ -76,7 +77,7 @@
     {/each}
 </div>
 <div class="list-container">
-    <SortedList data={filteredData} {schema} {clickableRows} {onRowClick} {idFieldName} bind:selected {selectors} {customRenderer} {emptyMessage}/>
+    <SortedList data={filteredData} {schema} {clickableRows} {onRowClick} {idFieldName} bind:selected {selectors} {customRenderer} {emptyMessage} {grayRowOn}/>
 </div>
 <style lang="scss">
     @use '$lib/styles/vars' as vars;

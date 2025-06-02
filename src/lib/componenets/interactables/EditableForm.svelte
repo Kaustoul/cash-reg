@@ -14,8 +14,6 @@
     export let onCancel: () => void = () => {};
     export let editedFields = fields.map(f => ({ ...f }));
 
-    $: console.log('edit from form', editMode);
-
     $: if (!editMode) {
         editedFields = fields.map(f => ({ ...f }));
     }

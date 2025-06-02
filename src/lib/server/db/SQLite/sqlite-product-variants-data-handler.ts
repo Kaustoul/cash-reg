@@ -1,7 +1,7 @@
 import type { ProductVariantsDataHandler } from "../product-variants-data-handler";
 import type { IProductVariant } from "$lib/shared/interfaces/product-variant";
 import { productVariantsTable } from "../schema/product-variant-model";
-import { count, eq } from "drizzle-orm";
+import { and, count, eq, ne } from "drizzle-orm";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import type { SQLiteTx } from "../db";
 
@@ -25,7 +25,10 @@ export const sqliteProductVariants: ProductVariantsDataHandler = {
         return await db
             .select()
             .from(productVariantsTable)
-            .where(eq(productVariantsTable.productId, productId))
+            .where(and(
+                eq(productVariantsTable.productId, productId),
+                ne(productVariantsTable.status, 'deleted' as const)
+            ))
             .execute();
     },
 
@@ -43,10 +46,10 @@ export const sqliteProductVariants: ProductVariantsDataHandler = {
             .update(productVariantsTable)
             .set(data)
             .where(eq(productVariantsTable.variantId, variantId))
-            .returning({ variantId: productVariantsTable.variantId })
+            .returning({ productId: productVariantsTable.productId })
             .execute();
 
-        return res[0].variantId;
+        return res[0].productId;
     },
 
     async fetchProductVariantsCount(db: BetterSQLite3Database | SQLiteTx, productId: number): Promise<number> {

@@ -13,8 +13,6 @@ export interface FormatSumOptions {
 }
 
 export const formatSum = (moneySum: IMoneySum | IFrontEndMoneySum | null, options?: FormatSumOptions): string => {
-    console.log("formatSum", moneySum, options);
-    
     if (!moneySum || Object.keys(moneySum).length === 0) {
         return "0";
     }
@@ -34,27 +32,46 @@ export const formatSum = (moneySum: IMoneySum | IFrontEndMoneySum | null, option
     return `${formatDecimal(value, defaultOtions.alwaysDecimal)} ${CurrencyManager.getCurrency(currency).getSymbol()}`;
 }
 
-export const formatPricesArray = (prices: IPrice[]): string => {
-    let maxPrice = new Decimal(prices[0].value.value);
-    let minPrice = new Decimal(prices[0].value.value);
-
-    for (const price of prices) {
-        const decimal = new Decimal(price.value.value);
-        if (decimal.gt(maxPrice)) {
-            maxPrice = decimal;
-        }
-
-        if (decimal.lt(minPrice)) {
-            minPrice = decimal;
-        }
+export function formatPrice(price: IMoneySum | null, units?: string, options?: FormatSumOptions): string {
+    if (!price) {
+        return "N/A";
     }
 
-    if (minPrice.eq(maxPrice)) {
-        return formatDecimal(maxPrice) + " " +prices[0].value.currency;
+    let defaultOtions = {alwaysDecimal: false, includeCurrency: true, currency: "CZK"}
+    if (options) {
+        defaultOtions = {...defaultOtions, ...options};
     }
 
-    return formatDecimal(minPrice) + " - " + formatDecimal(maxPrice) + " " + prices[0].value.currency;
+    const res = formatSum(price, defaultOtions);
+
+    if (units) {
+        return `${res} / ${units}`;
+    }
+
+    return res;
 }
+
+// export const formatPricesArray = (prices: IPrice[]): string => {
+//     let maxPrice = new Decimal(prices[0].value.value);
+//     let minPrice = new Decimal(prices[0].value.value);
+
+//     for (const price of prices) {
+//         const decimal = new Decimal(price.value.value);
+//         if (decimal.gt(maxPrice)) {
+//             maxPrice = decimal;
+//         }
+
+//         if (decimal.lt(minPrice)) {
+//             minPrice = decimal;
+//         }
+//     }
+
+//     if (minPrice.eq(maxPrice)) {
+//         return formatDecimal(maxPrice) + " " +prices[0].value.currency;
+//     }
+
+//     return formatDecimal(minPrice) + " - " + formatDecimal(maxPrice) + " " + prices[0].value.currency;
+// }
 
 // export function sumFrontEndMoneySums(...sums: (IFrontEndMoneySum | null)[]): IFrontEndMoneySum {
 //     const totals: IFrontEndMoneySum = {};

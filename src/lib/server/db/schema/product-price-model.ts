@@ -1,21 +1,20 @@
 import { is, sql } from "drizzle-orm";
 import { check, integer, primaryKey, sqliteTable, text,  } from "drizzle-orm/sqlite-core";
 import { productsTable } from "./product-model";
-import type { DecimalStr } from "$lib/shared/interfaces/money-sum";
 import type { IPrice } from "$lib/shared/interfaces/product-price";
 
 export const productPricesTable = sqliteTable('productPrices', {
-    priceId: integer('variantId', { mode: 'number' })
+    priceId: integer('priceId', { mode: 'number' })
         .notNull()
         .primaryKey({ autoIncrement: true })
     ,
 
     productId: integer('productid')
-        .references(() => productsTable.productId, { onDelete: 'restrict' })
+        .references(() => productsTable.productId, { onDelete: 'no action' })
     ,
 
     variantId: integer('variantId')
-        .references(() => productsTable.productId, { onDelete: 'restrict' })
+        .references(() => productsTable.productId, { onDelete: 'no action' })
     ,
 
     priceType: text('priceType', { length: 16 })

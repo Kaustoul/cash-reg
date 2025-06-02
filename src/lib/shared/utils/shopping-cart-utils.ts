@@ -70,7 +70,6 @@ export function calculateItemTotal(item: IShoppingCartItem): void {
         item.total = item.subtotal;
     }
 
-    // console.log("item price", item);
 }
 
 export function updateCartItemPrice(item : IShoppingCartItem): void {

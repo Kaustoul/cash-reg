@@ -97,15 +97,6 @@
         let dataToSend = new FormData();
         dataToSend.append('test', 'test'); // Placeholder for debugging
 
-        console.log(Array.from(dataToSend.entries()));
-
-        console.log("Form data to send:", {
-            name,
-            surname,
-            email,
-            discount
-        }, "to customer:", customer);
-
         if (name.trim() === '' || surname.trim() === '') {
             error = "Jméno a příjmení nesmí být prázdné.";
             return;
@@ -123,7 +114,6 @@
 
         if (surname !== customer.surname) {
             dataToSend.append('surname', surname);
-            console.log("Appending surname:", surname);
         }
 
         if (email !== customer.email) {
@@ -133,7 +123,6 @@
         if (discount !== (customer.discount?.value?.toString() ?? "")) {
             dataToSend.append('discount', discount);
         }
-        console.log(Array.from(dataToSend.entries()));
 
         isSubmitting = true;
         error = null;

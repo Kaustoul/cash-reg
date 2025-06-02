@@ -10,6 +10,7 @@
     export let onConfirmSuccess: () => void = () => {};
     export let onConfirmFail: () => void = () => {};
     export let onCancel: () => void = () => {};
+    export let onDelete: () => void = () => {};
     export let endpoint: string;
     export let method: 'PATCH' | 'POST';
     export let editedFields: FormFields[] = [];
@@ -49,7 +50,6 @@
             onConfirmFail();
         }
     }
-
 </script>
 
 <div class="container">
@@ -62,6 +62,7 @@
             {isSubmitting}
             onConfirm={handleSave}
             {onCancel}
+            {onDelete}
         />
         {#if info && Object.keys(info).length > 0}
             <div class="info-data">

@@ -28,7 +28,7 @@
         class="editable-input"
     />
 {:else}
-    <span class="editable-text {!value || value === '' ? 'empty' : ''}">{value}</span>
+    <span class="editable-text {!value || value === '' ? 'empty' : ''}">{!value ? '—' : value}</span>
 {/if}
 
 <style lang="scss">

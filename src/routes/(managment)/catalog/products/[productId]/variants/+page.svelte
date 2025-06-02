@@ -1,14 +1,14 @@
 <script lang="ts">
     import SortedListView from '$lib/SortedListView.svelte';
     import { goto } from '$app/navigation';
-    import type { PageData } from './$types';
+    import type { PageData } from '../variants/$types';
     import AlertModal from '$lib/componenets/modals/AlertModal.svelte';
 
     export let data: PageData;
     let showAddVariantModal = false;
 
     async function addVariant() {
-        const res = await fetch(`/api/products/${data.product.productId}/variants`, {
+        const res = await fetch(`/api/products/${data.product.productId}/newVariant`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ subname: '', ean: null }) // or prompt user for details
@@ -47,5 +47,9 @@
     }}
     removeButton={false}
     idFieldName="variantId"
+    clickableRows={data.variants.length > 1}
+    onRowClick={variant => goto(`/catalog/variants/${variant}/detail?edit=1`)}
     selectors={false}
+    showSearchBar={true}
+    customSearchKeys={["variantId", "subname", "ean"]}
 />

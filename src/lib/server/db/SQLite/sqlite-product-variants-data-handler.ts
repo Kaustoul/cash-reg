@@ -32,7 +32,7 @@ export const sqliteProductVariants: ProductVariantsDataHandler = {
     async newVariant(db: BetterSQLite3Database | SQLiteTx, productId: number): Promise<number> {
         const res = await db
             .insert(productVariantsTable)
-            .values({productId})
+            .values({productId, subname: 'Nová varianta'})
             .returning({ variantId: productVariantsTable.variantId })
             .execute();
         return res[0].variantId;

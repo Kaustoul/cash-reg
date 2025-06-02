@@ -1,13 +1,13 @@
 import type { IProductVariant } from "$lib/shared/interfaces/product-variant";
 import { eq , and, max, asc } from 'drizzle-orm';
 import type { SQLiteTx } from "../db";
-import type { ItemsDataHandler } from "../items-data-handler";
+import type { ItemsDataHandler } from "../product-variants-data-handler";
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { productVariantsTable } from "../schema/product-variant-model";
 import { itemIdFromFullId, productIdFromFullId } from "$lib/shared/utils";
 
 export const sqliteItems = {
-    async fetchItem(db: BetterSQLite3Database | SQLiteTx, fullId: number): Promise<IProductVariant> {
+    async fetchVariants(db: BetterSQLite3Database | SQLiteTx, fullId: number): Promise<IProductVariant> {
         const itemId = itemIdFromFullId(fullId);
         const productId = productIdFromFullId(fullId);
         const res = await db
@@ -25,7 +25,7 @@ export const sqliteItems = {
         return res[0];
     },
 
-    async fetchProductItems(db: BetterSQLite3Database | SQLiteTx, productId: number): Promise<IProductVariant[]> {
+    async fetchProductVariants(db: BetterSQLite3Database | SQLiteTx, productId: number): Promise<IProductVariant[]> {
         const res = await db
             .select()
             .from(productVariantsTable)
@@ -36,7 +36,7 @@ export const sqliteItems = {
         return res;
     },
 
-    async newItem(db: BetterSQLite3Database | SQLiteTx, item: IProductVariant): Promise<void> {
+    async newVariant(db: BetterSQLite3Database | SQLiteTx, item: IProductVariant): Promise<void> {
         if (item.itemId === undefined) {
             const idRes = await db
                 .select({ maxId: max(productVariantsTable.itemId) })

@@ -2,7 +2,7 @@ import { permissionsTable } from '../schema/permissions-model';
 import type { IProductVariant } from "$lib/shared/interfaces/product-variant";
 import { eq , and, max, asc } from 'drizzle-orm';
 import type { SQLiteTx } from "../db";
-import type { ItemsDataHandler } from "../items-data-handler";
+import type { ItemsDataHandler } from "../product-variants-data-handler";
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { productVariantsTable } from "../schema/product-variant-model";
 import { itemIdFromFullId, productIdFromFullId } from "$lib/shared/utils";

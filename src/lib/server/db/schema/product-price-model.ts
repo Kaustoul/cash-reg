@@ -46,6 +46,11 @@ export const productPricesTable = sqliteTable('productPrices', {
         .notNull()
         .default(sql`(unixepoch())`)
     ,
+
+    modifiedAt: integer('modifiedAt', { mode: 'timestamp' })
+        .notNull()
+        .default(sql`(unixepoch())`)
+    ,
 }) 
 // (table) => [
 //     return check("itemExists",

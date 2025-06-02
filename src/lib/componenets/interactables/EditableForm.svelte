@@ -14,7 +14,7 @@
     export let onCancel: () => void = () => {};
     export let editedFields = fields.map(f => ({ ...f }));
 
-    console.log('fields', fields);
+    $: console.log('edit from form', editMode);
 
     $: if (!editMode) {
         editedFields = fields.map(f => ({ ...f }));
@@ -22,7 +22,13 @@
 
     function handleChange(key: string, value: any) {
         const field = editedFields.find(f => f.key === key);
-        if (field) field.value = value;
+        if (!field) return;
+
+        if (typeof value === 'string') {
+            value = value.trim();
+        }
+
+        field.value = value;
     }
 
     function submit() {
@@ -41,7 +47,12 @@
                     <span class="editable-text">{field.value}</span>
                 {/if}
             {:else if field.type === 'checkbox'}
-                    <input type="checkbox" class="checkbox {editMode ? "" : "disabled"}" bind:checked={field.value} on:change={e => handleChange(field.key, e.target)} />
+                    <input
+                        type="checkbox"
+                        class="checkbox {editMode ? '' : 'disabled'}"
+                        checked={field.value}
+                        on:change={e => handleChange(field.key, e.target.checked)}
+                    />
             {:else}
                 <EditableSpan
                     value={field.value}

@@ -31,6 +31,7 @@
     import { ensureArray, formatDecimal } from '$lib/shared/utils';
     import { asMoneySum, formatSum } from '$lib/shared/utils/money-sum-utils';
     import { balanceToMoneySum } from '$lib/shared/utils/balance-utils';
+    import { Column } from 'drizzle-orm';
 
     export let data: DataRows;
     export let schema: Schema;
@@ -128,53 +129,57 @@
                                 {#if column.customData}
                                     <span>{row[column.fieldName].customData}</span>
                                 {:else}
-                                    {#if column.type === 'selector'}
-                                        <MultiSelector 
-                                            items={ensureArray(row[column.fieldName])} 
-                                            maxItems={column.props ? column.props.maxSelectorItems : undefined}
-                                            onAddPressed={column.props ? column.props.selectorOnAdd : () => {}}
-                                            deleteEndpoint={column.props ? column.props.deleteEndpoint: undefined}
-                                            props={{
-                                                id: column.props && column.props.selectorIdField 
-                                                ? row[column.props.selectorIdField] 
-                                                : Number(row[idFieldName])
-                                            }}
-                                        />
-                                    {:else if column.type === 'json'}
-                                            <span>{column.jsonToString === undefined ? defaultJsonToString(row[column.fieldName]) : column.jsonToString(row[column.fieldName])}</span>
-                                    {:else if column.type === 'balance'}
-                                            <span class="mono {column.class ? column.class(row, column) : ""}">{formatSum(balanceToMoneySum(row[column.fieldName]))}</span>
-                                    {:else if column.type === 'sum'}
-                                            <span class="mono {column.class ? column.class(row, column) : ""}">{formatSum(row[column.fieldName])}</span>
-                                    {:else if column.type === 'decimal'}
-                                            <span class="mono {column.class ? column.class(row, column) : ""}">{formatDecimal(row[column.fieldName])}</span>
-                                    {:else if column.type === 'number'}
-                                            <span class="mono {column.class ? column.class(row, column) : ""}">{row[column.fieldName]}</span>
-                                    {:else if column.type === 'link'}
-                                        {#if row[column.fieldName] && column.url} 
-                                            <a
-                                                href={parseUrlWithParams(column.url, column.urlParams, row)}
-                                                rel="noopener noreferrer"
-                                            >
-                                                {row[column.fieldName]}
-                                            </a>
-                                        {:else}
-                                            <span class="second-accent">—</span>
-                                        {/if}
-                                    {:else if column.type === 'button'}
-                                        <button 
-                                            class="btn {column.btnProps && column.btnProps.color ? column.btnProps.color : ""}"
-                                            on:click={(e) => {
-                                                e.stopPropagation();
-                                                if (column.btnProps && column.btnProps.onClick) {
-                                                    column.btnProps.onClick(row);
-                                                }
-                                            }}
-                                        >
-                                            {column.btnProps && column.btnProps.text ? column.btnProps.text : "Akce"}
-                                        </button>
+                                    {#if !row[column.fieldName]}
+                                        <span>—</span>
                                     {:else}
-                                        <span>{row[column.fieldName]}</span>
+                                        {#if column.type === 'selector'}
+                                            <MultiSelector 
+                                                items={ensureArray(row[column.fieldName])} 
+                                                maxItems={column.props ? column.props.maxSelectorItems : undefined}
+                                                onAddPressed={column.props ? column.props.selectorOnAdd : () => {}}
+                                                deleteEndpoint={column.props ? column.props.deleteEndpoint: undefined}
+                                                props={{
+                                                    id: column.props && column.props.selectorIdField 
+                                                    ? row[column.props.selectorIdField] 
+                                                    : Number(row[idFieldName])
+                                                }}
+                                            />
+                                        {:else if column.type === 'json'}
+                                                <span>{column.jsonToString === undefined ? defaultJsonToString(row[column.fieldName]) : column.jsonToString(row[column.fieldName])}</span>
+                                        {:else if column.type === 'balance'}
+                                                <span class="mono {column.class ? column.class(row, column) : ""}">{formatSum(balanceToMoneySum(row[column.fieldName]))}</span>
+                                        {:else if column.type === 'sum'}
+                                                <span class="mono {column.class ? column.class(row, column) : ""}">{formatSum(row[column.fieldName])}</span>
+                                        {:else if column.type === 'decimal'}
+                                                <span class="mono {column.class ? column.class(row, column) : ""}">{formatDecimal(row[column.fieldName])}</span>
+                                        {:else if column.type === 'number'}
+                                                <span class="mono {column.class ? column.class(row, column) : ""}">{row[column.fieldName]}</span>
+                                        {:else if column.type === 'link'}
+                                            {#if row[column.fieldName] && column.url} 
+                                                <a
+                                                    href={parseUrlWithParams(column.url, column.urlParams, row)}
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    {row[column.fieldName]}
+                                                </a>
+                                            {:else}
+                                                <span class="second-accent">—</span>
+                                            {/if}
+                                        {:else if column.type === 'button'}
+                                            <button 
+                                                class="btn {column.btnProps && column.btnProps.color ? column.btnProps.color : ""}"
+                                                on:click={(e) => {
+                                                    e.stopPropagation();
+                                                    if (column.btnProps && column.btnProps.onClick) {
+                                                        column.btnProps.onClick(row);
+                                                    }
+                                                }}
+                                            >
+                                                {column.btnProps && column.btnProps.text ? column.btnProps.text : "Akce"}
+                                            </button>
+                                        {:else}
+                                            <span>{row[column.fieldName]}</span>
+                                        {/if}
                                     {/if}
                                 {/if}
                             {/if}

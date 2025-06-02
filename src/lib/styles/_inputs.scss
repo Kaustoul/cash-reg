@@ -81,6 +81,24 @@
         outline: none;
         border: solid 1px vars.$accent-color;
     }
+
+    &.disabled {
+        background-color: transparent;
+        cursor: default;
+    }
+
+    &.disabled:checked {
+        background-color: vars.$second-accent-color;
+    }
+
+    &.disabled:checked::before {
+        background-color: vars.$primary-color;
+    }
+
+    &.disabled:focus {
+        outline: none;
+        border: solid 1px vars.$second-accent-color;
+    }
 }
 
 @mixin search-bar($height: auto) {
@@ -104,6 +122,11 @@
     }
 
     input[type="search"]:focus {
+        // border: solid 1px vars.$accent-color;
+        outline: none;
+    }
+
+    &:focus {
         border: solid 1px vars.$accent-color;
         outline: none;
     }

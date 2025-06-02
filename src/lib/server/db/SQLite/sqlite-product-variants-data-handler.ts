@@ -1,7 +1,7 @@
 import type { ProductVariantsDataHandler } from "../product-variants-data-handler";
 import type { IProductVariant } from "$lib/shared/interfaces/product-variant";
 import { productVariantsTable } from "../schema/product-variant-model";
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import type { SQLiteTx } from "../db";
 
@@ -21,7 +21,7 @@ export const sqliteProductVariants: ProductVariantsDataHandler = {
         return res[0];
     },
 
-    async fetchVariantsForProduct(db: BetterSQLite3Database | SQLiteTx, productId: number): Promise<IProductVariant[]> {
+    async fetchProductVariants(db: BetterSQLite3Database | SQLiteTx, productId: number): Promise<IProductVariant[]> {
         return await db
             .select()
             .from(productVariantsTable)
@@ -29,27 +29,41 @@ export const sqliteProductVariants: ProductVariantsDataHandler = {
             .execute();
     },
 
-    async newVariant(db: BetterSQLite3Database | SQLiteTx, variant: Omit<IProductVariant, "variantId" | "createdAt">): Promise<number> {
+    async newVariant(db: BetterSQLite3Database | SQLiteTx, productId: number): Promise<number> {
         const res = await db
             .insert(productVariantsTable)
-            .values(variant)
+            .values({productId})
             .returning({ variantId: productVariantsTable.variantId })
             .execute();
         return res[0].variantId;
     },
 
-    async updateVariant(db: BetterSQLite3Database | SQLiteTx, variantId: number, data: Partial<IProductVariant>): Promise<void> {
-        await db
+    async updateVariant(db: BetterSQLite3Database | SQLiteTx, variantId: number, data: Partial<IProductVariant>): Promise<number> {
+        const res = await db
             .update(productVariantsTable)
             .set(data)
             .where(eq(productVariantsTable.variantId, variantId))
+            .returning({ variantId: productVariantsTable.variantId })
             .execute();
+
+        return res[0].variantId;
     },
 
-    async removeVariant(db: BetterSQLite3Database | SQLiteTx, variantId: number): Promise<void> {
-        await db
-            .delete(productVariantsTable)
-            .where(eq(productVariantsTable.variantId, variantId))
+    async fetchProductVariantsCount(db: BetterSQLite3Database | SQLiteTx, productId: number): Promise<number> {
+        const res = await db
+            .select({ count: count() })
+            .from(productVariantsTable)
+            .where(eq(productVariantsTable.productId, productId))
             .execute();
+
+        return res[0].count;
     }
+    
+
+    // async removeVariant(db: BetterSQLite3Database | SQLiteTx, variantId: number): Promise<void> {
+    //     await db
+    //         .delete(productVariantsTable)
+    //         .where(eq(productVariantsTable.variantId, variantId))
+    //         .execute();
+    // }
 };

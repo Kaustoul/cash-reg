@@ -52,7 +52,7 @@
             disabled={isSubmitting}
         >
             <AcceptIcon size="1.5rem" />
-            {isSubmitting ? '...' : 'Potvrdit'}
+            {isSubmitting ? '...' : 'Uložit'}
         </button>
     {:else}
         <button 

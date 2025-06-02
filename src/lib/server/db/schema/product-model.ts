@@ -29,4 +29,8 @@ export const productsTable = sqliteTable('products', {
         .default(sql`(unixepoch())`)
     ,
     
+    modifiedAt: integer('modifiedAt', { mode: 'timestamp' })
+        .notNull()
+        .default(sql`(unixepoch())`)
+    ,
 });

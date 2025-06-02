@@ -5,12 +5,9 @@ import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import Database from 'better-sqlite3';
 import { sqliteTills } from './sqlite-tills-data-handler';
 import type { TillsDataHandler } from '../tills-data-handler';
-import type { IFrontEndTill, ITill } from '$lib/shared/interfaces/till';
+import type { ITill } from '$lib/shared/interfaces/till';
 import type { ProductsDataHandler } from '../products-data-handler';
-import type { ItemsDataHandler } from '../items-data-handler';
-import { sqliteItems } from './sqlite-items-data-handler';
-import { sqliteProducts } from './sqlite-products-data-handler';
-import type { INewProduct, IProduct} from '$lib/shared/interfaces/product';
+import type { INewProduct, IProduct, ProductStatus} from '$lib/shared/interfaces/product';
 import type { IMoneySum } from '$lib/shared/interfaces/money-sum';
 import type { IProductVariant } from '$lib/shared/interfaces/product-variant';
 import type { IPrice } from '$lib/shared/interfaces/product-price';
@@ -48,12 +45,15 @@ import { calculateBalanceTotal } from '$lib/shared/utils/balance-utils';
 import type { IShoppingCart } from '$lib/shared/interfaces/shopping-cart';
 import { sqliteProductPrices } from './sqlite-product-prices-data-handler';
 import type { ProductPricesDataHandler } from '../product-prices-data-handler';
+import { sqliteProductVariants } from './sqlite-product-variants-data-handler';
+import type { ProductVariantsDataHandler } from '../product-variants-data-handler';
+import { sqliteProducts } from './sqlite-products-data-handler';
 
 export class SQLiteDB implements DB {
     readonly db: BetterSQLite3Database;
     readonly _tills: TillsDataHandler;
     readonly _products: ProductsDataHandler;
-    readonly _items: ItemsDataHandler;
+    readonly _productVariants: ProductVariantsDataHandler;
     readonly _productPrices: ProductPricesDataHandler;
     readonly _orders: OrdersDataHandler;
     readonly _customers: CustomersDataHandler;
@@ -80,7 +80,7 @@ export class SQLiteDB implements DB {
 
         this._tills = sqliteTills;
         this._products = sqliteProducts;
-        this._items = sqliteItems;
+        this._productVariants = sqliteProductVariants;
         this._productPrices = sqliteProductPrices;
         this._orders = sqliteOrders;
         this._customers = sqliteCustomers;
@@ -112,83 +112,92 @@ export class SQLiteDB implements DB {
     // -- PRODUCTS - \\
     //---------------\\
 
-    async fetchProduct(productId: number, fetchItems: boolean = false): Promise<IProduct> {
-        return await this._products.fetchProduct(this.db, productId, fetchItems);
+    async fetchProduct(productId: number): Promise<IProduct> {
+        return await this._products.fetchProduct(this.db, productId);
     }
 
-    async fetchProducts(fetchItems: boolean = false) {
-        return await this._products.fetchProducts(this.db, fetchItems);
+    async fetchProducts() {
+        return await this._products.fetchProducts(this.db);
     }
 
     async newProduct(product: INewProduct) {
-        return this.db.transaction(async (tx) => {
+        return await this.db.transaction(async (tx) => {
             const productId = await this._products.newProduct(tx, product);
+            await this._productVariants.newVariant(tx, productId);
 
             return productId;
         });
     }
 
-    async updateProduct(productId: number, data: Partial<INewProduct>) {
-        return await this._products.updateProduct(this.db, productId, data);
+    async updateProduct(productId: number, data: Partial<IProduct>): Promise<void> {
+        return await this.db.transaction(async (tx) => {
+            const res = await this._products.updateProduct(tx, productId, { ...data, modifiedAt: new Date() });
+
+            if (!data.name || !data.status) return;
+
+            const variants = await this._productVariants.fetchProductVariants(tx, productId);
+            const variantData: Partial<IProductVariant> = {modifiedAt: new Date()};
+            
+            if (data.name) {
+                variantData.subname = data.name;
+            }
+
+            if (data.status) {
+                variantData.status = data.status;
+            }
+
+            if (variants && variants.length === 1) {
+                await this._productVariants.updateVariant(tx, variants[0].variantId, variantData);
+            }
+        });
     }
 
-    async updatePrices(productId: number, prices: IPrice[]) {
-        return await this._products.updatePrices(this.db, productId, prices);
+    async modifiedProduct(productId: number): Promise<void> {
+        return await this._products.modifiedProduct(this.db, productId);
     }
 
-    async updatePrice(productId: number, priceIdx: number, price: IPrice) {
-        return await this._products.updatePrice(this.db, productId, priceIdx, price);
+    //--------------------------\\
+    // --- PRODUCT VARIANTS --- \\
+    //--------------------------\\
+
+    async fetchVariant(variantId: number) {
+        return await this._productVariants.fetchVariant(this.db, variantId);
     }
 
-    async newPrice(productId: number, price: IPrice, addToAllItems: boolean) {
-        return await this._products.newPrice(this.db, productId, price, addToAllItems);
+    async fetchProductVariants(productId: number) {
+        return await this._productVariants.fetchProductVariants(this.db, productId);
     }
 
-    async removePrices(productId: number, priceIdxs: number[]) {
-        return await this._products.removePrices(this.db, productId, priceIdxs);
+    async fetchProductVariantsCount(productId: number): Promise<number> {
+        return await this._productVariants.fetchProductVariantsCount(this.db, productId);
     }
 
-    async newPriceCondition(productId: number, priceIdx: number, condition: ICondition) {
-        return await this._products.newPriceCondition(this.db, productId, priceIdx, condition);
+    async newVariant(productId: number): Promise<number> {
+        return await this.db.transaction(async (tx) => {
+            const res = await this._productVariants.newVariant(tx, productId);
+
+            if (!res) {
+                throw new Error(`Failed to create new variant for product ID ${productId}`);
+            }
+
+            await this._products.modifiedProduct(tx, productId);
+
+            return res;
+        });
     }
 
-    async removePriceCondition(productId: number, priceIdx: number, conditionIdx: number) {
-        return await this._products.removePriceCondition(this.db, productId, priceIdx, conditionIdx);
-    }
-
-    async removeAllPriceConditions(productId: number, priceIdx: number) {
-        return await this._products.removeAllPriceConditions(this.db, productId, priceIdx);
-    }
-
-    //---------------\\
-    // --- ITEMS --- \\
-    //---------------\\
-
-    async fetchItem(fullItemId: number) {
-        return await this._items.fetchItem(this.db, fullItemId);
-    }
-
-    async fetchProductItems(productId: number) {
-        return await this._items.fetchProductItems(this.db, productId);
-    }
-
-    async newItem(item: IProductVariant) {
-        return await this._items.newItem(this.db, item);
-    }
-
-    async newItemPriceIdxs(productId: number, itemId: number, priceIdxs: number[]) {
-        return await this._items.newItemPriceIdxs(this.db, productId, itemId, priceIdxs);
-    }
-
-    async removeItemPriceIdxs(productId: number, itemId: number, priceIdxs: number[]) {
-        return this._items.removeItemPriceIdxs(this.db, productId, itemId, priceIdxs);
+    async updateVariant(variantId: number, update: Partial<IProductVariant>) {
+        return await this.db.transaction(async (tx) => {
+            const res = await this._productVariants.updateVariant(this.db, variantId, update);
+            await this._products.modifiedProduct(tx, res);
+        });
     }
 
     //------------------------\\
     // --- PRODUCT PRICES --- \\
     //------------------------\\
 
-    async fetchPricesForProduct(productId: number) {
+    async fetchPricesForProduct(productId: number): Promise<IPrice[]> {
         return await this._productPrices.fetchPricesForProduct(this.db, productId);
     }
 

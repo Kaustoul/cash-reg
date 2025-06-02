@@ -1,6 +1,8 @@
 <script lang="ts">
     import Modal from './Modal.svelte';
 
+    export let title: string = 'Upozornění';
+    export let confirmText: string = 'Potvrdit';
     export let showModal: boolean = false;
     export let message: string = '';
     export let onConfirm: () => void = () => {};
@@ -12,11 +14,11 @@
 </script>
 
 <Modal bind:showModal>
-    <div slot="header">Upozornění</div>
+    <div slot="header">{title}</div>
     <div class="container">    
         <div class="alert-message">{message}</div>
         <div class="footer">
-            <button class="btn accept-btn" type="button" on:click={handleAccept}>Potvrdit</button>
+            <button class="btn accept-btn" type="button" on:click={handleAccept}>{confirmText}</button>
         </div>
     </div>
 </Modal>

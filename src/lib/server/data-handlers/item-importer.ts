@@ -275,7 +275,7 @@ export async function csvImporter(
         
         console.log("Inserting item: " + subname + " with ID: " + itemId + " and product ID: " + currentProductId + ".")
 
-        await db.newItem({
+        await db.newVariant({
             productId: currentProductId,
             subname: subname,
             stock: stock,

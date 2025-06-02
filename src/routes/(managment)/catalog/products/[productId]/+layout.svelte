@@ -11,7 +11,7 @@
             url: `/catalog/products/${data.product?.productId}/detail`,
         },
         "Varianty": {
-            url: `/catalog/products/${data.product?.productId}/items`,
+            url: `/catalog/products/${data.product?.productId}/variants`,
         } ,   
         "Ceny": {
             url: `/catalog/products/${data.product?.productId}/prices`,

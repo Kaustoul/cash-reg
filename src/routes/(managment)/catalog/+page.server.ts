@@ -1,23 +1,26 @@
 import { csvImporter } from '$lib/server/data-handlers/item-importer.js';
+import { database } from '$lib/server/db/db';
+import { fetchAndHasPermission, getUserAndOpenSession } from '$lib/server/utils/session-utils';
 import type { PageServerLoad } from './$types';
 import type { Actions } from '@sveltejs/kit';
 
-export const load: PageServerLoad = async () => {
-    // const products = await database.fetchProducts(true);
-    // const productsDisplayList = [];
-    // for (const product of products) {
-    //     productsDisplayList.push({
-    //         fullId: formatFullId(product),
-    //         subnames: product.items.map(i => i.subname),
-    //         productId: product.productId,
-    //         prices: formatSumsArray(product.prices.map(p => p.value)),
-    //         name: formatProductName(product),
-    //         stock: "N/A"
-    //     });
-    // }
+export const load: PageServerLoad = async ({ cookies }) => {
+    const { user } = await getUserAndOpenSession(cookies);
+    
+    if (!user) {
+        throw new Error("Unauthorized");
+        // return { error: "Unauthorized", status: 401 };
+    }
+
+    if (!fetchAndHasPermission(user, "tabs.catalog.view")) {
+        // return { error: "Forbidden", status: 403 };
+        throw new Error("Forbidden");
+    }
+
+    const products = await database.fetchProducts();
+
     return {
-        // products: products,
-        // displayInfo: productsDisplayList,
+        products: products,
     }
 }
 

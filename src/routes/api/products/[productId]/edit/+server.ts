@@ -14,11 +14,15 @@ export const PATCH: RequestHandler = async ({ params, request, cookies }) => {
     }
 
     const data = await request.json();
-    // Only allow updating certain fields
+
+    console.log('Received data for product update:', data);
+
     const update: Record<string, any> = {};
     if (typeof data.name === 'string') update.name = data.name;
     if (typeof data.units === 'string') update.units = data.units;
-    if (typeof data.status === 'string') update.status = data.status;
+    if (typeof data.isArchived === 'boolean') update.status = data.isArchived ? 'archived' : 'active';
+
+    console.log('Update object:', update);
 
     try {
         await database.updateProduct(productId, update);

@@ -4,7 +4,6 @@ import type { SQLiteTransaction } from 'drizzle-orm/sqlite-core';
 import type { ExtractTablesWithRelations } from 'drizzle-orm';
 import type { TillsDataHandler } from './tills-data-handler';
 import { SQLiteDB } from './SQLite/sqlite-db';
-import type { ItemsDataHandler } from './items-data-handler';
 import type { ProductsDataHandler } from './products-data-handler';
 import type { OrdersDataHandler } from './orders-data-handler';
 import { join } from 'path';
@@ -16,6 +15,8 @@ import type { TillChecksDataHandler } from './till-checks-data-handler';
 import type { PermissionsDataHandler } from './permissions-data-handler';
 import type { UserDataHandler } from './users-data-handler';
 import type { GroupsDataHandler } from './groups-data-handler';
+import type { ProductVariantsDataHandler } from './product-variants-data-handler';
+import type { ProductPricesDataHandler } from './product-prices-data-handler';
 
 export type SQLiteTx = SQLiteTransaction<
     "sync",
@@ -31,8 +32,8 @@ export interface DB {
     readonly db: Databases;
     readonly _tills: TillsDataHandler;
     readonly _products: ProductsDataHandler;
-    readonly _items: ItemsDataHandler;
-    readonly _productPrices: ProductsDataHandler;
+    readonly _productVariants: ProductVariantsDataHandler;
+    readonly _productPrices: ProductPricesDataHandler;
     readonly _orders: OrdersDataHandler;
     readonly _customers: CustomersDataHandler;
     readonly _customerPayments: CustomerPaymentDataHandler;

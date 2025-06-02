@@ -24,10 +24,6 @@
             disabled: true
         }
     };
-
-    function removeProducts(selected: (string | number)[]) {
-        // console.log(selected);
-    }
     
     let showImportModal = false;
     let showNewProductAlert = false;
@@ -80,16 +76,17 @@
 
 <TabSelector {tabs}/>
 <SortedListView 
-    data={data.displayInfo} 
+    data={data.products} 
     schema={[
-        {fieldName: "fullId", type: "number", columnHeader: "ID" },
+        {fieldName: "productId", type: "number", columnHeader: "ID" },
         {fieldName: "name", type: "string", columnHeader: "Název" },
-        {fieldName: "prices", type: "number", columnHeader: "Cena" },
-        {fieldName: "stock", type: "unsortable", columnHeader: "Na skladě" },
+        {fieldName: "units", type: "number", columnHeader: "Unit" },
     ]}
     clickableRows={true}
     idFieldName="productId"
-    onRowClick={(id) => goto(`/catalog/products/${id}`) }
+    onRowClick={(id) => goto(`/catalog/products/${id}/detail`) }
+    selectors={false}
+    removeButton={false}
     showSearchBar={true}
     buttons={{
         "Přidat": {
@@ -97,19 +94,12 @@
             icon: "plus",
             color: "green"
         },
-        "Upravit": {
-            action: () => {},
-            icon: "import",
-            color: "yellow"
-        },
         "Import CSV": {
             action: () => showImportModal = true,
             icon: "import",
             color: "blue"
         }
      }}
-    removeButton={true}
-    onRemovePressed={removeProducts}
     customSearchKeys={['name', 'subnames', 'productId', 'fullId']}
 />
 

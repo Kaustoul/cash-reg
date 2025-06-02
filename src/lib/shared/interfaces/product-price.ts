@@ -18,4 +18,5 @@ export interface IPrice {
     maxQuantity?: number | null;
     isActive: boolean;
     createdAt: Date;
+    modifiedAt: Date;
 }

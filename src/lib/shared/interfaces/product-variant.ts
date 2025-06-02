@@ -1,10 +1,12 @@
 import type {DecimalStr} from './money-sum';
+import type { ProductStatus } from './product';
 
 export interface IProductVariant {
     variantId: number;
     productId: number;
     subname: string;
     ean: string | null;
-    isActive: boolean;
+    status: ProductStatus;
     createdAt: Date;
+    modifiedAt: Date;
 }

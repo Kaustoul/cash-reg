@@ -1,4 +1,4 @@
-export type ProductStatus = "draft" | "active" | "archived";
+export type ProductStatus = "draft" | "active" | "archived" | "deleted";
 
 export interface IProduct {
     productId: number;
@@ -6,6 +6,7 @@ export interface IProduct {
     units: Unit;
     status: ProductStatus;
     createdAt: Date;
+    modifiedAt: Date;
 }
 
 export type INewProduct = Omit<IProduct, "productId" | "status" | "createdAt" | "modifiedAt">;
